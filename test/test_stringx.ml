@@ -136,6 +136,17 @@ let test_count_substring () =
   Alcotest.(check int) "emoji/🍏" 1 (count_substring "🍎🍏🍊" "🍏");
   Alcotest.(check int) "emoji/🍎🍏" 1 (count_substring "🍎🍏🍊" "🍎🍏")
 
+let test_equal_fold () =
+  let open Stringx in
+  Alcotest.(check bool) "Go/go" true (equal_fold "Go" "go");
+  Alcotest.(check bool) "AB/ab" true (equal_fold "AB" "ab");
+  Alcotest.(check bool) "ß/ss" false (equal_fold "ß" "ss");
+  Alcotest.(check bool) "ascii/ASCII" true (equal_fold "ASCII" "ascii");
+  Alcotest.(check bool) "hiragana" false (equal_fold "あ" "ア");
+  Alcotest.(check bool) "emoji" false (equal_fold "🍎" "🍏");
+  Alcotest.(check bool) "empty" true (equal_fold "" "");
+  Alcotest.(check bool) "mixed" false (equal_fold "Go" "Go!")
+
 let () =
   run "stringx"
     [
@@ -155,4 +166,6 @@ let () =
         [ test_case "has suffix basic" `Quick test_has_suffix ] );
       ( "count substring tests",
         [ test_case "count substring basic" `Quick test_count_substring ] );
+      ( "equal fold tests",
+        [ test_case "equal fold basic" `Quick test_equal_fold ] );
     ]

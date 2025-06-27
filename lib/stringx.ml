@@ -232,3 +232,16 @@ let count_substring (s : string) (substr : string) : int =
       else loop (i + 1) acc
     in
     if len_sub = 0 then 1 + len s else loop 0 0
+
+(** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
+    are equal under simple Unicode case-folding (ASCII only). *)
+let equal_fold (s : string) (t : string) : bool =
+  let to_simple_fold str =
+    decode_utf8 str
+    |> List.map (fun u ->
+           let c = Uchar.to_int u in
+           (* Simple ASCII case folding *)
+           if c >= 0x41 && c <= 0x5A then Uchar.of_int (c + 0x20) else u)
+    |> encode_utf8
+  in
+  to_simple_fold s = to_simple_fold t

@@ -199,3 +199,21 @@ val count_substring : string -> string -> int
     @param s The input string
     @param substr The substring to count
     @return The number of non-overlapping instances of [substr] in [s] *)
+
+val equal_fold : string -> string -> bool
+(** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
+    are equal under simple Unicode case-folding (ASCII only).
+
+    This is a simple case-insensitive comparison for ASCII letters only. (It
+    does not perform full Unicode case folding.)
+
+    Examples:
+    - [equal_fold "Go" "go"] returns [true]
+    - [equal_fold "AB" "ab"] returns [true]
+    - [equal_fold "ß" "ss"] returns [false]
+
+    @param s The first string (UTF-8)
+    @param t The second string (UTF-8)
+    @return
+      [true] if [s] and [t] are equal under simple case folding, [false]
+      otherwise *)
