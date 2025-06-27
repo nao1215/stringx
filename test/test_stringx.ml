@@ -62,6 +62,23 @@ let test_reverse () =
   Alcotest.(check string) "mixed ascii/emoji" "c🍏b🍎a" (reverse "a🍎b🍏c");
   Alcotest.(check string) "combining marks" "́éa" (reverse "áé")
 
+let test_contains () =
+  let open Stringx in
+  Alcotest.(check bool)
+    "contains: foo in seafood" true (contains "seafood" "foo");
+  Alcotest.(check bool)
+    "contains: bar in seafood" false (contains "seafood" "bar");
+  Alcotest.(check bool)
+    "contains: empty in seafood" true (contains "seafood" "");
+  Alcotest.(check bool) "contains: empty in empty" true (contains "" "");
+  Alcotest.(check bool) "contains: non-empty in empty" false (contains "" "a");
+  Alcotest.(check bool) "contains: full match" true (contains "abc" "abc");
+  Alcotest.(check bool) "contains: partial match" true (contains "abcde" "bcd");
+  Alcotest.(check bool) "contains: unicode match" true (contains "こんにちは" "にち");
+  Alcotest.(check bool)
+    "contains: unicode no match" false
+    (contains "こんにちは" "さようなら")
+
 let () =
   run "stringx"
     [
@@ -72,4 +89,5 @@ let () =
       ("delete tests", [ test_case "delete basic" `Quick test_delete ]);
       ("length tests", [ test_case "length basic" `Quick test_len ]);
       ("reverse tests", [ test_case "reverse basic" `Quick test_reverse ]);
+      ("contains tests", [ test_case "contains basic" `Quick test_contains ]);
     ]

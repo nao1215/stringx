@@ -169,3 +169,17 @@ let len (str : string) : int =
 
 (** [reverse s] reverses a UTF-8 encoded string [s]. *)
 let reverse (s : string) : string = decode_utf8 s |> List.rev |> encode_utf8
+
+(** [contains s substr] reports whether [substr] is within [s]. Returns true if
+    [substr] is the empty string. *)
+let contains (s : string) (substr : string) : bool =
+  if substr = "" then true
+  else
+    let len_s = String.length s in
+    let len_sub = String.length substr in
+    let rec loop i =
+      if i > len_s - len_sub then false
+      else if String.sub s i len_sub = substr then true
+      else loop (i + 1)
+    in
+    if len_sub = 0 then true else loop 0

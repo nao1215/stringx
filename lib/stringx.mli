@@ -105,3 +105,21 @@ val reverse : string -> string
 
     @param s The input string (UTF-8)
     @return The reversed string *)
+
+val contains : string -> string -> bool
+(** [contains s substr] reports whether [substr] is within [s].
+
+    Returns [true] if [substr] is the empty string, or if [substr] occurs
+    anywhere in [s]. Returns [false] otherwise.
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [contains "seafood" "foo"] returns [true]
+    - [contains "seafood" "bar"] returns [false]
+    - [contains "seafood" ""] returns [true]
+    - [contains "" ""] returns [true]
+
+    @param s The input string
+    @param substr The substring to search for
+    @return [true] if [substr] is found in [s], [false] otherwise *)
