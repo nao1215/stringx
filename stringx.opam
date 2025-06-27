@@ -8,11 +8,12 @@ maintainer: ["Naohiro CHIKAMATSU <n.chika156@gmail.com>"]
 authors: ["Naohiro CHIKAMATSU"]
 license: "MIT"
 homepage: "https://github.com/nao1215/stringx"
+bug-reports: "https://github.com/nao1215/stringx/issues"
 depends: [
-  "ocaml"
+  "ocaml" {>= "5.0"}
   "dune" {>= "3.13"}
   "uutf"
-  "alcotest"
+  "alcotest" {with-test}
   "odoc" {with-doc}
 ]
 build: [
@@ -29,3 +30,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
+dev-repo: "git+https://github.com/nao1215/stringx.git"
