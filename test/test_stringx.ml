@@ -120,6 +120,22 @@ let test_has_suffix () =
   Alcotest.(check bool) "emoji match" true (has_suffix "🍎🍏🍊" "🍊");
   Alcotest.(check bool) "emoji no match" false (has_suffix "🍎🍏🍊" "🍎")
 
+let test_count_substring () =
+  let open Stringx in
+  Alcotest.(check int) "cheese/e" 3 (count_substring "cheese" "e");
+  Alcotest.(check int) "five/empty" 5 (count_substring "five" "");
+  Alcotest.(check int) "banana/na" 2 (count_substring "banana" "na");
+  Alcotest.(check int) "aaaaa/aa" 2 (count_substring "aaaaa" "aa");
+  Alcotest.(check int) "empty/empty" 1 (count_substring "" "");
+  Alcotest.(check int) "empty/a" 0 (count_substring "" "a");
+  Alcotest.(check int) "abc/abc" 1 (count_substring "abc" "abc");
+  Alcotest.(check int) "abc/abcd" 0 (count_substring "abc" "abcd");
+  Alcotest.(check int) "unicode/に" 1 (count_substring "こんにちは" "に");
+  Alcotest.(check int) "unicode/ん" 1 (count_substring "こんにちは" "ん");
+  Alcotest.(check int) "unicode/empty" 6 (count_substring "こんにちは" "");
+  Alcotest.(check int) "emoji/🍏" 1 (count_substring "🍎🍏🍊" "🍏");
+  Alcotest.(check int) "emoji/🍎🍏" 1 (count_substring "🍎🍏🍊" "🍎🍏")
+
 let () =
   run "stringx"
     [
@@ -137,4 +153,6 @@ let () =
         [ test_case "has prefix basic" `Quick test_has_prefix ] );
       ( "has suffix tests",
         [ test_case "has suffix basic" `Quick test_has_suffix ] );
+      ( "count substring tests",
+        [ test_case "count substring basic" `Quick test_count_substring ] );
     ]

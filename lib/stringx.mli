@@ -178,3 +178,24 @@ val has_suffix : string -> string -> bool
     @param s The input string
     @param suffix The suffix to test
     @return [true] if [s] ends with [suffix], [false] otherwise *)
+
+val count_substring : string -> string -> int
+(** [count_substring s substr] counts the number of non-overlapping instances of
+    [substr] in [s].
+
+    If [substr] is the empty string, returns [1 +] the number of Unicode code
+    points in [s].
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [count_substring "cheese" "e"] returns [3]
+    - [count_substring "five" ""] returns [5]
+    - [count_substring "banana" "na"] returns [2]
+    - [count_substring "aaaaa" "aa"] returns [2]
+    - [count_substring "" ""] returns [1]
+    - [count_substring "" "a"] returns [0]
+
+    @param s The input string
+    @param substr The substring to count
+    @return The number of non-overlapping instances of [substr] in [s] *)

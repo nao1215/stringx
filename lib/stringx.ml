@@ -216,3 +216,19 @@ let contains_any (s : string) (chars : string) : bool =
       | u :: tl -> if List.mem u set then true else loop tl
     in
     loop (decode_utf8 s)
+
+(** [count_substring s substr] counts the number of non-overlapping instances of
+    [substr] in [s]. If [substr] is the empty string, returns 1 + the number of
+    Unicode code points in [s]. This function is Unicode-agnostic and operates
+    on bytes, not code points. *)
+let count_substring (s : string) (substr : string) : int =
+  if substr = "" then 1 + len s
+  else
+    let len_s = String.length s in
+    let len_sub = String.length substr in
+    let rec loop i acc =
+      if i > len_s - len_sub then acc
+      else if String.sub s i len_sub = substr then loop (i + len_sub) (acc + 1)
+      else loop (i + 1) acc
+    in
+    if len_sub = 0 then 1 + len s else loop 0 0
