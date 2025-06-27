@@ -217,3 +217,18 @@ val equal_fold : string -> string -> bool
     @return
       [true] if [s] and [t] are equal under simple case folding, [false]
       otherwise *)
+
+val fields : string -> string list
+(** [fields s] splits the string [s] around each instance of one or more
+    consecutive Unicode whitespace characters, returning a list of substrings of
+    [s] or an empty list if [s] contains only whitespace.
+
+    Whitespace is defined by Unicode (see [is_space]).
+
+    Examples:
+    - [fields "  foo bar  baz   "] returns [["foo"; "bar"; "baz"]]
+    - [fields "   "] returns [[]]
+    - [fields "a\tb\nc"] returns [["a"; "b"; "c"]]
+
+    @param s The input string (UTF-8)
+    @return List of non-whitespace substrings of [s] *)

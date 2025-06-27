@@ -245,3 +245,35 @@ let equal_fold (s : string) (t : string) : bool =
     |> encode_utf8
   in
   to_simple_fold s = to_simple_fold t
+
+(** [is_space u] returns true if the Unicode character [u] is a whitespace
+    character. *)
+let is_space (u : Uchar.t) : bool =
+  match Uchar.to_int u with
+  | 0x09 | 0x0A | 0x0B | 0x0C | 0x0D | 0x20 | 0x85 | 0xA0 | 0x1680 | 0x2000
+  | 0x2001 | 0x2002 | 0x2003 | 0x2004 | 0x2005 | 0x2006 | 0x2007 | 0x2008
+  | 0x2009 | 0x200A | 0x2028 | 0x2029 | 0x202F | 0x205F | 0x3000 ->
+      true
+  | _ -> false
+
+(** [fields s] splits [s] into substrings separated by one or more Unicode
+    whitespace characters. Returns an empty list if [s] contains only
+    whitespace. *)
+let fields (s : string) : string list =
+  let uchars = decode_utf8 s in
+  let rec skip_spaces = function
+    | u :: tl when is_space u -> skip_spaces tl
+    | rest -> rest
+  in
+  let rec take_word acc = function
+    | u :: tl when not (is_space u) -> take_word (u :: acc) tl
+    | rest -> (List.rev acc, rest)
+  in
+  let rec loop acc l =
+    match skip_spaces l with
+    | [] -> List.rev acc
+    | l' ->
+        let word, rest = take_word [] l' in
+        if word = [] then List.rev acc else loop (encode_utf8 word :: acc) rest
+  in
+  loop [] uchars

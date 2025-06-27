@@ -147,6 +147,25 @@ let test_equal_fold () =
   Alcotest.(check bool) "empty" true (equal_fold "" "");
   Alcotest.(check bool) "mixed" false (equal_fold "Go" "Go!")
 
+let test_fields () =
+  let open Stringx in
+  Alcotest.(check (list string))
+    "basic" [ "foo"; "bar"; "baz" ]
+    (fields "  foo bar  baz   ");
+  Alcotest.(check (list string))
+    "tabs/newlines" [ "a"; "b"; "c" ] (fields "a\tb\nc");
+  Alcotest.(check (list string))
+    "unicode space" [ "a"; "b" ] (fields "a\u{3000}b");
+  Alcotest.(check (list string)) "only spaces" [] (fields "   ");
+  Alcotest.(check (list string)) "empty" [] (fields "");
+  Alcotest.(check (list string)) "single word" [ "word" ] (fields "word");
+  Alcotest.(check (list string))
+    "leading/trailing" [ "word" ] (fields "  word  ");
+  Alcotest.(check (list string)) "multi space" [ "a"; "b" ] (fields " a  b ");
+  Alcotest.(check (list string)) "emoji" [ "🍎"; "🍏" ] (fields "🍎  🍏");
+  Alcotest.(check (list string))
+    "mixed" [ "foo"; "🍏"; "bar" ] (fields "foo  🍏  bar")
+
 let () =
   run "stringx"
     [
@@ -168,4 +187,5 @@ let () =
         [ test_case "count substring basic" `Quick test_count_substring ] );
       ( "equal fold tests",
         [ test_case "equal fold basic" `Quick test_equal_fold ] );
+      ("fields tests", [ test_case "fields basic" `Quick test_fields ]);
     ]
