@@ -123,3 +123,20 @@ val contains : string -> string -> bool
     @param s The input string
     @param substr The substring to search for
     @return [true] if [substr] is found in [s], [false] otherwise *)
+
+val has_prefix : string -> string -> bool
+(** [has_prefix s prefix] reports whether the string [s] begins with [prefix].
+
+    Returns [true] if [prefix] is the empty string, or if [s] starts with
+    [prefix]. Returns [false] otherwise.
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [has_prefix "Gopher" "Go"] returns [true]
+    - [has_prefix "Gopher" "C"] returns [false]
+    - [has_prefix "Gopher" ""] returns [true]
+
+    @param s The input string
+    @param prefix The prefix to test
+    @return [true] if [s] starts with [prefix], [false] otherwise *)

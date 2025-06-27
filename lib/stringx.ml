@@ -183,3 +183,14 @@ let contains (s : string) (substr : string) : bool =
       else loop (i + 1)
     in
     if len_sub = 0 then true else loop 0
+
+(** [has_prefix s prefix] checks if the string [s] starts with the given
+    [prefix]. Returns true if [prefix] is empty. This function is Unicode-aware,
+    meaning it correctly handles multibyte characters like Japanese or emojis.
+*)
+let has_prefix (s : string) (prefix : string) : bool =
+  let len_s = String.length s in
+  let len_p = String.length prefix in
+  if len_p = 0 then true
+  else if len_s < len_p then false
+  else String.sub s 0 len_p = prefix
