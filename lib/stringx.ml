@@ -277,3 +277,25 @@ let fields (s : string) : string list =
         if word = [] then List.rev acc else loop (encode_utf8 word :: acc) rest
   in
   loop [] uchars
+
+(** [fields_func s f] splits [s] at each run of Unicode code points [c]
+    satisfying [f c]. Returns an empty list if all code points in [s] satisfy
+    [f] or [s] is empty. *)
+let fields_func (s : string) (f : Uchar.t -> bool) : string list =
+  let uchars = decode_utf8 s in
+  let rec skip_sep = function
+    | u :: tl when f u -> skip_sep tl
+    | rest -> rest
+  in
+  let rec take_field acc = function
+    | u :: tl when not (f u) -> take_field (u :: acc) tl
+    | rest -> (List.rev acc, rest)
+  in
+  let rec loop acc l =
+    match skip_sep l with
+    | [] -> List.rev acc
+    | l' ->
+        let word, rest = take_field [] l' in
+        if word = [] then List.rev acc else loop (encode_utf8 word :: acc) rest
+  in
+  loop [] uchars

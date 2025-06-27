@@ -166,6 +166,34 @@ let test_fields () =
   Alcotest.(check (list string))
     "mixed" [ "foo"; "🍏"; "bar" ] (fields "foo  🍏  bar")
 
+let is_letter_or_number u =
+  let open Uchar in
+  let c = to_int u in
+  (* Basic Latin letters and numbers *)
+  (c >= 0x30 && c <= 0x39)
+  || (c >= 0x41 && c <= 0x5A)
+  || (c >= 0x61 && c <= 0x7A)
+(* You can extend this for full Unicode if needed *)
+
+let test_fields_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check (list string))
+    "fields_func basic" [ "foo1"; "bar2"; "baz3" ]
+    (fields_func "  foo1;bar2,baz3..." f);
+  Alcotest.(check (list string))
+    "fields_func only sep" [] (fields_func ";;;;" f);
+  Alcotest.(check (list string)) "fields_func empty" [] (fields_func "" f);
+  Alcotest.(check (list string))
+    "fields_func single" [ "abc123" ] (fields_func "abc123" f);
+  Alcotest.(check (list string))
+    "fields_func unicode"
+    [ "こんにちは"; "123" ]
+    (fields_func "こんにちは,123" (fun u -> Uchar.to_int u = 0x2c));
+  Alcotest.(check (list string))
+    "fields_func emoji" [ "🍎🍏"; "🍊" ]
+    (fields_func "🍎🍏,🍊" (fun u -> Uchar.to_int u = 0x2c))
+
 let () =
   run "stringx"
     [
@@ -188,4 +216,6 @@ let () =
       ( "equal fold tests",
         [ test_case "equal fold basic" `Quick test_equal_fold ] );
       ("fields tests", [ test_case "fields basic" `Quick test_fields ]);
+      ( "fields func tests",
+        [ test_case "fields func basic" `Quick test_fields_func ] );
     ]

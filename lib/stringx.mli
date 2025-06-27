@@ -232,3 +232,16 @@ val fields : string -> string list
 
     @param s The input string (UTF-8)
     @return List of non-whitespace substrings of [s] *)
+
+val fields_func : string -> (Uchar.t -> bool) -> string list
+(** [fields_func s f] splits the string [s] at each run of Unicode code points
+    [c] satisfying [f c], returning a list of substrings of [s] or an empty list
+    if all code points in [s] satisfy [f] or [s] is empty.
+
+    Examples:
+    - [fields_func "  foo1;bar2,baz3..." (fun c -> not (is_letter c || is_number
+       c))] returns [["foo1"; "bar2"; "baz3"]]
+
+    @param s The input string (UTF-8)
+    @param f The predicate function on Unicode code points
+    @return List of non-separator substrings of [s] *)
