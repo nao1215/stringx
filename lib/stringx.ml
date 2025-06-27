@@ -194,3 +194,13 @@ let has_prefix (s : string) (prefix : string) : bool =
   if len_p = 0 then true
   else if len_s < len_p then false
   else String.sub s 0 len_p = prefix
+
+(** [has_suffix s suffix] reports whether the string [s] ends with [suffix].
+    Returns true if [suffix] is the empty string. This function is
+    Unicode-agnostic and operates on bytes, not code points. *)
+let has_suffix (s : string) (suffix : string) : bool =
+  let len_s = String.length s in
+  let len_suf = String.length suffix in
+  if len_suf = 0 then true
+  else if len_s < len_suf then false
+  else String.sub s (len_s - len_suf) len_suf = suffix

@@ -140,3 +140,21 @@ val has_prefix : string -> string -> bool
     @param s The input string
     @param prefix The prefix to test
     @return [true] if [s] starts with [prefix], [false] otherwise *)
+
+val has_suffix : string -> string -> bool
+(** [has_suffix s suffix] reports whether the string [s] ends with [suffix].
+
+    Returns [true] if [suffix] is the empty string, or if [s] ends with
+    [suffix]. Returns [false] otherwise.
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [has_suffix "Amigo" "go"] returns [true]
+    - [has_suffix "Amigo" "O"] returns [false]
+    - [has_suffix "Amigo" "Ami"] returns [false]
+    - [has_suffix "Amigo" ""] returns [true]
+
+    @param s The input string
+    @param suffix The suffix to test
+    @return [true] if [s] ends with [suffix], [false] otherwise *)

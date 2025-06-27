@@ -93,6 +93,21 @@ let test_has_prefix () =
   Alcotest.(check bool) "emoji match" true (has_prefix "🍎🍏🍊" "🍎");
   Alcotest.(check bool) "emoji no match" false (has_prefix "🍎🍏🍊" "🍊")
 
+let test_has_suffix () =
+  let open Stringx in
+  Alcotest.(check bool) "ascii: go" true (has_suffix "Amigo" "go");
+  Alcotest.(check bool) "ascii: O" false (has_suffix "Amigo" "O");
+  Alcotest.(check bool) "ascii: Ami" false (has_suffix "Amigo" "Ami");
+  Alcotest.(check bool) "ascii: empty" true (has_suffix "Amigo" "");
+  Alcotest.(check bool) "empty: empty" true (has_suffix "" "");
+  Alcotest.(check bool) "empty: non-empty" false (has_suffix "" "a");
+  Alcotest.(check bool) "full match" true (has_suffix "abc" "abc");
+  Alcotest.(check bool) "partial match" true (has_suffix "abcde" "cde");
+  Alcotest.(check bool) "unicode match" true (has_suffix "こんにちは" "ちは");
+  Alcotest.(check bool) "unicode no match" false (has_suffix "こんにちは" "さよ");
+  Alcotest.(check bool) "emoji match" true (has_suffix "🍎🍏🍊" "🍊");
+  Alcotest.(check bool) "emoji no match" false (has_suffix "🍎🍏🍊" "🍎")
+
 let () =
   run "stringx"
     [
@@ -106,4 +121,6 @@ let () =
       ("contains tests", [ test_case "contains basic" `Quick test_contains ]);
       ( "has prefix tests",
         [ test_case "has prefix basic" `Quick test_has_prefix ] );
+      ( "has suffix tests",
+        [ test_case "has suffix basic" `Quick test_has_suffix ] );
     ]
