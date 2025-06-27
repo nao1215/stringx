@@ -262,3 +262,19 @@ val index : string -> string -> int
     @param s The input string
     @param substr The substring to search for
     @return The byte index of the first occurrence, or [-1] if not found *)
+
+val repeat : string -> int -> string
+(** [repeat s count] returns a new string consisting of [count] copies of [s].
+
+    Raises [Invalid_argument] if [count] is negative.
+
+    Examples:
+    - [repeat "na" 2] returns ["nana"]
+    - [repeat "🍎" 3] returns ["🍎🍎🍎"]
+    - [repeat "" 5] returns [""]
+    - [repeat "a" 0] returns [""]
+    - [repeat "abc" (-1)] raises [Invalid_argument]
+
+    @param s The string to repeat
+    @param count The number of times to repeat [s]
+    @return The repeated string *)

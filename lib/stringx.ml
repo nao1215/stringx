@@ -324,3 +324,11 @@ let index (s : string) (substr : string) : int =
           else search (i + 1) (List.tl l)
     in
     search 0 s_uchars
+
+(** [repeat s count] returns a new string consisting of [count] copies of [s].
+    Raises [Invalid_argument] if [count] is negative. *)
+let repeat (s : string) (count : int) : string =
+  if count < 0 then invalid_arg "repeat: negative count"
+  else
+    let rec loop acc n = if n = 0 then acc else loop (acc ^ s) (n - 1) in
+    loop "" count

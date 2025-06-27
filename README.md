@@ -88,6 +88,11 @@ module Stringx : sig
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
       Example: len "🍎🍏🍊" = 3 *)
 
+ val repeat : string -> int -> string
+  (** Return a new string consisting of [count] copies of [s].
+      Raises [Invalid_argument] if [count] is negative.
+      Example: repeat "na" 2 = "nana" *)
+
   val reverse : string -> string
   (** Reverse a UTF-8 encoded string by Unicode code points.
       Example: reverse "こんにちは" = "はちにんこ" *)

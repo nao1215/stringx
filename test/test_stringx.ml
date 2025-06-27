@@ -208,6 +208,16 @@ let test_index () =
   Alcotest.(check int) "emoji/🍏" 1 (index "🍎🍏🍊" "🍏");
   Alcotest.(check int) "emoji/🍎🍏" 0 (index "🍎🍏🍊" "🍎🍏")
 
+let test_repeat () =
+  let open Stringx in
+  Alcotest.(check string) "repeat na 2" "nana" (repeat "na" 2);
+  Alcotest.(check string) "repeat 🍎 3" "🍎🍎🍎" (repeat "🍎" 3);
+  Alcotest.(check string) "repeat empty 5" "" (repeat "" 5);
+  Alcotest.(check string) "repeat a 0" "" (repeat "a" 0);
+  Alcotest.check_raises "repeat negative"
+    (Invalid_argument "repeat: negative count") (fun () ->
+      ignore (repeat "abc" (-1)))
+
 let () =
   run "stringx"
     [
@@ -233,4 +243,5 @@ let () =
       ( "fields func tests",
         [ test_case "fields func basic" `Quick test_fields_func ] );
       ("index tests", [ test_case "index basic" `Quick test_index ]);
+      ("repeat tests", [ test_case "repeat basic" `Quick test_repeat ]);
     ]
