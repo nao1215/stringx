@@ -218,6 +218,19 @@ let test_repeat () =
     (Invalid_argument "repeat: negative count") (fun () ->
       ignore (repeat "abc" (-1)))
 
+let test_join () =
+  let open Stringx in
+  Alcotest.(check string)
+    "join basic" "foo, bar, baz"
+    (join [ "foo"; "bar"; "baz" ] ", ");
+  Alcotest.(check string) "join empty list" "" (join [] ", ");
+  Alcotest.(check string) "join single" "a" (join [ "a" ] ", ");
+  Alcotest.(check string) "join unicode" "🍎-🍏-🍊" (join [ "🍎"; "🍏"; "🍊" ] "-");
+  Alcotest.(check string)
+    "join empty sep" "foobarbaz"
+    (join [ "foo"; "bar"; "baz" ] "");
+  Alcotest.(check string) "join all empty" "" (join [] "")
+
 let () =
   run "stringx"
     [
@@ -244,4 +257,5 @@ let () =
         [ test_case "fields func basic" `Quick test_fields_func ] );
       ("index tests", [ test_case "index basic" `Quick test_index ]);
       ("repeat tests", [ test_case "repeat basic" `Quick test_repeat ]);
+      ("join tests", [ test_case "join basic" `Quick test_join ]);
     ]

@@ -278,3 +278,18 @@ val repeat : string -> int -> string
     @param s The string to repeat
     @param count The number of times to repeat [s]
     @return The repeated string *)
+
+val join : string list -> string -> string
+(** [join elems sep] concatenates the elements of [elems], inserting [sep]
+    between each element.
+
+    Returns the empty string if [elems] is empty.
+
+    Examples:
+    - [join ["foo"; "bar"; "baz"] ", "] returns ["foo, bar, baz"]
+    - [join [] ", "] returns [""]
+    - [join ["a"] ", "] returns ["a"]
+
+    @param elems The list of strings to join
+    @param sep The separator string
+    @return The joined string *)

@@ -332,3 +332,10 @@ let repeat (s : string) (count : int) : string =
   else
     let rec loop acc n = if n = 0 then acc else loop (acc ^ s) (n - 1) in
     loop "" count
+
+(** [join elems sep] concatenates the elements of [elems], inserting [sep]
+    between each element. Returns the empty string if [elems] is empty. *)
+let join (elems : string list) (sep : string) : string =
+  match elems with
+  | [] -> ""
+  | hd :: tl -> List.fold_left (fun acc s -> acc ^ sep ^ s) hd tl

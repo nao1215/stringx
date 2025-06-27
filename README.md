@@ -84,11 +84,15 @@ module Stringx : sig
   (** Return the byte offset of the first occurrence of [substr] in [s], or -1 if not found.
       Example: index "chicken" "ken" = 4 *)
 
+  val join : string list -> string -> string
+  (** Join a list of strings with a separator.
+      Example: join ["foo"; "bar"; "baz"] ", " = "foo, bar, baz" *)
+
   val len : string -> int
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
       Example: len "🍎🍏🍊" = 3 *)
 
- val repeat : string -> int -> string
+  val repeat : string -> int -> string
   (** Return a new string consisting of [count] copies of [s].
       Raises [Invalid_argument] if [count] is negative.
       Example: repeat "na" 2 = "nana" *)
