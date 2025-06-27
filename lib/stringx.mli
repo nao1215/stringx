@@ -105,3 +105,191 @@ val reverse : string -> string
 
     @param s The input string (UTF-8)
     @return The reversed string *)
+
+val contains : string -> string -> bool
+(** [contains s substr] reports whether [substr] is within [s].
+
+    Returns [true] if [substr] is the empty string, or if [substr] occurs
+    anywhere in [s]. Returns [false] otherwise.
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [contains "seafood" "foo"] returns [true]
+    - [contains "seafood" "bar"] returns [false]
+    - [contains "seafood" ""] returns [true]
+    - [contains "" ""] returns [true]
+
+    @param s The input string
+    @param substr The substring to search for
+    @return [true] if [substr] is found in [s], [false] otherwise *)
+
+val contains_any : string -> string -> bool
+(** [contains_any s chars] reports whether any Unicode code points in [chars]
+    are within [s].
+
+    Returns [false] if [chars] is empty. Unicode-aware and compares by code
+    points.
+
+    Examples:
+    - [contains_any "team" "i"] returns [false]
+    - [contains_any "fail" "ui"] returns [true]
+    - [contains_any "ure" "ui"] returns [true]
+    - [contains_any "failure" "ui"] returns [true]
+    - [contains_any "foo" ""] returns [false]
+    - [contains_any "" ""] returns [false]
+
+    @param s The input string (UTF-8)
+    @param chars The set of Unicode code points to search for (UTF-8)
+    @return
+      [true] if any code point in [chars] is found in [s], [false] otherwise *)
+
+val has_prefix : string -> string -> bool
+(** [has_prefix s prefix] reports whether the string [s] begins with [prefix].
+
+    Returns [true] if [prefix] is the empty string, or if [s] starts with
+    [prefix]. Returns [false] otherwise.
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [has_prefix "Gopher" "Go"] returns [true]
+    - [has_prefix "Gopher" "C"] returns [false]
+    - [has_prefix "Gopher" ""] returns [true]
+
+    @param s The input string
+    @param prefix The prefix to test
+    @return [true] if [s] starts with [prefix], [false] otherwise *)
+
+val has_suffix : string -> string -> bool
+(** [has_suffix s suffix] reports whether the string [s] ends with [suffix].
+
+    Returns [true] if [suffix] is the empty string, or if [s] ends with
+    [suffix]. Returns [false] otherwise.
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [has_suffix "Amigo" "go"] returns [true]
+    - [has_suffix "Amigo" "O"] returns [false]
+    - [has_suffix "Amigo" "Ami"] returns [false]
+    - [has_suffix "Amigo" ""] returns [true]
+
+    @param s The input string
+    @param suffix The suffix to test
+    @return [true] if [s] ends with [suffix], [false] otherwise *)
+
+val count_substring : string -> string -> int
+(** [count_substring s substr] counts the number of non-overlapping instances of
+    [substr] in [s].
+
+    If [substr] is the empty string, returns 1 + the number of Unicode code
+    points in [s].
+
+    This function is Unicode-agnostic and operates on bytes, not code points.
+
+    Examples:
+    - [count_substring "cheese" "e"] returns [3]
+    - [count_substring "five" ""] returns [5]
+    - [count_substring "banana" "na"] returns [2]
+    - [count_substring "aaaaa" "aa"] returns [2]
+    - [count_substring "" ""] returns [1]
+    - [count_substring "" "a"] returns [0]
+
+    @param s The input string
+    @param substr The substring to count
+    @return The number of non-overlapping instances of [substr] in [s] *)
+
+val equal_fold : string -> string -> bool
+(** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
+    are equal under simple Unicode case-folding (ASCII only).
+
+    This is a simple case-insensitive comparison for ASCII letters only. (It
+    does not perform full Unicode case folding.)
+
+    Examples:
+    - [equal_fold "Go" "go"] returns [true]
+    - [equal_fold "AB" "ab"] returns [true]
+    - [equal_fold "ß" "ss"] returns [false]
+
+    @param s The first string (UTF-8)
+    @param t The second string (UTF-8)
+    @return
+      [true] if [s] and [t] are equal under simple case folding, [false]
+      otherwise *)
+
+val fields : string -> string list
+(** [fields s] splits the string [s] around each instance of one or more
+    consecutive Unicode whitespace characters, returning a list of substrings of
+    [s] or an empty list if [s] contains only whitespace.
+
+    Whitespace is defined by Unicode (see [is_space]).
+
+    Examples:
+    - [fields "  foo bar  baz   "] returns [["foo"; "bar"; "baz"]]
+    - [fields "   "] returns [[]]
+    - [fields "a\tb\nc"] returns [["a"; "b"; "c"]]
+
+    @param s The input string (UTF-8)
+    @return List of non-whitespace substrings of [s] *)
+
+val fields_func : string -> (Uchar.t -> bool) -> string list
+(** [fields_func s f] splits the string [s] at each run of Unicode code points
+    [c] satisfying [f c], returning a list of substrings of [s] or an empty list
+    if all code points in [s] satisfy [f] or [s] is empty.
+
+    Examples:
+    - [fields_func "  foo1;bar2,baz3..." (fun c -> not (is_letter c || is_number
+       c))] returns [["foo1"; "bar2"; "baz3"]]
+
+    @param s The input string (UTF-8)
+    @param f The predicate function on Unicode code points
+    @return List of non-separator substrings of [s] *)
+
+val index : string -> string -> int
+(** [index s substr] returns the index of the first instance of [substr] in [s],
+    or [-1] if [substr] is not present.
+
+    The index is a byte offset (not code point index).
+
+    Examples:
+    - [index "chicken" "ken"] returns [4]
+    - [index "chicken" "dmr"] returns [-1]
+    - [index "abc" ""] returns [0]
+    - [index "" ""] returns [0]
+    - [index "" "a"] returns [-1]
+
+    @param s The input string
+    @param substr The substring to search for
+    @return The byte index of the first occurrence, or [-1] if not found *)
+
+val repeat : string -> int -> string
+(** [repeat s count] returns a new string consisting of [count] copies of [s].
+
+    Raises [Invalid_argument] if [count] is negative.
+
+    Examples:
+    - [repeat "na" 2] returns ["nana"]
+    - [repeat "🍎" 3] returns ["🍎🍎🍎"]
+    - [repeat "" 5] returns [""]
+    - [repeat "a" 0] returns [""]
+    - [repeat "abc" (-1)] raises [Invalid_argument]
+
+    @param s The string to repeat
+    @param count The number of times to repeat [s]
+    @return The repeated string *)
+
+val join : string list -> string -> string
+(** [join elems sep] concatenates the elements of [elems], inserting [sep]
+    between each element.
+
+    Returns the empty string if [elems] is empty.
+
+    Examples:
+    - [join ["foo"; "bar"; "baz"] ", "] returns ["foo, bar, baz"]
+    - [join [] ", "] returns [""]
+    - [join ["a"] ", "] returns ["a"]
+
+    @param elems The list of strings to join
+    @param sep The separator string
+    @return The joined string *)

@@ -169,3 +169,163 @@ let len (str : string) : int =
 
 (** [reverse s] reverses a UTF-8 encoded string [s]. *)
 let reverse (s : string) : string = decode_utf8 s |> List.rev |> encode_utf8
+
+(** [contains s substr] reports whether [substr] is within [s]. Returns true if
+    [substr] is the empty string. *)
+let contains (s : string) (substr : string) : bool =
+  if substr = "" then true
+  else
+    let len_s = String.length s in
+    let len_sub = String.length substr in
+    let rec loop i =
+      if i > len_s - len_sub then false
+      else if String.sub s i len_sub = substr then true
+      else loop (i + 1)
+    in
+    loop 0
+
+(** [has_prefix s prefix] checks if the string [s] starts with the given
+    [prefix]. Returns true if [prefix] is empty. This function operates on
+    bytes, not Unicode code points. *)
+let has_prefix (s : string) (prefix : string) : bool =
+  let len_s = String.length s in
+  let len_p = String.length prefix in
+  if len_p = 0 then true
+  else if len_s < len_p then false
+  else String.sub s 0 len_p = prefix
+
+(** [has_suffix s suffix] reports whether the string [s] ends with [suffix].
+    Returns true if [suffix] is the empty string. This function is
+    Unicode-agnostic and operates on bytes, not code points. *)
+let has_suffix (s : string) (suffix : string) : bool =
+  let len_s = String.length s in
+  let len_suf = String.length suffix in
+  if len_suf = 0 then true
+  else if len_s < len_suf then false
+  else String.sub s (len_s - len_suf) len_suf = suffix
+
+(** [contains_any s chars] reports whether any Unicode code points in [chars]
+    are within [s]. Returns false if [chars] is empty. Unicode-aware. *)
+let contains_any (s : string) (chars : string) : bool =
+  if chars = "" then false
+  else
+    let set = decode_utf8 chars |> List.sort_uniq Uchar.compare in
+    let rec loop = function
+      | [] -> false
+      | u :: tl -> if List.mem u set then true else loop tl
+    in
+    loop (decode_utf8 s)
+
+(** [count_substring s substr] counts the number of non-overlapping instances of
+    [substr] in [s]. If [substr] is the empty string, returns 1 + the number of
+    Unicode code points in [s]. This function is Unicode-agnostic and operates
+    on bytes, not code points. *)
+let count_substring (s : string) (substr : string) : int =
+  if substr = "" then 1 + len s
+  else
+    let len_s = String.length s in
+    let len_sub = String.length substr in
+    let rec loop i acc =
+      if i > len_s - len_sub then acc
+      else if String.sub s i len_sub = substr then loop (i + len_sub) (acc + 1)
+      else loop (i + 1) acc
+    in
+    loop 0 0
+
+(** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
+    are equal under simple Unicode case-folding (ASCII only). *)
+let equal_fold (s : string) (t : string) : bool =
+  let to_simple_fold str =
+    decode_utf8 str
+    |> List.map (fun u ->
+           let c = Uchar.to_int u in
+           (* Simple ASCII case folding *)
+           if c >= 0x41 && c <= 0x5A then Uchar.of_int (c + 0x20) else u)
+    |> encode_utf8
+  in
+  to_simple_fold s = to_simple_fold t
+
+(** [is_space u] returns true if the Unicode character [u] is a whitespace
+    character. *)
+let is_space (u : Uchar.t) : bool =
+  match Uchar.to_int u with
+  | 0x09 | 0x0A | 0x0B | 0x0C | 0x0D | 0x20 | 0x85 | 0xA0 | 0x1680 | 0x2000
+  | 0x2001 | 0x2002 | 0x2003 | 0x2004 | 0x2005 | 0x2006 | 0x2007 | 0x2008
+  | 0x2009 | 0x200A | 0x2028 | 0x2029 | 0x202F | 0x205F | 0x3000 ->
+      true
+  | _ -> false
+
+(** [fields s] splits [s] into substrings separated by one or more Unicode
+    whitespace characters. Returns an empty list if [s] contains only
+    whitespace. *)
+let fields (s : string) : string list =
+  let uchars = decode_utf8 s in
+  let rec skip_spaces = function
+    | u :: tl when is_space u -> skip_spaces tl
+    | rest -> rest
+  in
+  let rec take_word acc = function
+    | u :: tl when not (is_space u) -> take_word (u :: acc) tl
+    | rest -> (List.rev acc, rest)
+  in
+  let rec loop acc l =
+    match skip_spaces l with
+    | [] -> List.rev acc
+    | l' ->
+        let word, rest = take_word [] l' in
+        if word = [] then List.rev acc else loop (encode_utf8 word :: acc) rest
+  in
+  loop [] uchars
+
+(** [fields_func s f] splits [s] at each run of Unicode code points [c]
+    satisfying [f c]. Returns an empty list if all code points in [s] satisfy
+    [f] or [s] is empty. *)
+let fields_func (s : string) (f : Uchar.t -> bool) : string list =
+  let uchars = decode_utf8 s in
+  let rec skip_sep = function
+    | u :: tl when f u -> skip_sep tl
+    | rest -> rest
+  in
+  let rec take_field acc = function
+    | u :: tl when not (f u) -> take_field (u :: acc) tl
+    | rest -> (List.rev acc, rest)
+  in
+  let rec loop acc l =
+    match skip_sep l with
+    | [] -> List.rev acc
+    | l' ->
+        let word, rest = take_field [] l' in
+        if word = [] then List.rev acc else loop (encode_utf8 word :: acc) rest
+  in
+  loop [] uchars
+
+(** [index s substr] returns the index of the first instance of [substr] in [s],
+    or -1 if [substr] is not present. The index is a byte offset (not code point
+    index). *)
+let index (s : string) (substr : string) : int =
+  let len_s = String.length s in
+  let len_sub = String.length substr in
+  if substr = "" then 0
+  else if len_sub > len_s then -1
+  else
+    let rec loop i =
+      if i > len_s - len_sub then -1
+      else if String.sub s i len_sub = substr then i
+      else loop (i + 1)
+    in
+    loop 0
+
+(** [repeat s count] returns a new string consisting of [count] copies of [s].
+    Raises [Invalid_argument] if [count] is negative. *)
+let repeat (s : string) (count : int) : string =
+  if count < 0 then invalid_arg "repeat: negative count"
+  else
+    let rec loop acc n = if n = 0 then acc else loop (acc ^ s) (n - 1) in
+    loop "" count
+
+(** [join elems sep] concatenates the elements of [elems], inserting [sep]
+    between each element. Returns the empty string if [elems] is empty. *)
+let join (elems : string list) (sep : string) : string =
+  match elems with
+  | [] -> ""
+  | hd :: tl -> List.fold_left (fun acc s -> acc ^ sep ^ s) hd tl

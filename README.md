@@ -30,30 +30,76 @@ With stringx, you get:
 module Stringx : sig
   module Levenshtein : sig
     val distance : string -> string -> int
-    (** Compute Levenshtein edit distance (Unicode-aware). *)
+    (** Compute Levenshtein edit distance (Unicode-aware).
+        Example: distance "kitten" "sitting" = 3 *)
   end
 
   val center : string -> int -> string -> string
-  (** Center a string using a given pad string (Unicode-aware). *)
+  (** Center a string using a given pad string (Unicode-aware).
+      Example: center "hello" 10 " " = "  hello   " *)
+
+  val contains : string -> string -> bool
+  (** Check if [substr] is present in [s] (byte-based).
+      Example: contains "seafood" "foo" = true *)
+
+  val contains_any : string -> string -> bool
+  (** Check if any Unicode code point in [chars] is present in [s].
+      Example: contains_any "fail" "ui" = true *)
 
   val count : string -> string -> int
   (** Count Unicode characters in a string that match a pattern.
-      Supports ranges ("a-z"), negation ("^0-9"), and Unicode ranges. *)
+      Supports ranges ("a-z"), negation ("^0-9"), and Unicode ranges.
+      Example: count "hello" "aeiou" = 2 *)
+
+  val count_substring : string -> string -> int
+  (** Count non-overlapping occurrences of [substr] in [s] (byte-based).
+      Example: count_substring "cheese" "e" = 3 *)
 
   val delete : string -> string -> string
   (** Remove all Unicode characters in a string that match a pattern.
-      Supports ranges ("a-z"), negation ("^0-9"), and Unicode ranges. *)
+      Supports ranges ("a-z"), negation ("^0-9"), and Unicode ranges.
+      Example: delete "hello" "aeiou" = "hll" *)
+
+  val equal_fold : string -> string -> bool
+  (** Compare two strings for equality, ignoring ASCII case.
+      Example: equal_fold "Go" "go" = true *)
+
+  val fields : string -> string list
+  (** Split a string by runs of Unicode whitespace. Returns an empty list if only whitespace.
+      Example: fields "  foo bar  baz   " = ["foo"; "bar"; "baz"] *)
+
+  val fields_func : string -> (Uchar.t -> bool) -> string list
+  (** Split a string at runs of code points where [f] returns true.
+      Example: fields_func "foo1;bar2,baz3" (fun c -> not (is_letter c || is_number c)) = ["foo1"; "bar2"; "baz3"] *)
+
+  val has_prefix : string -> string -> bool
+  (** Check if [s] starts with [prefix] (byte-based).
+      Example: has_prefix "Gopher" "Go" = true *)
+
+  val has_suffix : string -> string -> bool
+  (** Check if [s] ends with [suffix] (byte-based).
+      Example: has_suffix "Amigo" "go" = true *)
+
+  val index : string -> string -> int
+  (** Return the byte offset of the first occurrence of [substr] in [s], or -1 if not found.
+      Example: index "chicken" "ken" = 4 *)
+
+  val join : string list -> string -> string
+  (** Join a list of strings with a separator.
+      Example: join ["foo"; "bar"; "baz"] ", " = "foo, bar, baz" *)
 
   val len : string -> int
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
-      Counts characters, not bytes. Unicode-safe. *)
+      Example: len "🍎🍏🍊" = 3 *)
+
+  val repeat : string -> int -> string
+  (** Return a new string consisting of [count] copies of [s].
+      Raises [Invalid_argument] if [count] is negative.
+      Example: repeat "na" 2 = "nana" *)
 
   val reverse : string -> string
   (** Reverse a UTF-8 encoded string by Unicode code points.
-      This is Unicode-aware and works with emoji, Japanese, etc.
-      [reverse "hello"] returns ["olleh"]
-      [reverse "こんにちは"] returns ["はちにんこ"]
-      [reverse "🍎🍏🍊"] returns ["🍊🍏🍎"] *)
+      Example: reverse "こんにちは" = "はちにんこ" *)
 end
 ```
 

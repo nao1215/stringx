@@ -62,6 +62,171 @@ let test_reverse () =
   Alcotest.(check string) "mixed ascii/emoji" "c🍏b🍎a" (reverse "a🍎b🍏c");
   Alcotest.(check string) "combining marks" "́éa" (reverse "áé")
 
+let test_contains () =
+  let open Stringx in
+  Alcotest.(check bool)
+    "contains: foo in seafood" true (contains "seafood" "foo");
+  Alcotest.(check bool)
+    "contains: bar in seafood" false (contains "seafood" "bar");
+  Alcotest.(check bool)
+    "contains: empty in seafood" true (contains "seafood" "");
+  Alcotest.(check bool) "contains: empty in empty" true (contains "" "");
+  Alcotest.(check bool) "contains: non-empty in empty" false (contains "" "a");
+  Alcotest.(check bool) "contains: full match" true (contains "abc" "abc");
+  Alcotest.(check bool) "contains: partial match" true (contains "abcde" "bcd");
+  Alcotest.(check bool) "contains: unicode match" true (contains "こんにちは" "にち");
+  Alcotest.(check bool)
+    "contains: unicode no match" false
+    (contains "こんにちは" "さようなら")
+
+let test_contains_any () =
+  let open Stringx in
+  Alcotest.(check bool) "team/i" false (contains_any "team" "i");
+  Alcotest.(check bool) "fail/ui" true (contains_any "fail" "ui");
+  Alcotest.(check bool) "ure/ui" true (contains_any "ure" "ui");
+  Alcotest.(check bool) "failure/ui" true (contains_any "failure" "ui");
+  Alcotest.(check bool) "foo/empty" false (contains_any "foo" "");
+  Alcotest.(check bool) "empty/empty" false (contains_any "" "");
+  Alcotest.(check bool) "unicode/emoji" true (contains_any "🍎🍏🍊" "🍏");
+  Alcotest.(check bool) "unicode/no match" false (contains_any "こんにちは" "さよ");
+  Alcotest.(check bool) "unicode/match" true (contains_any "こんにちは" "ちに")
+
+let test_has_prefix () =
+  let open Stringx in
+  Alcotest.(check bool) "ascii: Go" true (has_prefix "Gopher" "Go");
+  Alcotest.(check bool) "ascii: C" false (has_prefix "Gopher" "C");
+  Alcotest.(check bool) "ascii: empty" true (has_prefix "Gopher" "");
+  Alcotest.(check bool) "empty: empty" true (has_prefix "" "");
+  Alcotest.(check bool) "empty: non-empty" false (has_prefix "" "a");
+  Alcotest.(check bool) "full match" true (has_prefix "abc" "abc");
+  Alcotest.(check bool) "partial match" true (has_prefix "abcde" "abc");
+  Alcotest.(check bool) "unicode match" true (has_prefix "こんにちは" "こん");
+  Alcotest.(check bool) "unicode no match" false (has_prefix "こんにちは" "さよ");
+  Alcotest.(check bool) "emoji match" true (has_prefix "🍎🍏🍊" "🍎");
+  Alcotest.(check bool) "emoji no match" false (has_prefix "🍎🍏🍊" "🍊")
+
+let test_has_suffix () =
+  let open Stringx in
+  Alcotest.(check bool) "ascii: go" true (has_suffix "Amigo" "go");
+  Alcotest.(check bool) "ascii: O" false (has_suffix "Amigo" "O");
+  Alcotest.(check bool) "ascii: Ami" false (has_suffix "Amigo" "Ami");
+  Alcotest.(check bool) "ascii: empty" true (has_suffix "Amigo" "");
+  Alcotest.(check bool) "empty: empty" true (has_suffix "" "");
+  Alcotest.(check bool) "empty: non-empty" false (has_suffix "" "a");
+  Alcotest.(check bool) "full match" true (has_suffix "abc" "abc");
+  Alcotest.(check bool) "partial match" true (has_suffix "abcde" "cde");
+  Alcotest.(check bool) "unicode match" true (has_suffix "こんにちは" "ちは");
+  Alcotest.(check bool) "unicode no match" false (has_suffix "こんにちは" "さよ");
+  Alcotest.(check bool) "emoji match" true (has_suffix "🍎🍏🍊" "🍊");
+  Alcotest.(check bool) "emoji no match" false (has_suffix "🍎🍏🍊" "🍎")
+
+let test_count_substring () =
+  let open Stringx in
+  Alcotest.(check int) "cheese/e" 3 (count_substring "cheese" "e");
+  Alcotest.(check int) "five/empty" 5 (count_substring "five" "");
+  Alcotest.(check int) "banana/na" 2 (count_substring "banana" "na");
+  Alcotest.(check int) "aaaaa/aa" 2 (count_substring "aaaaa" "aa");
+  Alcotest.(check int) "empty/empty" 1 (count_substring "" "");
+  Alcotest.(check int) "empty/a" 0 (count_substring "" "a");
+  Alcotest.(check int) "abc/abc" 1 (count_substring "abc" "abc");
+  Alcotest.(check int) "abc/abcd" 0 (count_substring "abc" "abcd");
+  Alcotest.(check int) "unicode/に" 1 (count_substring "こんにちは" "に");
+  Alcotest.(check int) "unicode/ん" 1 (count_substring "こんにちは" "ん");
+  Alcotest.(check int) "unicode/empty" 6 (count_substring "こんにちは" "");
+  Alcotest.(check int) "emoji/🍏" 1 (count_substring "🍎🍏🍊" "🍏");
+  Alcotest.(check int) "emoji/🍎🍏" 1 (count_substring "🍎🍏🍊" "🍎🍏")
+
+let test_equal_fold () =
+  let open Stringx in
+  Alcotest.(check bool) "Go/go" true (equal_fold "Go" "go");
+  Alcotest.(check bool) "AB/ab" true (equal_fold "AB" "ab");
+  Alcotest.(check bool) "ß/ss" false (equal_fold "ß" "ss");
+  Alcotest.(check bool) "ascii/ASCII" true (equal_fold "ASCII" "ascii");
+  Alcotest.(check bool) "hiragana" false (equal_fold "あ" "ア");
+  Alcotest.(check bool) "emoji" false (equal_fold "🍎" "🍏");
+  Alcotest.(check bool) "empty" true (equal_fold "" "");
+  Alcotest.(check bool) "mixed" false (equal_fold "Go" "Go!")
+
+let test_fields () =
+  let open Stringx in
+  Alcotest.(check (list string))
+    "basic" [ "foo"; "bar"; "baz" ]
+    (fields "  foo bar  baz   ");
+  Alcotest.(check (list string))
+    "tabs/newlines" [ "a"; "b"; "c" ] (fields "a\tb\nc");
+  Alcotest.(check (list string))
+    "unicode space" [ "a"; "b" ] (fields "a\u{3000}b");
+  Alcotest.(check (list string)) "only spaces" [] (fields "   ");
+  Alcotest.(check (list string)) "empty" [] (fields "");
+  Alcotest.(check (list string)) "single word" [ "word" ] (fields "word");
+  Alcotest.(check (list string))
+    "leading/trailing" [ "word" ] (fields "  word  ");
+  Alcotest.(check (list string)) "multi space" [ "a"; "b" ] (fields " a  b ");
+  Alcotest.(check (list string)) "emoji" [ "🍎"; "🍏" ] (fields "🍎  🍏");
+  Alcotest.(check (list string))
+    "mixed" [ "foo"; "🍏"; "bar" ] (fields "foo  🍏  bar")
+
+let is_letter_or_number u =
+  let open Uchar in
+  let c = to_int u in
+  (* Basic Latin letters and numbers *)
+  (c >= 0x30 && c <= 0x39)
+  || (c >= 0x41 && c <= 0x5A)
+  || (c >= 0x61 && c <= 0x7A)
+(* You can extend this for full Unicode if needed *)
+
+let test_fields_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check (list string))
+    "fields_func basic" [ "foo1"; "bar2"; "baz3" ]
+    (fields_func "  foo1;bar2,baz3..." f);
+  Alcotest.(check (list string))
+    "fields_func only sep" [] (fields_func ";;;;" f);
+  Alcotest.(check (list string)) "fields_func empty" [] (fields_func "" f);
+  Alcotest.(check (list string))
+    "fields_func single" [ "abc123" ] (fields_func "abc123" f);
+  Alcotest.(check (list string))
+    "fields_func unicode"
+    [ "こんにちは"; "123" ]
+    (fields_func "こんにちは,123" (fun u -> Uchar.to_int u = 0x2c));
+  Alcotest.(check (list string))
+    "fields_func emoji" [ "🍎🍏"; "🍊" ]
+    (fields_func "🍎🍏,🍊" (fun u -> Uchar.to_int u = 0x2c))
+
+let test_index () =
+  let open Stringx in
+  Alcotest.(check int) "chicken/ken" 4 (index "chicken" "ken");
+  Alcotest.(check int) "chicken/dmr" (-1) (index "chicken" "dmr");
+  Alcotest.(check int) "abc/empty" 0 (index "abc" "");
+  Alcotest.(check int) "empty/empty" 0 (index "" "");
+  Alcotest.(check int) "empty/a" (-1) (index "" "a");
+  Alcotest.(check int) "abc/abc" 0 (index "abc" "abc");
+  Alcotest.(check int) "abc/abcd" (-1) (index "abc" "abcd")
+
+let test_repeat () =
+  let open Stringx in
+  Alcotest.(check string) "repeat na 2" "nana" (repeat "na" 2);
+  Alcotest.(check string) "repeat 🍎 3" "🍎🍎🍎" (repeat "🍎" 3);
+  Alcotest.(check string) "repeat empty 5" "" (repeat "" 5);
+  Alcotest.(check string) "repeat a 0" "" (repeat "a" 0);
+  Alcotest.check_raises "repeat negative"
+    (Invalid_argument "repeat: negative count") (fun () ->
+      ignore (repeat "abc" (-1)))
+
+let test_join () =
+  let open Stringx in
+  Alcotest.(check string)
+    "join basic" "foo, bar, baz"
+    (join [ "foo"; "bar"; "baz" ] ", ");
+  Alcotest.(check string) "join empty list" "" (join [] ", ");
+  Alcotest.(check string) "join single" "a" (join [ "a" ] ", ");
+  Alcotest.(check string) "join unicode" "🍎-🍏-🍊" (join [ "🍎"; "🍏"; "🍊" ] "-");
+  Alcotest.(check string)
+    "join empty sep" "foobarbaz"
+    (join [ "foo"; "bar"; "baz" ] "");
+  Alcotest.(check string) "join all empty" "" (join [] "")
+
 let () =
   run "stringx"
     [
@@ -72,4 +237,21 @@ let () =
       ("delete tests", [ test_case "delete basic" `Quick test_delete ]);
       ("length tests", [ test_case "length basic" `Quick test_len ]);
       ("reverse tests", [ test_case "reverse basic" `Quick test_reverse ]);
+      ("contains tests", [ test_case "contains basic" `Quick test_contains ]);
+      ( "contains any tests",
+        [ test_case "contains any basic" `Quick test_contains_any ] );
+      ( "has prefix tests",
+        [ test_case "has prefix basic" `Quick test_has_prefix ] );
+      ( "has suffix tests",
+        [ test_case "has suffix basic" `Quick test_has_suffix ] );
+      ( "count substring tests",
+        [ test_case "count substring basic" `Quick test_count_substring ] );
+      ( "equal fold tests",
+        [ test_case "equal fold basic" `Quick test_equal_fold ] );
+      ("fields tests", [ test_case "fields basic" `Quick test_fields ]);
+      ( "fields func tests",
+        [ test_case "fields func basic" `Quick test_fields_func ] );
+      ("index tests", [ test_case "index basic" `Quick test_index ]);
+      ("repeat tests", [ test_case "repeat basic" `Quick test_repeat ]);
+      ("join tests", [ test_case "join basic" `Quick test_join ]);
     ]
