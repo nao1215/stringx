@@ -204,3 +204,15 @@ let has_suffix (s : string) (suffix : string) : bool =
   if len_suf = 0 then true
   else if len_s < len_suf then false
   else String.sub s (len_s - len_suf) len_suf = suffix
+
+(** [contains_any s chars] reports whether any Unicode code points in [chars]
+    are within [s]. Returns false if [chars] is empty. Unicode-aware. *)
+let contains_any (s : string) (chars : string) : bool =
+  if chars = "" then false
+  else
+    let set = decode_utf8 chars |> List.sort_uniq Uchar.compare in
+    let rec loop = function
+      | [] -> false
+      | u :: tl -> if List.mem u set then true else loop tl
+    in
+    loop (decode_utf8 s)

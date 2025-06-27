@@ -124,6 +124,26 @@ val contains : string -> string -> bool
     @param substr The substring to search for
     @return [true] if [substr] is found in [s], [false] otherwise *)
 
+val contains_any : string -> string -> bool
+(** [contains_any s chars] reports whether any Unicode code points in [chars]
+    are within [s].
+
+    Returns [false] if [chars] is empty. Unicode-aware and compares by code
+    points.
+
+    Examples:
+    - [contains_any "team" "i"] returns [false]
+    - [contains_any "fail" "ui"] returns [true]
+    - [contains_any "ure" "ui"] returns [true]
+    - [contains_any "failure" "ui"] returns [true]
+    - [contains_any "foo" ""] returns [false]
+    - [contains_any "" ""] returns [false]
+
+    @param s The input string (UTF-8)
+    @param chars The set of Unicode code points to search for (UTF-8)
+    @return
+      [true] if any code point in [chars] is found in [s], [false] otherwise *)
+
 val has_prefix : string -> string -> bool
 (** [has_prefix s prefix] reports whether the string [s] begins with [prefix].
 

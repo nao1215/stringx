@@ -79,6 +79,18 @@ let test_contains () =
     "contains: unicode no match" false
     (contains "こんにちは" "さようなら")
 
+let test_contains_any () =
+  let open Stringx in
+  Alcotest.(check bool) "team/i" false (contains_any "team" "i");
+  Alcotest.(check bool) "fail/ui" true (contains_any "fail" "ui");
+  Alcotest.(check bool) "ure/ui" true (contains_any "ure" "ui");
+  Alcotest.(check bool) "failure/ui" true (contains_any "failure" "ui");
+  Alcotest.(check bool) "foo/empty" false (contains_any "foo" "");
+  Alcotest.(check bool) "empty/empty" false (contains_any "" "");
+  Alcotest.(check bool) "unicode/emoji" true (contains_any "🍎🍏🍊" "🍏");
+  Alcotest.(check bool) "unicode/no match" false (contains_any "こんにちは" "さよ");
+  Alcotest.(check bool) "unicode/match" true (contains_any "こんにちは" "ちに")
+
 let test_has_prefix () =
   let open Stringx in
   Alcotest.(check bool) "ascii: Go" true (has_prefix "Gopher" "Go");
@@ -119,6 +131,8 @@ let () =
       ("length tests", [ test_case "length basic" `Quick test_len ]);
       ("reverse tests", [ test_case "reverse basic" `Quick test_reverse ]);
       ("contains tests", [ test_case "contains basic" `Quick test_contains ]);
+      ( "contains any tests",
+        [ test_case "contains any basic" `Quick test_contains_any ] );
       ( "has prefix tests",
         [ test_case "has prefix basic" `Quick test_has_prefix ] );
       ( "has suffix tests",
