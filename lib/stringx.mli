@@ -1,0 +1,107 @@
+module Levenshtein : sig
+  val distance : string -> string -> int
+  (** [distance s t] computes the Levenshtein (edit) distance between two UTF-8
+      encoded strings.
+
+      The Levenshtein distance is the minimum number of single-character edits
+      (insertions, deletions, or substitutions) required to transform one string
+      into another.
+
+      This implementation is Unicode-aware and correctly handles multibyte
+      characters such as Japanese, Chinese, emoji, and accented letters.
+
+      Examples:
+      - [distance "kitten" "sitting"] returns [3]
+      - [distance "こんにちは" "こんばんは"] returns [2]
+      - [distance "🍎" "🍏"] returns [1]
+
+      Malformed UTF-8 sequences are replaced with ['?'] during decoding.
+
+      @param s The first UTF-8 encoded string
+      @param t The second UTF-8 encoded string
+      @return The edit distance between [s] and [t] *)
+end
+
+val center : string -> int -> string -> string
+(** [center s len pad] centers [s] in a string of length [len], padding with
+    [pad]. If [s] is longer than [len], it is returned unchanged. Padding is
+    inserted symmetrically. [pad] must be non-empty or it is ignored.
+
+    This function is Unicode-aware and counts characters, not bytes. If [pad] is
+    multibyte, it is repeated and truncated as needed.
+
+    Examples:
+    - [center "hello" 10 " "] returns ["  hello   "]
+    - [center "abc" 7 "あ"] returns ["ああabcああ"]
+
+    @param s The string to center (UTF-8)
+    @param len The total length (in Unicode characters) of the result
+    @param pad The padding string (UTF-8, non-empty)
+    @return The centered string *)
+
+val count : string -> string -> int
+(** [count str pattern] counts how many Unicode characters in [str] match
+    [pattern].
+
+    The [pattern] supports:
+    - character sets: e.g., "aeiou"
+    - ranges: e.g., "a-k", "あ-ん"
+    - negation with ^: e.g., "^a-k", "^0-9"
+
+    This function is Unicode-aware and handles UTF-8 properly.
+
+    Examples:
+    - [count "hello" "aeiou"] returns [2]
+    - [count "abc123" "^a-z"] returns [3]
+    - [count "こんにちは" "あ-ん"] returns [5]
+
+    @param str The input string (UTF-8)
+    @param pattern The character pattern (see above)
+    @return The number of matching characters *)
+
+val delete : string -> string -> string
+(** [delete str pattern] removes all Unicode characters in [str] that match
+    [pattern].
+
+    The [pattern] supports:
+    - character sets: e.g., "aeiou"
+    - ranges: e.g., "a-k", "あ-ん"
+    - negation with ^: e.g., "^a-k", "^0-9"
+
+    This function is Unicode-aware and handles UTF-8 properly.
+
+    Examples:
+    - [delete "hello" "aeiou"] returns ["hll"]
+    - [delete "こんにちは" "こ"] returns ["んにちは"]
+    - [delete "abc123" "^a-z"] returns ["abc"]
+
+    @param str The input string (UTF-8)
+    @param pattern The character pattern (see above)
+    @return The string with matched characters removed *)
+
+val len : string -> int
+(** [len str] returns the number of Unicode code points (runes) in UTF-8 string
+    [str].
+
+    This function is Unicode-aware and counts characters, not bytes.
+
+    Examples:
+    - [len "hello"] returns [5]
+    - [len "こんにちは"] returns [5]
+    - [len "🍎🍏🍊"] returns [3]
+
+    @param str The input string (UTF-8)
+    @return The number of Unicode code points in [str] *)
+
+val reverse : string -> string
+(** [reverse s] reverses a UTF-8 encoded string [s].
+
+    This function is Unicode-aware and reverses by code points, not bytes.
+
+    Examples:
+    - [reverse "hello"] returns ["olleh"]
+    - [reverse "こんにちは"] returns ["はちにんこ"]
+    - [reverse "🍎🍏🍊"] returns ["🍊🍏🍎"]
+
+    @param s The input string (UTF-8)
+    @return The reversed string *)

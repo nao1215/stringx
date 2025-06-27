@@ -1,0 +1,5 @@
+(library
+ (name stringx)
+ (public_name stringx)
+ (modules stringx levenshtein)
+ (libraries uutf))
