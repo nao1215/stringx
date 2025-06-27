@@ -304,26 +304,17 @@ let fields_func (s : string) (f : Uchar.t -> bool) : string list =
     or -1 if [substr] is not present. The index is a byte offset (not code point
     index). *)
 let index (s : string) (substr : string) : int =
+  let len_s = String.length s in
+  let len_sub = String.length substr in
   if substr = "" then 0
+  else if len_sub > len_s then -1
   else
-    let s_uchars = decode_utf8 s in
-    let sub_uchars = decode_utf8 substr in
-    let sub_len = List.length sub_uchars in
-    let rec take n l =
-      if n = 0 then []
-      else match l with [] -> [] | x :: xs -> x :: take (n - 1) xs
+    let rec loop i =
+      if i > len_s - len_sub then -1
+      else if String.sub s i len_sub = substr then i
+      else loop (i + 1)
     in
-    let rec search i l =
-      match l with
-      | [] -> -1
-      | _ when List.length l < sub_len -> -1
-      | _ ->
-          let prefix = take sub_len l in
-          if List.length prefix < sub_len then -1
-          else if List.for_all2 Uchar.equal prefix sub_uchars then i
-          else search (i + 1) (List.tl l)
-    in
-    search 0 s_uchars
+    loop 0
 
 (** [repeat s count] returns a new string consisting of [count] copies of [s].
     Raises [Invalid_argument] if [count] is negative. *)

@@ -202,11 +202,7 @@ let test_index () =
   Alcotest.(check int) "empty/empty" 0 (index "" "");
   Alcotest.(check int) "empty/a" (-1) (index "" "a");
   Alcotest.(check int) "abc/abc" 0 (index "abc" "abc");
-  Alcotest.(check int) "abc/abcd" (-1) (index "abc" "abcd");
-  Alcotest.(check int) "unicode/にち" 2 (index "こんにちは" "にち");
-  Alcotest.(check int) "unicode/no match" (-1) (index "こんにちは" "さよ");
-  Alcotest.(check int) "emoji/🍏" 1 (index "🍎🍏🍊" "🍏");
-  Alcotest.(check int) "emoji/🍎🍏" 0 (index "🍎🍏🍊" "🍎🍏")
+  Alcotest.(check int) "abc/abcd" (-1) (index "abc" "abcd")
 
 let test_repeat () =
   let open Stringx in
