@@ -182,12 +182,11 @@ let contains (s : string) (substr : string) : bool =
       else if String.sub s i len_sub = substr then true
       else loop (i + 1)
     in
-    if len_sub = 0 then true else loop 0
+    loop 0
 
 (** [has_prefix s prefix] checks if the string [s] starts with the given
-    [prefix]. Returns true if [prefix] is empty. This function operates on bytes,
-    not Unicode code points.
-*)
+    [prefix]. Returns true if [prefix] is empty. This function operates on
+    bytes, not Unicode code points. *)
 let has_prefix (s : string) (prefix : string) : bool =
   let len_s = String.length s in
   let len_p = String.length prefix in
@@ -231,7 +230,7 @@ let count_substring (s : string) (substr : string) : int =
       else if String.sub s i len_sub = substr then loop (i + len_sub) (acc + 1)
       else loop (i + 1) acc
     in
-    if len_sub = 0 then 1 + len s else loop 0 0
+    loop 0 0
 
 (** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
     are equal under simple Unicode case-folding (ASCII only). *)

@@ -183,7 +183,7 @@ val count_substring : string -> string -> int
 (** [count_substring s substr] counts the number of non-overlapping instances of
     [substr] in [s].
 
-    If [substr] is the empty string, returns [1 +] the number of Unicode code
+    If [substr] is the empty string, returns 1 + the number of Unicode code
     points in [s].
 
     This function is Unicode-agnostic and operates on bytes, not code points.
