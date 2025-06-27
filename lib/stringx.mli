@@ -245,3 +245,20 @@ val fields_func : string -> (Uchar.t -> bool) -> string list
     @param s The input string (UTF-8)
     @param f The predicate function on Unicode code points
     @return List of non-separator substrings of [s] *)
+
+val index : string -> string -> int
+(** [index s substr] returns the index of the first instance of [substr] in [s],
+    or [-1] if [substr] is not present.
+
+    The index is a byte offset (not code point index).
+
+    Examples:
+    - [index "chicken" "ken"] returns [4]
+    - [index "chicken" "dmr"] returns [-1]
+    - [index "abc" ""] returns [0]
+    - [index "" ""] returns [0]
+    - [index "" "a"] returns [-1]
+
+    @param s The input string
+    @param substr The substring to search for
+    @return The byte index of the first occurrence, or [-1] if not found *)

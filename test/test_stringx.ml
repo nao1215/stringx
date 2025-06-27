@@ -194,6 +194,20 @@ let test_fields_func () =
     "fields_func emoji" [ "🍎🍏"; "🍊" ]
     (fields_func "🍎🍏,🍊" (fun u -> Uchar.to_int u = 0x2c))
 
+let test_index () =
+  let open Stringx in
+  Alcotest.(check int) "chicken/ken" 4 (index "chicken" "ken");
+  Alcotest.(check int) "chicken/dmr" (-1) (index "chicken" "dmr");
+  Alcotest.(check int) "abc/empty" 0 (index "abc" "");
+  Alcotest.(check int) "empty/empty" 0 (index "" "");
+  Alcotest.(check int) "empty/a" (-1) (index "" "a");
+  Alcotest.(check int) "abc/abc" 0 (index "abc" "abc");
+  Alcotest.(check int) "abc/abcd" (-1) (index "abc" "abcd");
+  Alcotest.(check int) "unicode/にち" 2 (index "こんにちは" "にち");
+  Alcotest.(check int) "unicode/no match" (-1) (index "こんにちは" "さよ");
+  Alcotest.(check int) "emoji/🍏" 1 (index "🍎🍏🍊" "🍏");
+  Alcotest.(check int) "emoji/🍎🍏" 0 (index "🍎🍏🍊" "🍎🍏")
+
 let () =
   run "stringx"
     [
@@ -218,4 +232,5 @@ let () =
       ("fields tests", [ test_case "fields basic" `Quick test_fields ]);
       ( "fields func tests",
         [ test_case "fields func basic" `Quick test_fields_func ] );
+      ("index tests", [ test_case "index basic" `Quick test_index ]);
     ]
