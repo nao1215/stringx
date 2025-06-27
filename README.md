@@ -1,13 +1,17 @@
 # Unicode-aware string utilities in OCaml
 
-**stringx** is a powerful and lightweight OCaml library that brings robust Unicode (UTF-8) support to your string processing tasks.
+**stringx** is a OCaml library that brings robust Unicode (UTF-8) support to your string processing tasks.
+
+> [!NOTE]
+> This project is inspired by [huandu/xstrings](https://github.com/huandu/xstrings).  
+>
+> The goal is to bring string manipulation features found in other programming languages to OCaml. As I am new to OCaml, I welcome your feedback and suggestions 😊
 
 With stringx, you get:
 - Accurate edit distance (Levenshtein) calculations for any language or emoji
 - Smart centering of strings, even with multibyte characters
 - Flexible character counting and deletion using intuitive patterns, ranges, and negation
 
-Whether you're building CLI tools, processing multilingual text, or handling complex Unicode data, stringx ensures your OCaml code is Unicode-safe, reliable, and easy to use.
 
 ---
 
