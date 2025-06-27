@@ -185,8 +185,8 @@ let contains (s : string) (substr : string) : bool =
     if len_sub = 0 then true else loop 0
 
 (** [has_prefix s prefix] checks if the string [s] starts with the given
-    [prefix]. Returns true if [prefix] is empty. This function is Unicode-aware,
-    meaning it correctly handles multibyte characters like Japanese or emojis.
+    [prefix]. Returns true if [prefix] is empty. This function operates on bytes,
+    not Unicode code points.
 *)
 let has_prefix (s : string) (prefix : string) : bool =
   let len_s = String.length s in
