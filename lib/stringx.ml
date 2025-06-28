@@ -377,3 +377,15 @@ let trim_left (s : string) (cutset : string) : string =
       | rest -> rest
     in
     drop_leading uchars |> encode_utf8
+
+(** [trim_left_func s f] returns [s] with all leading Unicode code points [c]
+    satisfying [f c] removed. Unicode-aware. *)
+let trim_left_func (s : string) (f : Uchar.t -> bool) : string =
+  if s = "" then s
+  else
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when f u -> drop_leading tl
+      | rest -> rest
+    in
+    drop_leading uchars |> encode_utf8

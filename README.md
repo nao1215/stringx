@@ -116,6 +116,10 @@ module Stringx : sig
       Unicode-aware.
       Example: trim_left "¡¡¡Hello, Gophers!!!" "!¡" = "Hello, Gophers!!!" *)
 
+  val trim_left_func : string -> (Uchar.t -> bool) -> string
+  (** Trim all leading Unicode code points in [s] that satisfy [f].
+      Unicode-aware.
+      Example: trim_left_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Gophers!!!" *)
 end
 ```
 
