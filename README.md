@@ -5,7 +5,8 @@
 > [!NOTE]
 > This project is inspired by [huandu/xstrings](https://github.com/huandu/xstrings).  
 >
-> The goal is to bring string manipulation features found in other programming languages to OCaml. As I am new to OCaml, I welcome your feedback and suggestions 😊
+> The goal is to bring string manipulation features found in other programming languages to OCaml. **This library is under active development.**  
+> Function proposals and contributions for new string utilities are very welcome! As I am new to OCaml, I welcome your feedback and suggestions 😊
 
 With stringx, you get:
 - Accurate edit distance (Levenshtein) calculations for any language or emoji
