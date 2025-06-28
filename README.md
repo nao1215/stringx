@@ -120,6 +120,11 @@ module Stringx : sig
   (** Trim all leading Unicode code points in [s] that satisfy [f].
       Unicode-aware.
       Example: trim_left_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Gophers!!!" *)
+
+  val trim_right : string -> string -> string
+  (** Trim all trailing Unicode code points in [cutset] from [s].
+      Unicode-aware.
+      Example: trim_right "¡¡¡Hello, Gophers!!!" "!¡" = "¡¡¡Hello, Gophers" *)
 end
 ```
 
