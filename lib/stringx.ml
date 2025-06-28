@@ -329,3 +329,120 @@ let join (elems : string list) (sep : string) : string =
   match elems with
   | [] -> ""
   | hd :: tl -> List.fold_left (fun acc s -> acc ^ sep ^ s) hd tl
+
+(** [trim s cutset] returns [s] with all leading and trailing Unicode code
+    points contained in [cutset] removed. Unicode-aware. *)
+let trim (s : string) (cutset : string) : string =
+  if cutset = "" || s = "" then s
+  else
+    let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when List.mem u set -> drop_leading tl
+      | rest -> rest
+    in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when List.mem u set -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_leading uchars |> drop_trailing |> encode_utf8
+
+(** [trim_func s f] returns [s] with all leading and trailing Unicode code
+    points [c] satisfying [f c] removed. Unicode-aware. *)
+let trim_func (s : string) (f : Uchar.t -> bool) : string =
+  if s = "" then s
+  else
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when f u -> drop_leading tl
+      | rest -> rest
+    in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when f u -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_leading uchars |> drop_trailing |> encode_utf8
+
+(** [trim_left s cutset] returns [s] with all leading Unicode code points
+    contained in [cutset] removed. Unicode-aware. *)
+let trim_left (s : string) (cutset : string) : string =
+  if cutset = "" || s = "" then s
+  else
+    let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when List.mem u set -> drop_leading tl
+      | rest -> rest
+    in
+    drop_leading uchars |> encode_utf8
+
+(** [trim_left_func s f] returns [s] with all leading Unicode code points [c]
+    satisfying [f c] removed. Unicode-aware. *)
+let trim_left_func (s : string) (f : Uchar.t -> bool) : string =
+  if s = "" then s
+  else
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when f u -> drop_leading tl
+      | rest -> rest
+    in
+    drop_leading uchars |> encode_utf8
+
+(** [trim_right s cutset] returns [s] with all trailing Unicode code points
+    contained in [cutset] removed. Unicode-aware. *)
+let trim_right (s : string) (cutset : string) : string =
+  if cutset = "" || s = "" then s
+  else
+    let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
+    let uchars = decode_utf8 s in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when List.mem u set -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_trailing uchars |> encode_utf8
+
+(** [trim_right_func s f] returns [s] with all trailing Unicode code points [c]
+    satisfying [f c] removed. Unicode-aware. *)
+let trim_right_func (s : string) (f : Uchar.t -> bool) : string =
+  if s = "" then s
+  else
+    let uchars = decode_utf8 s in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when f u -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_trailing uchars |> encode_utf8
+
+(** [trim_space s] returns [s] with all leading and trailing Unicode whitespace
+    removed. Unicode-aware. *)
+let trim_space (s : string) : string =
+  let is_space = is_space in
+  if s = "" then s
+  else
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when is_space u -> drop_leading tl
+      | rest -> rest
+    in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when is_space u -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_leading uchars |> drop_trailing |> encode_utf8
+
+(** [trim_suffix s suffix] returns [s] without the provided trailing [suffix]
+    string. If [s] does not end with [suffix], [s] is returned unchanged. This
+    function is byte-based, not Unicode-aware. *)
+let trim_suffix (s : string) (suffix : string) : string =
+  let len_s = String.length s in
+  let len_suf = String.length suffix in
+  if len_suf = 0 then s
+  else if len_s < len_suf then s
+  else if String.sub s (len_s - len_suf) len_suf = suffix then
+    String.sub s 0 (len_s - len_suf)
+  else s

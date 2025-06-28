@@ -227,6 +227,148 @@ let test_join () =
     (join [ "foo"; "bar"; "baz" ] "");
   Alcotest.(check string) "join all empty" "" (join [] "")
 
+let test_trim () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim" "Hello, Camels"
+    (trim "¡¡¡Hello, Camels!!!" "!¡");
+  Alcotest.(check string) "trim nothing" "hello" (trim "hello" "");
+  Alcotest.(check string) "trim all" "" (trim "aaa" "a");
+  Alcotest.(check string) "trim unicode" "b" (trim "ああbあ" "あ");
+  Alcotest.(check string) "trim both sides" "b" (trim "xybxy" "xy");
+  Alcotest.(check string) "trim only leading" "abc" (trim "!!abc" "!");
+  Alcotest.(check string) "trim only trailing" "abc" (trim "abc!!" "!");
+  Alcotest.(check string) "trim empty string" "" (trim "" "!");
+  Alcotest.(check string) "trim emoji" "b" (trim "🍎b🍎" "🍎")
+
+let is_letter_or_number u =
+  let c = Uchar.to_int u in
+  (* Basic Latin letters and numbers *)
+  (c >= 0x30 && c <= 0x39)
+  || (c >= 0x41 && c <= 0x5A)
+  || (c >= 0x61 && c <= 0x7A)
+(* You can extend this for full Unicode if needed *)
+
+let test_trim_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check string)
+    "trim_func ascii/unicode" "Hello, Camels"
+    (trim_func "¡¡¡Hello, Camels!!!" f);
+  Alcotest.(check string)
+    "trim_func nothing" "hello"
+    (trim_func "hello" (fun _ -> false));
+  Alcotest.(check string) "trim_func all" "" (trim_func "aaa" (fun _ -> true));
+  Alcotest.(check string)
+    "trim_func unicode" "b"
+    (trim_func "ああbあ" (fun u -> Uchar.to_int u = 0x3042));
+  Alcotest.(check string)
+    "trim_func emoji" "b"
+    (trim_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
+  Alcotest.(check string) "trim_func empty" "" (trim_func "" f)
+
+let test_trim_left () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim_left" "Hello, Camels!!!"
+    (trim_left "¡¡¡Hello, Camels!!!" "!¡");
+  Alcotest.(check string) "trim_left nothing" "hello" (trim_left "hello" "");
+  Alcotest.(check string) "trim_left all" "" (trim_left "aaa" "a");
+  Alcotest.(check string) "trim_left unicode" "bあ" (trim_left "ああbあ" "あ");
+  Alcotest.(check string) "trim_left both sides" "bxy" (trim_left "xybxy" "xy");
+  Alcotest.(check string) "trim_left only leading" "abc" (trim_left "!!abc" "!");
+  Alcotest.(check string)
+    "trim_left only trailing" "abc!!" (trim_left "abc!!" "!");
+  Alcotest.(check string) "trim_left empty string" "" (trim_left "" "!");
+  Alcotest.(check string) "trim_left emoji" "b🍎" (trim_left "🍎b🍎" "🍎")
+
+let test_trim_left_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check string)
+    "trim_left_func ascii/unicode" "Hello, Camels!!!"
+    (trim_left_func "¡¡¡Hello, Camels!!!" f);
+  Alcotest.(check string)
+    "trim_left_func nothing" "hello"
+    (trim_left_func "hello" (fun _ -> false));
+  Alcotest.(check string)
+    "trim_left_func all" ""
+    (trim_left_func "aaa" (fun _ -> true));
+  Alcotest.(check string)
+    "trim_left_func unicode" "bあ"
+    (trim_left_func "ああbあ" (fun u -> Uchar.to_int u = 0x3042));
+  Alcotest.(check string)
+    "trim_left_func emoji" "b🍎"
+    (trim_left_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
+  Alcotest.(check string) "trim_left_func empty" "" (trim_left_func "" f)
+
+let test_trim_right () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim_right" "¡¡¡Hello, Camels"
+    (trim_right "¡¡¡Hello, Camels!!!" "!¡");
+  Alcotest.(check string) "trim_right nothing" "hello" (trim_right "hello" "");
+  Alcotest.(check string) "trim_right all" "" (trim_right "aaa" "a");
+  Alcotest.(check string) "trim_right unicode" "ああb" (trim_right "ああbあ" "あ");
+  Alcotest.(check string)
+    "trim_right both sides" "xyb" (trim_right "xybxy" "xy");
+  Alcotest.(check string)
+    "trim_right only trailing" "abc" (trim_right "abc!!" "!");
+  Alcotest.(check string)
+    "trim_right only leading" "!!abc" (trim_right "!!abc" "!");
+  Alcotest.(check string) "trim_right empty string" "" (trim_right "" "!");
+  Alcotest.(check string) "trim_right emoji" "🍎b" (trim_right "🍎b🍎" "🍎")
+
+let test_trim_right_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check string)
+    "trim_right_func ascii/unicode" "¡¡¡Hello, Camels"
+    (trim_right_func "¡¡¡Hello, Camels!!!" f);
+  Alcotest.(check string)
+    "trim_right_func nothing" "hello"
+    (trim_right_func "hello" (fun _ -> false));
+  Alcotest.(check string)
+    "trim_right_func all" ""
+    (trim_right_func "aaa" (fun _ -> true));
+  Alcotest.(check string)
+    "trim_right_func unicode" "ああb"
+    (trim_right_func "ああbあ" (fun u -> Uchar.to_int u = 0x3042));
+  Alcotest.(check string)
+    "trim_right_func emoji" "🍎b"
+    (trim_right_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
+  Alcotest.(check string) "trim_right_func empty" "" (trim_right_func "" f)
+
+let test_trim_space () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim_space" "Hello, Camels"
+    (trim_space " \t\n Hello, Camels \n\t\r\n");
+  Alcotest.(check string)
+    "unicode trim_space" "Hello, Camels"
+    (trim_space "\u{3000}Hello, Camels\u{3000}");
+  Alcotest.(check string) "no trim_space" "Hello" (trim_space "Hello");
+  Alcotest.(check string) "all space" "" (trim_space " \t\n\u{3000}");
+  Alcotest.(check string) "empty" "" (trim_space "");
+  Alcotest.(check string) "emoji no trim" "🍎🍏🍊" (trim_space "🍎🍏🍊")
+
+let test_trim_suffix () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii: , Camels!!!" "¡¡¡Hello"
+    (trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!");
+  Alcotest.(check string)
+    "ascii: , Marmots!!!" "¡¡¡Hello, Camels!!!"
+    (trim_suffix "¡¡¡Hello, Camels!!!" ", Marmots!!!");
+  Alcotest.(check string) "empty suffix" "abc" (trim_suffix "abc" "");
+  Alcotest.(check string) "empty string" "" (trim_suffix "" "abc");
+  Alcotest.(check string) "full match" "" (trim_suffix "abc" "abc");
+  Alcotest.(check string) "partial match" "abc" (trim_suffix "abcde" "de");
+  Alcotest.(check string) "unicode match" "こんに" (trim_suffix "こんにちは" "ちは");
+  Alcotest.(check string) "unicode no match" "こんにちは" (trim_suffix "こんにちは" "さよ");
+  Alcotest.(check string) "emoji match" "🍎🍏" (trim_suffix "🍎🍏🍊" "🍊");
+  Alcotest.(check string) "emoji no match" "🍎🍏🍊" (trim_suffix "🍎🍏🍊" "🍎")
+
 let () =
   run "stringx"
     [
@@ -254,4 +396,17 @@ let () =
       ("index tests", [ test_case "index basic" `Quick test_index ]);
       ("repeat tests", [ test_case "repeat basic" `Quick test_repeat ]);
       ("join tests", [ test_case "join basic" `Quick test_join ]);
+      ("trim tests", [ test_case "trim basic" `Quick test_trim ]);
+      ("trim func tests", [ test_case "trim func basic" `Quick test_trim_func ]);
+      ("trim left tests", [ test_case "trim left basic" `Quick test_trim_left ]);
+      ( "trim left func tests",
+        [ test_case "trim left func basic" `Quick test_trim_left_func ] );
+      ( "trim right tests",
+        [ test_case "trim right basic" `Quick test_trim_right ] );
+      ( "trim right func tests",
+        [ test_case "trim right func basic" `Quick test_trim_right_func ] );
+      ( "trim space tests",
+        [ test_case "trim space basic" `Quick test_trim_space ] );
+      ( "trim suffix tests",
+        [ test_case "trim suffix basic" `Quick test_trim_suffix ] );
     ]

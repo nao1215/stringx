@@ -293,3 +293,114 @@ val join : string list -> string -> string
     @param elems The list of strings to join
     @param sep The separator string
     @return The joined string *)
+
+val trim : string -> string -> string
+(** [trim s cutset] returns [s] with all leading and trailing Unicode code
+    points contained in [cutset] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim "¡¡¡Hello, Camels!!!" "!¡"] returns ["Hello, Camels"]
+
+    @param s The input string (UTF-8)
+    @param cutset The set of Unicode code points to trim (UTF-8)
+    @return The trimmed string *)
+
+val trim_func : string -> (Uchar.t -> bool) -> string
+(** [trim_func s f] returns [s] with all leading and trailing Unicode code
+    points [c] satisfying [f c] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number
+       c))] returns ["Hello, Camels"]
+
+    @param s The input string (UTF-8)
+    @param f The predicate function on Unicode code points
+    @return The trimmed string *)
+
+val trim_left : string -> string -> string
+(** [trim_left s cutset] returns [s] with all leading Unicode code points
+    contained in [cutset] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim_left "¡¡¡Hello, Camels!!!" "!¡"] returns ["Hello, Camels!!!"]
+
+    @param s The input string (UTF-8)
+    @param cutset The set of Unicode code points to trim (UTF-8)
+    @return The trimmed string *)
+
+val trim_left_func : string -> (Uchar.t -> bool) -> string
+(** [trim_left_func s f] returns [s] with all leading Unicode code points [c]
+    satisfying [f c] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim_left_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c ||
+       is_number c))] returns ["Hello, Camels!!!"]
+
+    @param s The input string (UTF-8)
+    @param f The predicate function on Unicode code points
+    @return The trimmed string *)
+
+val trim_right : string -> string -> string
+(** [trim_right s cutset] returns [s] with all trailing Unicode code points
+    contained in [cutset] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim_right "¡¡¡Hello, Camels!!!" "!¡"] returns ["¡¡¡Hello, Camels"]
+
+    @param s The input string (UTF-8)
+    @param cutset The set of Unicode code points to trim (UTF-8)
+    @return The trimmed string *)
+
+val trim_right_func : string -> (Uchar.t -> bool) -> string
+(** [trim_right_func s f] returns [s] with all trailing Unicode code points [c]
+    satisfying [f c] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim_right_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c ||
+       is_number c))] returns ["¡¡¡Hello, Camels"]
+
+    @param s The input string (UTF-8)
+    @param f The predicate function on Unicode code points
+    @return The trimmed string *)
+
+val trim_space : string -> string
+(** [trim_space s] returns [s] with all leading and trailing Unicode whitespace
+    removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+    Whitespace is defined by Unicode (see [is_space]).
+
+    Examples:
+    - [trim_space " \t\n Hello, Camels \n\t\r\n"] returns ["Hello, Camels"]
+
+    @param s The input string (UTF-8)
+    @return The trimmed string *)
+
+val trim_suffix : string -> string -> string
+(** [trim_suffix s suffix] returns [s] without the provided trailing [suffix]
+    string. If [s] does not end with [suffix], [s] is returned unchanged.
+
+    This function is byte-based, not Unicode-aware.
+
+    Examples:
+    - [trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!"] returns ["¡¡¡Hello"]
+    - [trim_suffix "¡¡¡Hello, Camels!!!" ", Marmots!!!"] returns
+      ["¡¡¡Hello, Camels!!!"]
+    - [trim_suffix "abc" ""] returns ["abc"]
+
+    @param s The input string
+    @param suffix The suffix to remove
+    @return [s] without the trailing [suffix], or [s] if [suffix] is not present
+*)
