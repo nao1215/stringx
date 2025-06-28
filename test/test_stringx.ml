@@ -241,6 +241,32 @@ let test_trim () =
   Alcotest.(check string) "trim empty string" "" (trim "" "!");
   Alcotest.(check string) "trim emoji" "b" (trim "🍎b🍎" "🍎")
 
+let is_letter_or_number u =
+  let c = Uchar.to_int u in
+  (* Basic Latin letters and numbers *)
+  (c >= 0x30 && c <= 0x39)
+  || (c >= 0x41 && c <= 0x5A)
+  || (c >= 0x61 && c <= 0x7A)
+(* You can extend this for full Unicode if needed *)
+
+let test_trim_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check string)
+    "trim_func ascii/unicode" "Hello, Gophers"
+    (trim_func "¡¡¡Hello, Gophers!!!" f);
+  Alcotest.(check string)
+    "trim_func nothing" "hello"
+    (trim_func "hello" (fun _ -> false));
+  Alcotest.(check string) "trim_func all" "" (trim_func "aaa" (fun _ -> true));
+  Alcotest.(check string)
+    "trim_func unicode" "b"
+    (trim_func "ああbあ" (fun u -> Uchar.to_int u = 0x3042));
+  Alcotest.(check string)
+    "trim_func emoji" "b"
+    (trim_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
+  Alcotest.(check string) "trim_func empty" "" (trim_func "" f)
+
 let () =
   run "stringx"
     [
@@ -269,4 +295,5 @@ let () =
       ("repeat tests", [ test_case "repeat basic" `Quick test_repeat ]);
       ("join tests", [ test_case "join basic" `Quick test_join ]);
       ("trim tests", [ test_case "trim basic" `Quick test_trim ]);
+      ("trim func tests", [ test_case "trim func basic" `Quick test_trim_func ]);
     ]

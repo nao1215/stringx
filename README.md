@@ -105,6 +105,11 @@ module Stringx : sig
   (** Trim all leading and trailing Unicode code points in [cutset] from [s].
       Unicode-aware.
       Example: trim "¡¡¡Hello, Gophers!!!" "!¡" = "Hello, Gophers" *)
+
+  val trim_func : string -> (Uchar.t -> bool) -> string
+  (** Trim all leading and trailing Unicode code points in [s] that satisfy [f].
+      Unicode-aware.
+      Example: trim_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Gophers" *)
 end
 ```
 

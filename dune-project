@@ -2,8 +2,6 @@
 
 (name stringx)
 
-(generate_opam_files true)
-
 (package
  (name stringx)
  (synopsis
