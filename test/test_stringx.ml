@@ -352,6 +352,23 @@ let test_trim_space () =
   Alcotest.(check string) "empty" "" (trim_space "");
   Alcotest.(check string) "emoji no trim" "🍎🍏🍊" (trim_space "🍎🍏🍊")
 
+let test_trim_suffix () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii: , Gophers!!!" "¡¡¡Hello"
+    (trim_suffix "¡¡¡Hello, Gophers!!!" ", Gophers!!!");
+  Alcotest.(check string)
+    "ascii: , Marmots!!!" "¡¡¡Hello, Gophers!!!"
+    (trim_suffix "¡¡¡Hello, Gophers!!!" ", Marmots!!!");
+  Alcotest.(check string) "empty suffix" "abc" (trim_suffix "abc" "");
+  Alcotest.(check string) "empty string" "" (trim_suffix "" "abc");
+  Alcotest.(check string) "full match" "" (trim_suffix "abc" "abc");
+  Alcotest.(check string) "partial match" "abc" (trim_suffix "abcde" "de");
+  Alcotest.(check string) "unicode match" "こんに" (trim_suffix "こんにちは" "ちは");
+  Alcotest.(check string) "unicode no match" "こんにちは" (trim_suffix "こんにちは" "さよ");
+  Alcotest.(check string) "emoji match" "🍎🍏" (trim_suffix "🍎🍏🍊" "🍊");
+  Alcotest.(check string) "emoji no match" "🍎🍏🍊" (trim_suffix "🍎🍏🍊" "🍎")
+
 let () =
   run "stringx"
     [
@@ -390,4 +407,6 @@ let () =
         [ test_case "trim right func basic" `Quick test_trim_right_func ] );
       ( "trim space tests",
         [ test_case "trim space basic" `Quick test_trim_space ] );
+      ( "trim suffix tests",
+        [ test_case "trim suffix basic" `Quick test_trim_suffix ] );
     ]

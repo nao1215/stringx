@@ -135,6 +135,10 @@ module Stringx : sig
   (** Trim all leading and trailing Unicode whitespace from [s].
       Unicode-aware.
       Example: trim_space " \t\n Hello, Gophers \n\t\r\n" = "Hello, Gophers" *)
+
+  val trim_suffix : string -> string -> string
+  (** Remove the provided trailing [suffix] from [s] if present (byte-based).
+      Example: trim_suffix "¡¡¡Hello, Gophers!!!" ", Gophers!!!" = "¡¡¡Hello" *)
 end
 ```
 

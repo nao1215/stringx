@@ -387,3 +387,20 @@ val trim_space : string -> string
 
     @param s The input string (UTF-8)
     @return The trimmed string *)
+
+val trim_suffix : string -> string -> string
+(** [trim_suffix s suffix] returns [s] without the provided trailing [suffix]
+    string. If [s] does not end with [suffix], [s] is returned unchanged.
+
+    This function is byte-based, not Unicode-aware.
+
+    Examples:
+    - [trim_suffix "¡¡¡Hello, Gophers!!!" ", Gophers!!!"] returns ["¡¡¡Hello"]
+    - [trim_suffix "¡¡¡Hello, Gophers!!!" ", Marmots!!!"] returns
+      ["¡¡¡Hello, Gophers!!!"]
+    - [trim_suffix "abc" ""] returns ["abc"]
+
+    @param s The input string
+    @param suffix The suffix to remove
+    @return [s] without the trailing [suffix], or [s] if [suffix] is not present
+*)

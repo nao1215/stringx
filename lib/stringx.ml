@@ -434,3 +434,15 @@ let trim_space (s : string) : string =
       | _ -> l
     in
     drop_leading uchars |> drop_trailing |> encode_utf8
+
+(** [trim_suffix s suffix] returns [s] without the provided trailing [suffix]
+    string. If [s] does not end with [suffix], [s] is returned unchanged. This
+    function is byte-based, not Unicode-aware. *)
+let trim_suffix (s : string) (suffix : string) : string =
+  let len_s = String.length s in
+  let len_suf = String.length suffix in
+  if len_suf = 0 then s
+  else if len_s < len_suf then s
+  else if String.sub s (len_s - len_suf) len_suf = suffix then
+    String.sub s 0 (len_s - len_suf)
+  else s
