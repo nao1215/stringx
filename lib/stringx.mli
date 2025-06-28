@@ -293,3 +293,16 @@ val join : string list -> string -> string
     @param elems The list of strings to join
     @param sep The separator string
     @return The joined string *)
+
+val trim : string -> string -> string
+(** [trim s cutset] returns [s] with all leading and trailing Unicode code
+    points contained in [cutset] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim "¡¡¡Hello, Gophers!!!" "!¡"] returns ["Hello, Gophers"]
+
+    @param s The input string (UTF-8)
+    @param cutset The set of Unicode code points to trim (UTF-8)
+    @return The trimmed string *)

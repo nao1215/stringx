@@ -100,6 +100,11 @@ module Stringx : sig
   val reverse : string -> string
   (** Reverse a UTF-8 encoded string by Unicode code points.
       Example: reverse "こんにちは" = "はちにんこ" *)
+
+  val trim : string -> string -> string
+  (** Trim all leading and trailing Unicode code points in [cutset] from [s].
+      Unicode-aware.
+      Example: trim "¡¡¡Hello, Gophers!!!" "!¡" = "Hello, Gophers" *)
 end
 ```
 

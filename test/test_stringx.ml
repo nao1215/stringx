@@ -227,6 +227,20 @@ let test_join () =
     (join [ "foo"; "bar"; "baz" ] "");
   Alcotest.(check string) "join all empty" "" (join [] "")
 
+let test_trim () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim" "Hello, Gophers"
+    (trim "¡¡¡Hello, Gophers!!!" "!¡");
+  Alcotest.(check string) "trim nothing" "hello" (trim "hello" "");
+  Alcotest.(check string) "trim all" "" (trim "aaa" "a");
+  Alcotest.(check string) "trim unicode" "b" (trim "ああbあ" "あ");
+  Alcotest.(check string) "trim both sides" "b" (trim "xybxy" "xy");
+  Alcotest.(check string) "trim only leading" "abc" (trim "!!abc" "!");
+  Alcotest.(check string) "trim only trailing" "abc" (trim "abc!!" "!");
+  Alcotest.(check string) "trim empty string" "" (trim "" "!");
+  Alcotest.(check string) "trim emoji" "b" (trim "🍎b🍎" "🍎")
+
 let () =
   run "stringx"
     [
@@ -254,4 +268,5 @@ let () =
       ("index tests", [ test_case "index basic" `Quick test_index ]);
       ("repeat tests", [ test_case "repeat basic" `Quick test_repeat ]);
       ("join tests", [ test_case "join basic" `Quick test_join ]);
+      ("trim tests", [ test_case "trim basic" `Quick test_trim ]);
     ]

@@ -329,3 +329,21 @@ let join (elems : string list) (sep : string) : string =
   match elems with
   | [] -> ""
   | hd :: tl -> List.fold_left (fun acc s -> acc ^ sep ^ s) hd tl
+
+(** [trim s cutset] returns [s] with all leading and trailing Unicode code
+    points contained in [cutset] removed. Unicode-aware. *)
+let trim (s : string) (cutset : string) : string =
+  if cutset = "" || s = "" then s
+  else
+    let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
+    let uchars = decode_utf8 s in
+    let rec drop_leading = function
+      | u :: tl when List.mem u set -> drop_leading tl
+      | rest -> rest
+    in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when List.mem u set -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_leading uchars |> drop_trailing |> encode_utf8
