@@ -374,3 +374,16 @@ val trim_right_func : string -> (Uchar.t -> bool) -> string
     @param s The input string (UTF-8)
     @param f The predicate function on Unicode code points
     @return The trimmed string *)
+
+val trim_space : string -> string
+(** [trim_space s] returns [s] with all leading and trailing Unicode whitespace
+    removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+    Whitespace is defined by Unicode (see [is_space]).
+
+    Examples:
+    - [trim_space " \t\n Hello, Gophers \n\t\r\n"] returns ["Hello, Gophers"]
+
+    @param s The input string (UTF-8)
+    @return The trimmed string *)

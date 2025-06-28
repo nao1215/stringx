@@ -339,6 +339,19 @@ let test_trim_right_func () =
     (trim_right_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
   Alcotest.(check string) "trim_right_func empty" "" (trim_right_func "" f)
 
+let test_trim_space () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim_space" "Hello, Gophers"
+    (trim_space " \t\n Hello, Gophers \n\t\r\n");
+  Alcotest.(check string)
+    "unicode trim_space" "Hello, Gophers"
+    (trim_space "\u{3000}Hello, Gophers\u{3000}");
+  Alcotest.(check string) "no trim_space" "Hello" (trim_space "Hello");
+  Alcotest.(check string) "all space" "" (trim_space " \t\n\u{3000}");
+  Alcotest.(check string) "empty" "" (trim_space "");
+  Alcotest.(check string) "emoji no trim" "🍎🍏🍊" (trim_space "🍎🍏🍊")
+
 let () =
   run "stringx"
     [
@@ -375,4 +388,6 @@ let () =
         [ test_case "trim right basic" `Quick test_trim_right ] );
       ( "trim right func tests",
         [ test_case "trim right func basic" `Quick test_trim_right_func ] );
+      ( "trim space tests",
+        [ test_case "trim space basic" `Quick test_trim_space ] );
     ]
