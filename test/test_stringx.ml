@@ -230,8 +230,8 @@ let test_join () =
 let test_trim () =
   let open Stringx in
   Alcotest.(check string)
-    "ascii trim" "Hello, Gophers"
-    (trim "¡¡¡Hello, Gophers!!!" "!¡");
+    "ascii trim" "Hello, Camels"
+    (trim "¡¡¡Hello, Camels!!!" "!¡");
   Alcotest.(check string) "trim nothing" "hello" (trim "hello" "");
   Alcotest.(check string) "trim all" "" (trim "aaa" "a");
   Alcotest.(check string) "trim unicode" "b" (trim "ああbあ" "あ");
@@ -253,8 +253,8 @@ let test_trim_func () =
   let open Stringx in
   let f u = not (is_letter_or_number u) in
   Alcotest.(check string)
-    "trim_func ascii/unicode" "Hello, Gophers"
-    (trim_func "¡¡¡Hello, Gophers!!!" f);
+    "trim_func ascii/unicode" "Hello, Camels"
+    (trim_func "¡¡¡Hello, Camels!!!" f);
   Alcotest.(check string)
     "trim_func nothing" "hello"
     (trim_func "hello" (fun _ -> false));
@@ -270,8 +270,8 @@ let test_trim_func () =
 let test_trim_left () =
   let open Stringx in
   Alcotest.(check string)
-    "ascii trim_left" "Hello, Gophers!!!"
-    (trim_left "¡¡¡Hello, Gophers!!!" "!¡");
+    "ascii trim_left" "Hello, Camels!!!"
+    (trim_left "¡¡¡Hello, Camels!!!" "!¡");
   Alcotest.(check string) "trim_left nothing" "hello" (trim_left "hello" "");
   Alcotest.(check string) "trim_left all" "" (trim_left "aaa" "a");
   Alcotest.(check string) "trim_left unicode" "bあ" (trim_left "ああbあ" "あ");
@@ -286,8 +286,8 @@ let test_trim_left_func () =
   let open Stringx in
   let f u = not (is_letter_or_number u) in
   Alcotest.(check string)
-    "trim_left_func ascii/unicode" "Hello, Gophers!!!"
-    (trim_left_func "¡¡¡Hello, Gophers!!!" f);
+    "trim_left_func ascii/unicode" "Hello, Camels!!!"
+    (trim_left_func "¡¡¡Hello, Camels!!!" f);
   Alcotest.(check string)
     "trim_left_func nothing" "hello"
     (trim_left_func "hello" (fun _ -> false));
@@ -305,8 +305,8 @@ let test_trim_left_func () =
 let test_trim_right () =
   let open Stringx in
   Alcotest.(check string)
-    "ascii trim_right" "¡¡¡Hello, Gophers"
-    (trim_right "¡¡¡Hello, Gophers!!!" "!¡");
+    "ascii trim_right" "¡¡¡Hello, Camels"
+    (trim_right "¡¡¡Hello, Camels!!!" "!¡");
   Alcotest.(check string) "trim_right nothing" "hello" (trim_right "hello" "");
   Alcotest.(check string) "trim_right all" "" (trim_right "aaa" "a");
   Alcotest.(check string) "trim_right unicode" "ああb" (trim_right "ああbあ" "あ");
@@ -323,8 +323,8 @@ let test_trim_right_func () =
   let open Stringx in
   let f u = not (is_letter_or_number u) in
   Alcotest.(check string)
-    "trim_right_func ascii/unicode" "¡¡¡Hello, Gophers"
-    (trim_right_func "¡¡¡Hello, Gophers!!!" f);
+    "trim_right_func ascii/unicode" "¡¡¡Hello, Camels"
+    (trim_right_func "¡¡¡Hello, Camels!!!" f);
   Alcotest.(check string)
     "trim_right_func nothing" "hello"
     (trim_right_func "hello" (fun _ -> false));
@@ -342,11 +342,11 @@ let test_trim_right_func () =
 let test_trim_space () =
   let open Stringx in
   Alcotest.(check string)
-    "ascii trim_space" "Hello, Gophers"
-    (trim_space " \t\n Hello, Gophers \n\t\r\n");
+    "ascii trim_space" "Hello, Camels"
+    (trim_space " \t\n Hello, Camels \n\t\r\n");
   Alcotest.(check string)
-    "unicode trim_space" "Hello, Gophers"
-    (trim_space "\u{3000}Hello, Gophers\u{3000}");
+    "unicode trim_space" "Hello, Camels"
+    (trim_space "\u{3000}Hello, Camels\u{3000}");
   Alcotest.(check string) "no trim_space" "Hello" (trim_space "Hello");
   Alcotest.(check string) "all space" "" (trim_space " \t\n\u{3000}");
   Alcotest.(check string) "empty" "" (trim_space "");
@@ -355,11 +355,11 @@ let test_trim_space () =
 let test_trim_suffix () =
   let open Stringx in
   Alcotest.(check string)
-    "ascii: , Gophers!!!" "¡¡¡Hello"
-    (trim_suffix "¡¡¡Hello, Gophers!!!" ", Gophers!!!");
+    "ascii: , Camels!!!" "¡¡¡Hello"
+    (trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!");
   Alcotest.(check string)
-    "ascii: , Marmots!!!" "¡¡¡Hello, Gophers!!!"
-    (trim_suffix "¡¡¡Hello, Gophers!!!" ", Marmots!!!");
+    "ascii: , Marmots!!!" "¡¡¡Hello, Camels!!!"
+    (trim_suffix "¡¡¡Hello, Camels!!!" ", Marmots!!!");
   Alcotest.(check string) "empty suffix" "abc" (trim_suffix "abc" "");
   Alcotest.(check string) "empty string" "" (trim_suffix "" "abc");
   Alcotest.(check string) "full match" "" (trim_suffix "abc" "abc");

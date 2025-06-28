@@ -301,7 +301,7 @@ val trim : string -> string -> string
     This function is Unicode-aware and trims by code points, not bytes.
 
     Examples:
-    - [trim "¡¡¡Hello, Gophers!!!" "!¡"] returns ["Hello, Gophers"]
+    - [trim "¡¡¡Hello, Camels!!!" "!¡"] returns ["Hello, Camels"]
 
     @param s The input string (UTF-8)
     @param cutset The set of Unicode code points to trim (UTF-8)
@@ -314,8 +314,8 @@ val trim_func : string -> (Uchar.t -> bool) -> string
     This function is Unicode-aware and trims by code points, not bytes.
 
     Examples:
-    - [trim_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number
-       c))] returns ["Hello, Gophers"]
+    - [trim_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number
+       c))] returns ["Hello, Camels"]
 
     @param s The input string (UTF-8)
     @param f The predicate function on Unicode code points
@@ -328,7 +328,7 @@ val trim_left : string -> string -> string
     This function is Unicode-aware and trims by code points, not bytes.
 
     Examples:
-    - [trim_left "¡¡¡Hello, Gophers!!!" "!¡"] returns ["Hello, Gophers!!!"]
+    - [trim_left "¡¡¡Hello, Camels!!!" "!¡"] returns ["Hello, Camels!!!"]
 
     @param s The input string (UTF-8)
     @param cutset The set of Unicode code points to trim (UTF-8)
@@ -341,8 +341,8 @@ val trim_left_func : string -> (Uchar.t -> bool) -> string
     This function is Unicode-aware and trims by code points, not bytes.
 
     Examples:
-    - [trim_left_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c ||
-       is_number c))] returns ["Hello, Gophers!!!"]
+    - [trim_left_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c ||
+       is_number c))] returns ["Hello, Camels!!!"]
 
     @param s The input string (UTF-8)
     @param f The predicate function on Unicode code points
@@ -355,7 +355,7 @@ val trim_right : string -> string -> string
     This function is Unicode-aware and trims by code points, not bytes.
 
     Examples:
-    - [trim_right "¡¡¡Hello, Gophers!!!" "!¡"] returns ["¡¡¡Hello, Gophers"]
+    - [trim_right "¡¡¡Hello, Camels!!!" "!¡"] returns ["¡¡¡Hello, Camels"]
 
     @param s The input string (UTF-8)
     @param cutset The set of Unicode code points to trim (UTF-8)
@@ -368,8 +368,8 @@ val trim_right_func : string -> (Uchar.t -> bool) -> string
     This function is Unicode-aware and trims by code points, not bytes.
 
     Examples:
-    - [trim_right_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c ||
-       is_number c))] returns ["¡¡¡Hello, Gophers"]
+    - [trim_right_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c ||
+       is_number c))] returns ["¡¡¡Hello, Camels"]
 
     @param s The input string (UTF-8)
     @param f The predicate function on Unicode code points
@@ -383,7 +383,7 @@ val trim_space : string -> string
     Whitespace is defined by Unicode (see [is_space]).
 
     Examples:
-    - [trim_space " \t\n Hello, Gophers \n\t\r\n"] returns ["Hello, Gophers"]
+    - [trim_space " \t\n Hello, Camels \n\t\r\n"] returns ["Hello, Camels"]
 
     @param s The input string (UTF-8)
     @return The trimmed string *)
@@ -395,9 +395,9 @@ val trim_suffix : string -> string -> string
     This function is byte-based, not Unicode-aware.
 
     Examples:
-    - [trim_suffix "¡¡¡Hello, Gophers!!!" ", Gophers!!!"] returns ["¡¡¡Hello"]
-    - [trim_suffix "¡¡¡Hello, Gophers!!!" ", Marmots!!!"] returns
-      ["¡¡¡Hello, Gophers!!!"]
+    - [trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!"] returns ["¡¡¡Hello"]
+    - [trim_suffix "¡¡¡Hello, Camels!!!" ", Marmots!!!"] returns
+      ["¡¡¡Hello, Camels!!!"]
     - [trim_suffix "abc" ""] returns ["abc"]
 
     @param s The input string

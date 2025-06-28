@@ -104,41 +104,41 @@ module Stringx : sig
   val trim : string -> string -> string
   (** Trim all leading and trailing Unicode code points in [cutset] from [s].
       Unicode-aware.
-      Example: trim "¡¡¡Hello, Gophers!!!" "!¡" = "Hello, Gophers" *)
+      Example: trim "¡¡¡Hello, Camels!!!" "!¡" = "Hello, Camels" *)
 
   val trim_func : string -> (Uchar.t -> bool) -> string
   (** Trim all leading and trailing Unicode code points in [s] that satisfy [f].
       Unicode-aware.
-      Example: trim_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Gophers" *)
+      Example: trim_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Camels" *)
 
   val trim_left : string -> string -> string
   (** Trim all leading Unicode code points in [cutset] from [s].
       Unicode-aware.
-      Example: trim_left "¡¡¡Hello, Gophers!!!" "!¡" = "Hello, Gophers!!!" *)
+      Example: trim_left "¡¡¡Hello, Camels!!!" "!¡" = "Hello, Camels!!!" *)
 
   val trim_left_func : string -> (Uchar.t -> bool) -> string
   (** Trim all leading Unicode code points in [s] that satisfy [f].
       Unicode-aware.
-      Example: trim_left_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Gophers!!!" *)
+      Example: trim_left_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Camels!!!" *)
 
   val trim_right : string -> string -> string
   (** Trim all trailing Unicode code points in [cutset] from [s].
       Unicode-aware.
-      Example: trim_right "¡¡¡Hello, Gophers!!!" "!¡" = "¡¡¡Hello, Gophers" *)
+      Example: trim_right "¡¡¡Hello, Camels!!!" "!¡" = "¡¡¡Hello, Camels" *)
 
   val trim_right_func : string -> (Uchar.t -> bool) -> string
   (** Trim all trailing Unicode code points in [s] that satisfy [f].
       Unicode-aware.
-      Example: trim_right_func "¡¡¡Hello, Gophers!!!" (fun c -> not (is_letter c || is_number c)) = "¡¡¡Hello, Gophers" *)
+      Example: trim_right_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number c)) = "¡¡¡Hello, Camels" *)
 
   val trim_space : string -> string
   (** Trim all leading and trailing Unicode whitespace from [s].
       Unicode-aware.
-      Example: trim_space " \t\n Hello, Gophers \n\t\r\n" = "Hello, Gophers" *)
+      Example: trim_space " \t\n Hello, Camels \n\t\r\n" = "Hello, Camels" *)
 
   val trim_suffix : string -> string -> string
   (** Remove the provided trailing [suffix] from [s] if present (byte-based).
-      Example: trim_suffix "¡¡¡Hello, Gophers!!!" ", Gophers!!!" = "¡¡¡Hello" *)
+      Example: trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!" = "¡¡¡Hello" *)
 end
 ```
 
