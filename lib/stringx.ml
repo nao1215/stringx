@@ -403,3 +403,16 @@ let trim_right (s : string) (cutset : string) : string =
       | _ -> l
     in
     drop_trailing uchars |> encode_utf8
+
+(** [trim_right_func s f] returns [s] with all trailing Unicode code points [c]
+    satisfying [f c] removed. Unicode-aware. *)
+let trim_right_func (s : string) (f : Uchar.t -> bool) : string =
+  if s = "" then s
+  else
+    let uchars = decode_utf8 s in
+    let rec drop_trailing l =
+      match List.rev l with
+      | u :: tl when f u -> drop_trailing (List.rev tl)
+      | _ -> l
+    in
+    drop_trailing uchars |> encode_utf8

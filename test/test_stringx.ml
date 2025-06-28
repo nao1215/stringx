@@ -319,6 +319,26 @@ let test_trim_right () =
   Alcotest.(check string) "trim_right empty string" "" (trim_right "" "!");
   Alcotest.(check string) "trim_right emoji" "🍎b" (trim_right "🍎b🍎" "🍎")
 
+let test_trim_right_func () =
+  let open Stringx in
+  let f u = not (is_letter_or_number u) in
+  Alcotest.(check string)
+    "trim_right_func ascii/unicode" "¡¡¡Hello, Gophers"
+    (trim_right_func "¡¡¡Hello, Gophers!!!" f);
+  Alcotest.(check string)
+    "trim_right_func nothing" "hello"
+    (trim_right_func "hello" (fun _ -> false));
+  Alcotest.(check string)
+    "trim_right_func all" ""
+    (trim_right_func "aaa" (fun _ -> true));
+  Alcotest.(check string)
+    "trim_right_func unicode" "ああb"
+    (trim_right_func "ああbあ" (fun u -> Uchar.to_int u = 0x3042));
+  Alcotest.(check string)
+    "trim_right_func emoji" "🍎b"
+    (trim_right_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
+  Alcotest.(check string) "trim_right_func empty" "" (trim_right_func "" f)
+
 let () =
   run "stringx"
     [
@@ -353,4 +373,6 @@ let () =
         [ test_case "trim left func basic" `Quick test_trim_left_func ] );
       ( "trim right tests",
         [ test_case "trim right basic" `Quick test_trim_right ] );
+      ( "trim right func tests",
+        [ test_case "trim right func basic" `Quick test_trim_right_func ] );
     ]
