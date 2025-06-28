@@ -267,6 +267,21 @@ let test_trim_func () =
     (trim_func "🍎b🍎" (fun u -> Uchar.to_int u = 0x1F34E));
   Alcotest.(check string) "trim_func empty" "" (trim_func "" f)
 
+let test_trim_left () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii trim_left" "Hello, Gophers!!!"
+    (trim_left "¡¡¡Hello, Gophers!!!" "!¡");
+  Alcotest.(check string) "trim_left nothing" "hello" (trim_left "hello" "");
+  Alcotest.(check string) "trim_left all" "" (trim_left "aaa" "a");
+  Alcotest.(check string) "trim_left unicode" "bあ" (trim_left "ああbあ" "あ");
+  Alcotest.(check string) "trim_left both sides" "bxy" (trim_left "xybxy" "xy");
+  Alcotest.(check string) "trim_left only leading" "abc" (trim_left "!!abc" "!");
+  Alcotest.(check string)
+    "trim_left only trailing" "abc!!" (trim_left "abc!!" "!");
+  Alcotest.(check string) "trim_left empty string" "" (trim_left "" "!");
+  Alcotest.(check string) "trim_left emoji" "b🍎" (trim_left "🍎b🍎" "🍎")
+
 let () =
   run "stringx"
     [
@@ -296,4 +311,5 @@ let () =
       ("join tests", [ test_case "join basic" `Quick test_join ]);
       ("trim tests", [ test_case "trim basic" `Quick test_trim ]);
       ("trim func tests", [ test_case "trim func basic" `Quick test_trim_func ]);
+      ("trim left tests", [ test_case "trim left basic" `Quick test_trim_left ]);
     ]

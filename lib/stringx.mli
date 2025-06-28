@@ -320,3 +320,16 @@ val trim_func : string -> (Uchar.t -> bool) -> string
     @param s The input string (UTF-8)
     @param f The predicate function on Unicode code points
     @return The trimmed string *)
+
+val trim_left : string -> string -> string
+(** [trim_left s cutset] returns [s] with all leading Unicode code points
+    contained in [cutset] removed.
+
+    This function is Unicode-aware and trims by code points, not bytes.
+
+    Examples:
+    - [trim_left "¡¡¡Hello, Gophers!!!" "!¡"] returns ["Hello, Gophers!!!"]
+
+    @param s The input string (UTF-8)
+    @param cutset The set of Unicode code points to trim (UTF-8)
+    @return The trimmed string *)
