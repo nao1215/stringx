@@ -455,3 +455,15 @@ let to_lower (s : string) : string =
     if c >= 0x41 && c <= 0x5A then Uchar.of_int (c + 0x20) else u
   in
   decode_utf8 s |> List.map lower |> encode_utf8
+(** [to_title s] returns [s] with all Unicode letters mapped to their Unicode
+    title case. Currently, only ASCII letters are supported (A-Z, a-z). TODO:
+    Support full Unicode title case in the future. *)
+
+let to_title (s : string) : string =
+  let title u =
+    let c = Uchar.to_int u in
+    if c >= 0x61 && c <= 0x7A then Uchar.of_int (c - 0x20) (* a-z -> A-Z *)
+    else if c >= 0x41 && c <= 0x5A then u (* already uppercase *)
+    else u
+  in
+  decode_utf8 s |> List.map title |> encode_utf8

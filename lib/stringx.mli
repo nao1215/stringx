@@ -419,3 +419,18 @@ val to_lower : string -> string
 
     @param s The input string (UTF-8)
     @return The lowercased string *)
+
+val to_title : string -> string
+(** [to_title s] returns [s] with all Unicode letters mapped to their Unicode
+    title case.
+
+    Currently, only ASCII letters are supported (A-Z, a-z). TODO: Support full
+    Unicode title case in the future.
+
+    Examples:
+    - [to_title "her royal highness"] returns ["HER ROYAL HIGHNESS"]
+    - [to_title "loud noises"] returns ["LOUD NOISES"]
+    - [to_title "брат"] returns ["брат"]
+
+    @param s The input string (UTF-8)
+    @return The title-cased string *)
