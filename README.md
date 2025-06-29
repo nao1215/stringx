@@ -1,3 +1,6 @@
+[![Build and Test](https://github.com/nao1215/stringx/actions/workflows/test.yml/badge.svg)](https://github.com/nao1215/stringx/actions/workflows/test.yml)
+[![Dependabot Updates](https://github.com/nao1215/stringx/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/nao1215/stringx/actions/workflows/dependabot/dependabot-updates)
+
 # Unicode-aware string utilities in OCaml
 
 **stringx** is a OCaml library that brings robust Unicode (UTF-8) support to your string processing tasks.
