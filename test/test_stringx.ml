@@ -369,6 +369,17 @@ let test_trim_suffix () =
   Alcotest.(check string) "emoji match" "🍎🍏" (trim_suffix "🍎🍏🍊" "🍊");
   Alcotest.(check string) "emoji no match" "🍎🍏🍊" (trim_suffix "🍎🍏🍊" "🍎")
 
+let test_to_lower () =
+  let open Stringx in
+  Alcotest.(check string) "ascii" "camel" (to_lower "Camel");
+  Alcotest.(check string) "all upper" "camel" (to_lower "CAMEL");
+  Alcotest.(check string) "all lower" "camel" (to_lower "camel");
+  Alcotest.(check string) "mixed" "camel123" (to_lower "CaMeL123");
+  Alcotest.(check string) "unicode" "こんにちは" (to_lower "こんにちは");
+  Alcotest.(check string) "emoji" "🍎" (to_lower "🍎");
+  Alcotest.(check string) "empty" "" (to_lower "");
+  Alcotest.(check string) "ascii+unicode" "camelこんにちは" (to_lower "CAMELこんにちは")
+
 let () =
   run "stringx"
     [
@@ -409,4 +420,5 @@ let () =
         [ test_case "trim space basic" `Quick test_trim_space ] );
       ( "trim suffix tests",
         [ test_case "trim suffix basic" `Quick test_trim_suffix ] );
+      ("to lower tests", [ test_case "to lower basic" `Quick test_to_lower ]);
     ]

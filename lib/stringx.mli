@@ -404,3 +404,18 @@ val trim_suffix : string -> string -> string
     @param suffix The suffix to remove
     @return [s] without the trailing [suffix], or [s] if [suffix] is not present
 *)
+
+val to_lower : string -> string
+(** [to_lower s] returns [s] with all Unicode letters mapped to their lower
+    case.
+
+    This function currently only lowercases ASCII letters (A-Z). Unicode-aware
+    lowercasing is not yet implemented.
+
+    Examples:
+    - [to_lower "Camel"] returns ["camel"]
+    - [to_lower "CAMEL"] returns ["camel"]
+    - [to_lower "こんにちは"] returns ["こんにちは"]
+
+    @param s The input string (UTF-8)
+    @return The lowercased string *)

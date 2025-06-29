@@ -446,3 +446,12 @@ let trim_suffix (s : string) (suffix : string) : string =
   else if String.sub s (len_s - len_suf) len_suf = suffix then
     String.sub s 0 (len_s - len_suf)
   else s
+
+(** [to_lower s] returns [s] with all Unicode letters mapped to their lower
+    case. This function is ASCII-only for now. *)
+let to_lower (s : string) : string =
+  let lower u =
+    let c = Uchar.to_int u in
+    if c >= 0x41 && c <= 0x5A then Uchar.of_int (c + 0x20) else u
+  in
+  decode_utf8 s |> List.map lower |> encode_utf8
