@@ -102,6 +102,79 @@ module Stringx : sig
   (** Reverse a UTF-8 encoded string by Unicode code points.
       Example: reverse "こんにちは" = "はちにんこ" *)
 
+  val to_camel_case : string -> string
+  (** Convert words separated by space, underscore, or hyphen to camel case.
+      Leading, trailing, and duplicate separators are preserved.
+      Example: to_camel_case "some_words" = "someWords"
+      Example: to_camel_case "OCAML_IS_GREAT" = "ocamlIsGreat" *)
+
+  val to_kebab_case : string -> string
+  (** Convert a string to kebab-case.
+      - Uppercase ASCII letters are converted to lowercase.
+      - Word boundaries are detected at transitions from lowercase to uppercase, from letter to digit, and at underscores, spaces, or hyphens.
+      - All word boundaries are replaced with a single hyphen '-'.
+      - Multiple consecutive separators are treated as a single hyphen.
+      - Leading and trailing hyphens are removed.
+      Examples:
+      - to_kebab_case "FirstName" = "first-name"
+      - to_kebab_case "HTTPServer" = "http-server"
+      - to_kebab_case "NoHTTPS" = "no-https"
+      - to_kebab_case "GO_PATH" = "go-path"
+      - to_kebab_case "GO PATH" = "go-path"
+      - to_kebab_case "GO-PATH" = "go-path"
+      - to_kebab_case "http2xx" = "http-2xx"
+      - to_kebab_case "HTTP20xOK" = "http-20x-ok"
+      - to_kebab_case "Duration2m3s" = "duration-2m-3s"
+      - to_kebab_case "Bld4Floor3rd" = "bld4-floor-3rd"
+      - to_kebab_case "abc" = "abc"
+      - to_kebab_case "A" = "a"
+      - to_kebab_case "FooBarBaz" = "foo-bar-baz"
+      - to_kebab_case "" = ""
+  *)
+
+  val to_pascal_case : string -> string
+  (** Convert words separated by space, underscore, or hyphen to PascalCase.
+      - Words are split on '_', '-', or space.
+      - Each word is capitalized (first letter uppercase, rest lowercase).
+      - All-uppercase words are handled (e.g. "OCAML_IS_GREAT" → "OcamlIsGreat").
+      - If there are no separators, the first letter is uppercased, the rest are unchanged.
+      - Leading and trailing underscores are preserved (e.g. "_complex__case_" → "_ComplexCase_").
+      - Multiple consecutive separators are treated as a single word boundary.
+      - Hyphens and spaces are also treated as word boundaries.
+      Examples:
+      - to_pascal_case "some_words" = "SomeWords"
+      - to_pascal_case "_complex__case_" = "_ComplexCase_"
+      - to_pascal_case "OCAML_IS_GREAT" = "OcamlIsGreat"
+      - to_pascal_case "alreadyPascal" = "AlreadyPascal"
+      - to_pascal_case "foo-BarBaz" = "FooBarBaz"
+      - to_pascal_case "word" = "Word"
+      - to_pascal_case "" = ""
+  *)
+
+  val to_snake_case : string -> string
+  (** Convert a string to snake_case.
+      - Uppercase ASCII letters are converted to lowercase.
+      - Word boundaries are detected at transitions from lowercase to uppercase, from letter to digit, and at underscores, spaces, or hyphens.
+      - All word boundaries are replaced with a single underscore '_'.
+      - Multiple consecutive separators are treated as a single underscore.
+      - Leading and trailing underscores are removed.
+      Examples:
+      - to_snake_case "FirstName" = "first_name"
+      - to_snake_case "HTTPServer" = "http_server"
+      - to_snake_case "NoHTTPS" = "no_https"
+      - to_snake_case "GO_PATH" = "go_path"
+      - to_snake_case "GO PATH" = "go_path"
+      - to_snake_case "GO-PATH" = "go_path"
+      - to_snake_case "http2xx" = "http_2xx"
+      - to_snake_case "HTTP20xOK" = "http_20x_ok"
+      - to_snake_case "Duration2m3s" = "duration_2m3s"
+      - to_snake_case "Bld4Floor3rd" = "bld4_floor_3rd"
+      - to_snake_case "abc" = "abc"
+      - to_snake_case "A" = "a"
+      - to_snake_case "FooBarBaz" = "foo_bar_baz"
+      - to_snake_case "" = ""
+  *)
+
   val to_lower : string -> string
   (** Convert all Unicode letters in [s] to lower case (ASCII only).
       Example: to_lower "Camel" = "camel" *)
