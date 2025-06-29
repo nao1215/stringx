@@ -476,3 +476,113 @@ let to_upper (s : string) : string =
     if c >= 0x61 && c <= 0x7A then Uchar.of_int (c - 0x20) else u
   in
   decode_utf8 s |> List.map upper |> encode_utf8
+
+(** [to_camel_case s] converts words separated by space, underscore, or hyphen
+    to camel case. Leading and trailing underscores are preserved. Multiple
+    consecutive separators are treated as a single word boundary. If there are
+    no separators, the string is returned unchanged.
+
+    - Words are split on '_', '-', or space.
+    - The first word is lowercased (even if originally all uppercase).
+    - Subsequent words are capitalized (first letter uppercase, rest lowercase).
+    - All-uppercase words are handled (e.g. "GOLANG_IS_GREAT" →
+      "golangIsGreat").
+    - If there are no separators, the original string is returned (e.g.
+      "alreadyCamel" → "alreadyCamel").
+    - Leading and trailing underscores are preserved (e.g. "_complex__case_" →
+      "_complexCase_").
+    - Hyphens and spaces are also treated as word boundaries.
+
+    Examples:
+    - [to_camel_case "some_words"] returns ["someWords"]
+    - [to_camel_case "_complex__case_"] returns ["_complexCase_"]
+    - [to_camel_case "GOLANG_IS_GREAT"] returns ["golangIsGreat"]
+    - [to_camel_case "alreadyCamel"] returns ["alreadyCamel"]
+    - [to_camel_case "foo-BarBaz"] returns ["fooBarBaz"]
+    - [to_camel_case "word"] returns ["word"]
+    - [to_camel_case ""] returns [""] *)
+let to_camel_case (s : string) : string =
+  let is_sep c = c = '_' || c = '-' || c = ' ' in
+  let len = String.length s in
+
+  (* count leading '_' *)
+  let rec count_lead i =
+    if i < len && s.[i] = '_' then 1 + count_lead (i + 1) else 0
+  in
+  let lead = count_lead 0 in
+
+  (* count trailing '_' *)
+  let rec count_trail i =
+    if i >= 0 && s.[i] = '_' then 1 + count_trail (i - 1) else 0
+  in
+  let trail = count_trail (len - 1) in
+
+  let core_start = lead in
+  let core_len = len - lead - trail in
+  let core = if core_len > 0 then String.sub s core_start core_len else "" in
+
+  (* helper: split on runs of separators *)
+  let split_core str =
+    let n = String.length str in
+    let rec aux i acc =
+      if i >= n then List.rev acc
+      else if is_sep str.[i] then aux (i + 1) acc
+      else
+        let j = ref i in
+        while !j < n && not (is_sep str.[!j]) do
+          incr j
+        done;
+        let word = String.sub str i (!j - i) in
+        aux !j (word :: acc)
+    in
+    aux 0 []
+  in
+
+  (* helper: check all-uppercase ASCII *)
+  let is_all_upper seg =
+    seg <> "" && String.for_all (fun c -> 'A' <= c && c <= 'Z') seg
+  in
+
+  let buf = Buffer.create len in
+
+  (* add leading underscores *)
+  for _ = 1 to lead do
+    Buffer.add_char buf '_'
+  done;
+
+  (if core = "" then () (* nothing to add *)
+   else if not (String.exists (fun c -> is_sep c) core) then
+     (* no separators: keep original *)
+     Buffer.add_string buf core
+   else
+     let segments = split_core core in
+     match segments with
+     | [] -> ()
+     | first :: rest ->
+         (* first segment: all lowercase *)
+         Buffer.add_string buf (String.lowercase_ascii first);
+         List.iter
+           (fun seg ->
+             if seg = "" then ()
+             else if is_all_upper seg then (
+               let low = String.lowercase_ascii seg in
+               let c0 = low.[0] in
+               Buffer.add_char buf (Char.uppercase_ascii c0);
+               if String.length low > 1 then
+                 Buffer.add_string buf
+                   (String.sub low 1 (String.length low - 1)))
+             else
+               (* mixed-case or lowercase: preserve except first char *)
+               let c0 = seg.[0] in
+               Buffer.add_char buf (Char.uppercase_ascii c0);
+               if String.length seg > 1 then
+                 Buffer.add_string buf
+                   (String.sub seg 1 (String.length seg - 1)))
+           rest);
+
+  (* add trailing underscores *)
+  for _ = 1 to trail do
+    Buffer.add_char buf '_'
+  done;
+
+  Buffer.contents buf

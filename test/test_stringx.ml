@@ -405,6 +405,27 @@ let test_to_upper () =
   Alcotest.(check string) "empty" "" (to_upper "");
   Alcotest.(check string) "ascii+unicode" "CAMELこんにちは" (to_upper "Camelこんにちは")
 
+let test_to_camel_case () =
+  let open Stringx in
+  Alcotest.(check string) "some_words" "someWords" (to_camel_case "some_words");
+  Alcotest.(check string)
+    "http_server" "httpServer"
+    (to_camel_case "http_server");
+  Alcotest.(check string) "no_https" "noHttps" (to_camel_case "no_https");
+  Alcotest.(check string)
+    "_complex__case_" "_complexCase_"
+    (to_camel_case "_complex__case_");
+  Alcotest.(check string) "some words" "someWords" (to_camel_case "some words");
+  Alcotest.(check string)
+    "OCAML_IS_GREAT" "ocamlIsGreat"
+    (to_camel_case "OCAML_IS_GREAT");
+  Alcotest.(check string)
+    "alreadyCamel" "alreadyCamel"
+    (to_camel_case "alreadyCamel");
+  Alcotest.(check string) "empty" "" (to_camel_case "");
+  Alcotest.(check string) "single word" "word" (to_camel_case "word");
+  Alcotest.(check string) "hyphen" "fooBarBaz" (to_camel_case "foo-BarBaz")
+
 let () =
   run "stringx"
     [
@@ -448,4 +469,6 @@ let () =
       ("to lower tests", [ test_case "to lower basic" `Quick test_to_lower ]);
       ("to title tests", [ test_case "to title basic" `Quick test_to_title ]);
       ("to upper tests", [ test_case "to upper basic" `Quick test_to_upper ]);
+      ( "to camel case tests",
+        [ test_case "to camel case basic" `Quick test_to_camel_case ] );
     ]

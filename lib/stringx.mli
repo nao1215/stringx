@@ -449,3 +449,26 @@ val to_upper : string -> string
 
     @param s The input string (UTF-8)
     @return The uppercased string *)
+
+val to_camel_case : string -> string
+(** Convert words separated by space, underscore, or hyphen to camel case.
+    - Words are split on '_', '-', or space.
+    - The first word is lowercased (even if originally all uppercase).
+    - Subsequent words are capitalized (first letter uppercase, rest lowercase).
+    - All-uppercase words are handled (e.g. "GOLANG_IS_GREAT" →
+      "golangIsGreat").
+    - If there are no separators, the original string is returned (e.g.
+      "alreadyCamel" → "alreadyCamel").
+    - Leading and trailing underscores are preserved (e.g. "_complex__case_" →
+      "_complexCase_").
+    - Multiple consecutive separators are treated as a single word boundary.
+    - Hyphens and spaces are also treated as word boundaries.
+
+    Examples:
+    - to_camel_case "some_words" = "someWords"
+    - to_camel_case "_complex__case_" = "_complexCase_"
+    - to_camel_case "OCAML_IS_GREAT" = "ocamlIsGreat"
+    - to_camel_case "alreadyCamel" = "alreadyCamel"
+    - to_camel_case "foo-BarBaz" = "fooBarBaz"
+    - to_camel_case "word" = "word"
+    - to_camel_case "" = "" *)

@@ -102,6 +102,12 @@ module Stringx : sig
   (** Reverse a UTF-8 encoded string by Unicode code points.
       Example: reverse "こんにちは" = "はちにんこ" *)
 
+  val to_camel_case : string -> string
+  (** Convert words separated by space, underscore, or hyphen to camel case.
+      Leading, trailing, and duplicate separators are preserved.
+      Example: to_camel_case "some_words" = "someWords"
+      Example: to_camel_case "OCAML_IS_GREAT" = "ocamlIsGreat" *)
+
   val to_lower : string -> string
   (** Convert all Unicode letters in [s] to lower case (ASCII only).
       Example: to_lower "Camel" = "camel" *)
