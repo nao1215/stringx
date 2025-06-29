@@ -426,6 +426,29 @@ let test_to_camel_case () =
   Alcotest.(check string) "single word" "word" (to_camel_case "word");
   Alcotest.(check string) "hyphen" "fooBarBaz" (to_camel_case "foo-BarBaz")
 
+let test_to_kebab_case () =
+  let open Stringx in
+  Alcotest.(check string) "FirstName" "first-name" (to_kebab_case "FirstName");
+  Alcotest.(check string)
+    "HTTPServer" "http-server"
+    (to_kebab_case "HTTPServer");
+  Alcotest.(check string) "NoHTTPS" "no-https" (to_kebab_case "NoHTTPS");
+  Alcotest.(check string) "GO_PATH" "go-path" (to_kebab_case "GO_PATH");
+  Alcotest.(check string) "GO PATH" "go-path" (to_kebab_case "GO PATH");
+  Alcotest.(check string) "GO-PATH" "go-path" (to_kebab_case "GO-PATH");
+  Alcotest.(check string) "http2xx" "http-2xx" (to_kebab_case "http2xx");
+  Alcotest.(check string) "HTTP20xOK" "http-20x-ok" (to_kebab_case "HTTP20xOK");
+  Alcotest.(check string)
+    "Duration2m3s" "duration-2m-3s"
+    (to_kebab_case "Duration2m3s");
+  Alcotest.(check string)
+    "Bld4Floor3rd" "bld4-floor-3rd"
+    (to_kebab_case "Bld4Floor3rd");
+  Alcotest.(check string) "empty" "" (to_kebab_case "");
+  Alcotest.(check string) "single lower" "abc" (to_kebab_case "abc");
+  Alcotest.(check string) "single upper" "a" (to_kebab_case "A");
+  Alcotest.(check string) "hyphens" "foo-bar-baz" (to_kebab_case "FooBarBaz")
+
 let () =
   run "stringx"
     [
@@ -471,4 +494,6 @@ let () =
       ("to upper tests", [ test_case "to upper basic" `Quick test_to_upper ]);
       ( "to camel case tests",
         [ test_case "to camel case basic" `Quick test_to_camel_case ] );
+      ( "to kebab case tests",
+        [ test_case "to kebab case basic" `Quick test_to_kebab_case ] );
     ]

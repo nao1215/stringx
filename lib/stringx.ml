@@ -586,3 +586,97 @@ let to_camel_case (s : string) : string =
   done;
 
   Buffer.contents buf
+
+(** [to_kebab_case s] converts a string to kebab-case.
+    - Uppercase ASCII letters are converted to lowercase.
+    - Word boundaries are detected at transitions from lowercase to uppercase,
+      from letter to digit, and at underscores, spaces, or hyphens.
+    - All word boundaries are replaced with a single hyphen '-'.
+    - Multiple consecutive separators are treated as a single hyphen.
+    - Leading and trailing hyphens are removed.
+    - If the input is empty, returns the empty string.
+
+    Examples:
+    - [to_kebab_case "FirstName"] returns ["first-name"]
+    - [to_kebab_case "HTTPServer"] returns ["http-server"]
+    - [to_kebab_case "NoHTTPS"] returns ["no-https"]
+    - [to_kebab_case "GO_PATH"] returns ["go-path"]
+    - [to_kebab_case "GO PATH"] returns ["go-path"]
+    - [to_kebab_case "GO-PATH"] returns ["go-path"]
+    - [to_kebab_case "http2xx"] returns ["http-2xx"]
+    - [to_kebab_case "HTTP20xOK"] returns ["http-20x-ok"]
+    - [to_kebab_case "Duration2m3s"] returns ["duration-2m-3s"]
+    - [to_kebab_case "Bld4Floor3rd"] returns ["bld4-floor-3rd"] *)
+let to_kebab_case (s : string) : string =
+  (* Character classification helpers *)
+  let is_lower c = 'a' <= c && c <= 'z' in
+  let is_upper c = 'A' <= c && c <= 'Z' in
+  let is_digit c = '0' <= c && c <= '9' in
+  let is_sep c = c = '_' || c = '-' || c = ' ' in
+
+  let len = String.length s in
+  (* Step 1: Split the string into raw segments at logical boundaries *)
+  let raw_segs = ref [] in
+  let i = ref 0 in
+  while !i < len do
+    (* Skip any separator characters *)
+    while !i < len && is_sep s.[!i] do
+      incr i
+    done;
+    if !i < len then (
+      let start = !i in
+      incr i;
+      (* Advance until next separator or case/digit boundary *)
+      while
+        !i < len
+        && (not (is_sep s.[!i]))
+        && not
+             (let prev = s.[!i - 1] in
+              let curr = s.[!i] in
+              let next_opt = if !i + 1 < len then Some s.[!i + 1] else None in
+              (* lower→upper transition *)
+              (is_lower prev && is_upper curr)
+              (* acronym boundary: upper→upper followed by lower *)
+              || (is_upper prev && is_upper curr
+                 && match next_opt with Some c2 -> is_lower c2 | None -> false)
+              (* letter→digit *)
+              || ((is_lower prev || is_upper prev) && is_digit curr)
+              (* digit→upper *)
+              || (is_digit prev && is_upper curr))
+      do
+        incr i
+      done;
+      let seg = String.sub s start (!i - start) in
+      raw_segs := seg :: !raw_segs)
+  done;
+  let segs = Array.of_list (List.rev !raw_segs) in
+
+  (* Step 2: Merge purely numeric segments with adjacent segments to avoid
+     isolated numbers *)
+  let n = Array.length segs in
+  let merged = ref [] in
+  let j = ref 0 in
+  while !j < n do
+    let seg = segs.(!j) in
+    let only_digits = seg <> "" && String.for_all (fun c -> is_digit c) seg in
+    if only_digits && !j > 0 && !j < n - 1 then
+      let next = segs.(!j + 1) in
+      if next <> "" && is_upper next.[0] then (
+        (* If next segment starts with uppercase, attach number to previous *)
+        let prev = List.hd !merged in
+        merged := List.tl !merged;
+        merged := (prev ^ seg) :: !merged;
+        incr j)
+      else (
+        (* Otherwise attach number to following segment *)
+        segs.(!j + 1) <- seg ^ next;
+        incr j)
+    else (
+      (* Keep segment as is *)
+      merged := seg :: !merged;
+      incr j)
+  done;
+  let final = List.rev !merged in
+
+  (* Step 3: Lowercase everything and join with hyphens *)
+  String.concat "-" (List.map String.lowercase_ascii final)

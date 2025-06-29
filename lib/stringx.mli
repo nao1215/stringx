@@ -472,3 +472,29 @@ val to_camel_case : string -> string
     - to_camel_case "foo-BarBaz" = "fooBarBaz"
     - to_camel_case "word" = "word"
     - to_camel_case "" = "" *)
+
+val to_kebab_case : string -> string
+(** [to_kebab_case s] converts a string to kebab-case.
+    - Uppercase ASCII letters are converted to lowercase.
+    - Word boundaries are detected at transitions from lowercase to uppercase,
+      from letter to digit, and at underscores, spaces, or hyphens.
+    - All word boundaries are replaced with a single hyphen '-'.
+    - Multiple consecutive separators are treated as a single hyphen.
+    - Leading and trailing hyphens are removed.
+    - If the input is empty, returns the empty string.
+
+    Examples:
+    - to_kebab_case "FirstName" = "first-name"
+    - to_kebab_case "HTTPServer" = "http-server"
+    - to_kebab_case "NoHTTPS" = "no-https"
+    - to_kebab_case "GO_PATH" = "go-path"
+    - to_kebab_case "GO PATH" = "go-path"
+    - to_kebab_case "GO-PATH" = "go-path"
+    - to_kebab_case "http2xx" = "http-2xx"
+    - to_kebab_case "HTTP20xOK" = "http-20x-ok"
+    - to_kebab_case "Duration2m3s" = "duration-2m-3s"
+    - to_kebab_case "Bld4Floor3rd" = "bld4-floor-3rd"
+    - to_kebab_case "abc" = "abc"
+    - to_kebab_case "A" = "a"
+    - to_kebab_case "FooBarBaz" = "foo-bar-baz"
+    - to_kebab_case "" = "" *)
