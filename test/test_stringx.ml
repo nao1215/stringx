@@ -369,6 +369,42 @@ let test_trim_suffix () =
   Alcotest.(check string) "emoji match" "🍎🍏" (trim_suffix "🍎🍏🍊" "🍊");
   Alcotest.(check string) "emoji no match" "🍎🍏🍊" (trim_suffix "🍎🍏🍊" "🍎")
 
+let test_to_lower () =
+  let open Stringx in
+  Alcotest.(check string) "ascii" "camel" (to_lower "Camel");
+  Alcotest.(check string) "all upper" "camel" (to_lower "CAMEL");
+  Alcotest.(check string) "all lower" "camel" (to_lower "camel");
+  Alcotest.(check string) "mixed" "camel123" (to_lower "CaMeL123");
+  Alcotest.(check string) "unicode" "こんにちは" (to_lower "こんにちは");
+  Alcotest.(check string) "emoji" "🍎" (to_lower "🍎");
+  Alcotest.(check string) "empty" "" (to_lower "");
+  Alcotest.(check string) "ascii+unicode" "camelこんにちは" (to_lower "CAMELこんにちは")
+
+let test_to_title () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii phrase" "HER ROYAL HIGHNESS"
+    (to_title "her royal highness");
+  Alcotest.(check string) "ascii loud" "LOUD NOISES" (to_title "loud noises");
+  Alcotest.(check string) "ascii already upper" "LOUD" (to_title "LOUD");
+  Alcotest.(check string) "ascii mixed" "CAMEL" (to_title "Camel");
+  Alcotest.(check string) "unicode cyrillic" "брат" (to_title "брат");
+  Alcotest.(check string) "hiragana" "こんにちは" (to_title "こんにちは");
+  Alcotest.(check string) "emoji" "🍎🍏" (to_title "🍎🍏");
+  Alcotest.(check string) "empty" "" (to_title "");
+  Alcotest.(check string) "ascii+unicode" "CAMELこんにちは" (to_title "Camelこんにちは")
+
+let test_to_upper () =
+  let open Stringx in
+  Alcotest.(check string) "ascii" "CAMEL" (to_upper "Camel");
+  Alcotest.(check string) "all lower" "CAMEL" (to_upper "camel");
+  Alcotest.(check string) "all upper" "CAMEL" (to_upper "CAMEL");
+  Alcotest.(check string) "mixed" "CAMEL123" (to_upper "CaMeL123");
+  Alcotest.(check string) "unicode" "こんにちは" (to_upper "こんにちは");
+  Alcotest.(check string) "emoji" "🍎" (to_upper "🍎");
+  Alcotest.(check string) "empty" "" (to_upper "");
+  Alcotest.(check string) "ascii+unicode" "CAMELこんにちは" (to_upper "Camelこんにちは")
+
 let () =
   run "stringx"
     [
@@ -409,4 +445,7 @@ let () =
         [ test_case "trim space basic" `Quick test_trim_space ] );
       ( "trim suffix tests",
         [ test_case "trim suffix basic" `Quick test_trim_suffix ] );
+      ("to lower tests", [ test_case "to lower basic" `Quick test_to_lower ]);
+      ("to title tests", [ test_case "to title basic" `Quick test_to_title ]);
+      ("to upper tests", [ test_case "to upper basic" `Quick test_to_upper ]);
     ]

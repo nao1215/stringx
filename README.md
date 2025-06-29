@@ -102,6 +102,19 @@ module Stringx : sig
   (** Reverse a UTF-8 encoded string by Unicode code points.
       Example: reverse "こんにちは" = "はちにんこ" *)
 
+  val to_lower : string -> string
+  (** Convert all Unicode letters in [s] to lower case (ASCII only).
+      Example: to_lower "Camel" = "camel" *)
+
+  val to_title : string -> string
+  (** Convert all Unicode letters in [s] to Unicode title case (ASCII only).
+      TODO: Support full Unicode title case in the future.
+      Example: to_title "her royal highness" = "HER ROYAL HIGHNESS" *)
+
+  val to_upper : string -> string
+  (** Convert all Unicode letters in [s] to upper case (ASCII only).
+      Example: to_upper "Camel" = "CAMEL" *)
+
   val trim : string -> string -> string
   (** Trim all leading and trailing Unicode code points in [cutset] from [s].
       Unicode-aware.

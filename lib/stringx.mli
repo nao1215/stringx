@@ -404,3 +404,48 @@ val trim_suffix : string -> string -> string
     @param suffix The suffix to remove
     @return [s] without the trailing [suffix], or [s] if [suffix] is not present
 *)
+
+val to_lower : string -> string
+(** [to_lower s] returns [s] with all Unicode letters mapped to their lower
+    case.
+
+    This function currently only lowercases ASCII letters (A-Z). Unicode-aware
+    lowercasing is not yet implemented.
+
+    Examples:
+    - [to_lower "Camel"] returns ["camel"]
+    - [to_lower "CAMEL"] returns ["camel"]
+    - [to_lower "こんにちは"] returns ["こんにちは"]
+
+    @param s The input string (UTF-8)
+    @return The lowercased string *)
+
+val to_title : string -> string
+(** [to_title s] returns [s] with all Unicode letters mapped to their Unicode
+    title case.
+
+    Currently, only ASCII letters are supported (A-Z, a-z). TODO: Support full
+    Unicode title case in the future.
+
+    Examples:
+    - [to_title "her royal highness"] returns ["HER ROYAL HIGHNESS"]
+    - [to_title "loud noises"] returns ["LOUD NOISES"]
+    - [to_title "брат"] returns ["брат"]
+
+    @param s The input string (UTF-8)
+    @return The title-cased string *)
+
+val to_upper : string -> string
+(** [to_upper s] returns [s] with all Unicode letters mapped to their upper
+    case.
+
+    This function currently only uppercases ASCII letters (a-z). TODO: Support
+    full Unicode uppercasing in the future.
+
+    Examples:
+    - [to_upper "Camel"] returns ["CAMEL"]
+    - [to_upper "camel"] returns ["CAMEL"]
+    - [to_upper "こんにちは"] returns ["こんにちは"]
+
+    @param s The input string (UTF-8)
+    @return The uppercased string *)
