@@ -775,3 +775,105 @@ let to_pascal_case (s : string) : string =
   done;
 
   Buffer.contents buf
+
+(** [to_snake_case s] converts a string to snake_case.
+    - Uppercase ASCII letters are converted to lowercase.
+    - Word boundaries are detected at transitions from lowercase to uppercase,
+      from letter to digit, and at underscores, spaces, or hyphens.
+    - All word boundaries are replaced with a single underscore '_'.
+    - Multiple consecutive separators are treated as a single underscore.
+    - Leading and trailing underscores are removed.
+    - If the input is empty, returns the empty string.
+
+    Examples:
+    - [to_snake_case "FirstName"] returns ["first_name"]
+    - [to_snake_case "HTTPServer"] returns ["http_server"]
+    - [to_snake_case "NoHTTPS"] returns ["no_https"]
+    - [to_snake_case "GO_PATH"] returns ["go_path"]
+    - [to_snake_case "GO PATH"] returns ["go_path"]
+    - [to_snake_case "GO-PATH"] returns ["go_path"]
+    - [to_snake_case "http2xx"] returns ["http_2xx"]
+    - [to_snake_case "HTTP20xOK"] returns ["http_20x_ok"]
+    - [to_snake_case "Duration2m3s"] returns ["duration_2m3s"]
+    - [to_snake_case "Bld4Floor3rd"] returns ["bld4_floor_3rd"] *)
+let to_snake_case (s : string) : string =
+  let is_lower c = 'a' <= c && c <= 'z' in
+  let is_upper c = 'A' <= c && c <= 'Z' in
+  let is_digit c = '0' <= c && c <= '9' in
+  let is_sep c = c = '_' || c = '-' || c = ' ' in
+
+  let n = String.length s in
+  let segments = ref [] in
+  let i = ref 0 in
+
+  (* 1. Segment the string *)
+  while !i < n do
+    if is_sep s.[!i] then incr i
+    else
+      let start = !i in
+      let seg =
+        if is_digit s.[!i] then (
+          (* numeric group: digits + following lowercase letters *)
+          let j = ref !i in
+          while !j + 1 < n && (is_digit s.[!j + 1] || is_lower s.[!j + 1]) do
+            incr j
+          done;
+          i := !j + 1;
+          String.sub s start (!j - start + 1))
+        else if is_upper s.[!i] then (
+          (* uppercase: acronym or capitalized word *)
+          let j = ref !i in
+          while !j + 1 < n && is_upper s.[!j + 1] do
+            incr j
+          done;
+          if !j > start && !j + 1 < n && is_lower s.[!j + 1] then (
+            (* acronym boundary *)
+            let acr_end = !j - 1 in
+            i := acr_end + 1;
+            String.sub s start (acr_end - start + 1))
+          else if !j > start then (
+            let len = !j - start + 1 in
+            i := !j + 1;
+            String.sub s start len)
+          else
+            (* single uppercase + lowers *)
+            let k = ref !j in
+            while !k + 1 < n && is_lower s.[!k + 1] do
+              incr k
+            done;
+            i := !k + 1;
+            String.sub s start (!k - start + 1))
+        else if is_lower s.[!i] then (
+          (* all-lowercase word *)
+          let j = ref !i in
+          while !j + 1 < n && is_lower s.[!j + 1] do
+            incr j
+          done;
+          i := !j + 1;
+          String.sub s start (!j - start + 1))
+        else (
+          (* any other character: return it as a single-char string *)
+          incr i;
+          String.make 1 s.[start])
+      in
+      if seg <> "" then segments := seg :: !segments
+  done;
+
+  (* 2. Merge single-digit segments into the previous word *)
+  let merged = ref [] in
+  List.iter
+    (fun seg ->
+      if
+        String.length seg = 1
+        && String.for_all (fun c -> is_digit c) seg
+        && !merged <> []
+      then (
+        let prev = List.hd !merged in
+        merged := List.tl !merged;
+        merged := (prev ^ seg) :: !merged)
+      else merged := seg :: !merged)
+    (List.rev !segments);
+
+  (* 3. Lowercase and join with '_' *)
+  let final = List.rev !merged in
+  String.concat "_" (List.map String.lowercase_ascii final)

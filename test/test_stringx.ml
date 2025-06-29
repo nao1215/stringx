@@ -470,6 +470,29 @@ let test_to_pascal_case () =
     (to_pascal_case "http_server");
   Alcotest.(check string) "no_https" "NoHttps" (to_pascal_case "no_https")
 
+let test_to_snake_case () =
+  let open Stringx in
+  Alcotest.(check string) "FirstName" "first_name" (to_snake_case "FirstName");
+  Alcotest.(check string)
+    "HTTPServer" "http_server"
+    (to_snake_case "HTTPServer");
+  Alcotest.(check string) "NoHTTPS" "no_https" (to_snake_case "NoHTTPS");
+  Alcotest.(check string) "GO_PATH" "go_path" (to_snake_case "GO_PATH");
+  Alcotest.(check string) "GO PATH" "go_path" (to_snake_case "GO PATH");
+  Alcotest.(check string) "GO-PATH" "go_path" (to_snake_case "GO-PATH");
+  Alcotest.(check string) "http2xx" "http_2xx" (to_snake_case "http2xx");
+  Alcotest.(check string) "HTTP20xOK" "http_20x_ok" (to_snake_case "HTTP20xOK");
+  Alcotest.(check string)
+    "Duration2m3s" "duration_2m3s"
+    (to_snake_case "Duration2m3s");
+  Alcotest.(check string)
+    "Bld4Floor3rd" "bld4_floor_3rd"
+    (to_snake_case "Bld4Floor3rd");
+  Alcotest.(check string) "empty" "" (to_snake_case "");
+  Alcotest.(check string) "single lower" "abc" (to_snake_case "abc");
+  Alcotest.(check string) "single upper" "a" (to_snake_case "A");
+  Alcotest.(check string) "hyphens" "foo_bar_baz" (to_snake_case "FooBarBaz")
+
 let () =
   run "stringx"
     [
@@ -519,4 +542,6 @@ let () =
         [ test_case "to kebab case basic" `Quick test_to_kebab_case ] );
       ( "to pascal case tests",
         [ test_case "to pascal case basic" `Quick test_to_pascal_case ] );
+      ( "to snake case tests",
+        [ test_case "to snake case basic" `Quick test_to_snake_case ] );
     ]

@@ -162,6 +162,30 @@ module Stringx : sig
       - to_pascal_case "" = ""
   *)
 
+  val to_snake_case : string -> string
+  (** Convert a string to snake_case.
+      - Uppercase ASCII letters are converted to lowercase.
+      - Word boundaries are detected at transitions from lowercase to uppercase, from letter to digit, and at underscores, spaces, or hyphens.
+      - All word boundaries are replaced with a single underscore '_'.
+      - Multiple consecutive separators are treated as a single underscore.
+      - Leading and trailing underscores are removed.
+      Examples:
+      - to_snake_case "FirstName" = "first_name"
+      - to_snake_case "HTTPServer" = "http_server"
+      - to_snake_case "NoHTTPS" = "no_https"
+      - to_snake_case "GO_PATH" = "go_path"
+      - to_snake_case "GO PATH" = "go_path"
+      - to_snake_case "GO-PATH" = "go_path"
+      - to_snake_case "http2xx" = "http_2xx"
+      - to_snake_case "HTTP20xOK" = "http_20x_ok"
+      - to_snake_case "Duration2m3s" = "duration_2m3s"
+      - to_snake_case "Bld4Floor3rd" = "bld4_floor_3rd"
+      - to_snake_case "abc" = "abc"
+      - to_snake_case "A" = "a"
+      - to_snake_case "FooBarBaz" = "foo_bar_baz"
+      - to_snake_case "" = ""
+  *)
+
   val to_lower : string -> string
   (** Convert all Unicode letters in [s] to lower case (ASCII only).
       Example: to_lower "Camel" = "camel" *)
