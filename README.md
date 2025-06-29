@@ -115,17 +115,6 @@ module Stringx : sig
       - All word boundaries are replaced with a single hyphen '-'.
       - Multiple consecutive separators are treated as a single hyphen.
       - Leading and trailing hyphens are removed.
-      Example: to_kebab_case "FirstName" = "first-name"
-      Example: to_kebab_case "HTTP20xOK" = "http-20x-ok"
-  *)
-
-  val to_kebab_case : string -> string
-  (** Convert a string to kebab-case.
-      - Uppercase ASCII letters are converted to lowercase.
-      - Word boundaries are detected at transitions from lowercase to uppercase, from letter to digit, and at underscores, spaces, or hyphens.
-      - All word boundaries are replaced with a single hyphen '-'.
-      - Multiple consecutive separators are treated as a single hyphen.
-      - Leading and trailing hyphens are removed.
       Examples:
       - to_kebab_case "FirstName" = "first-name"
       - to_kebab_case "HTTPServer" = "http-server"
