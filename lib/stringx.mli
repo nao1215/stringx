@@ -498,3 +498,21 @@ val to_kebab_case : string -> string
     - to_kebab_case "A" = "a"
     - to_kebab_case "FooBarBaz" = "foo-bar-baz"
     - to_kebab_case "" = "" *)
+
+val to_pascal_case : string -> string
+(** Convert words separated by space, underscore, or hyphen to PascalCase.
+    - Words are split on '_', '-', or space.
+    - Each word is capitalized (first letter uppercase, rest lowercase).
+    - All-uppercase words are handled (e.g. "OCAML_IS_GREAT" → "OcamlIsGreat").
+    - If there are no separators, the first letter is uppercased, the rest are
+      unchanged.
+    - Leading and trailing underscores and separators are removed in the output.
+    - Multiple consecutive separators are treated as a single word boundary.
+    - Hyphens and spaces are also treated as word boundaries. Examples:
+    - to_pascal_case "some_words" = "SomeWords"
+    - to_pascal_case "_complex__case_" = "ComplexCase"
+    - to_pascal_case "OCAML_IS_GREAT" = "OcamlIsGreat"
+    - to_pascal_case "alreadyPascal" = "AlreadyPascal"
+    - to_pascal_case "foo-BarBaz" = "FooBarBaz"
+    - to_pascal_case "word" = "Word"
+    - to_pascal_case "" = "" *)

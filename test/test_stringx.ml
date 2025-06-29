@@ -449,6 +449,27 @@ let test_to_kebab_case () =
   Alcotest.(check string) "single upper" "a" (to_kebab_case "A");
   Alcotest.(check string) "hyphens" "foo-bar-baz" (to_kebab_case "FooBarBaz")
 
+let test_to_pascal_case () =
+  let open Stringx in
+  Alcotest.(check string) "some_words" "SomeWords" (to_pascal_case "some_words");
+  Alcotest.(check string)
+    "_complex__case_" "_ComplexCase_"
+    (to_pascal_case "_complex__case_");
+  Alcotest.(check string)
+    "OCAML_IS_GREAT" "OcamlIsGreat"
+    (to_pascal_case "OCAML_IS_GREAT");
+  Alcotest.(check string)
+    "alreadyPascal" "AlreadyPascal"
+    (to_pascal_case "alreadyPascal");
+  Alcotest.(check string) "foo-BarBaz" "FooBarBaz" (to_pascal_case "foo-BarBaz");
+  Alcotest.(check string) "word" "Word" (to_pascal_case "word");
+  Alcotest.(check string) "empty" "" (to_pascal_case "");
+  Alcotest.(check string) "spaces" "SomeWords" (to_pascal_case "some words");
+  Alcotest.(check string)
+    "http_server" "HttpServer"
+    (to_pascal_case "http_server");
+  Alcotest.(check string) "no_https" "NoHttps" (to_pascal_case "no_https")
+
 let () =
   run "stringx"
     [
@@ -496,4 +517,6 @@ let () =
         [ test_case "to camel case basic" `Quick test_to_camel_case ] );
       ( "to kebab case tests",
         [ test_case "to kebab case basic" `Quick test_to_kebab_case ] );
+      ( "to pascal case tests",
+        [ test_case "to pascal case basic" `Quick test_to_pascal_case ] );
     ]

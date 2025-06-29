@@ -680,3 +680,98 @@ let to_kebab_case (s : string) : string =
 
   (* Step 3: Lowercase everything and join with hyphens *)
   String.concat "-" (List.map String.lowercase_ascii final)
+
+(** [to_pascal_case s] converts words separated by space, underscore, or hyphen
+    to PascalCase.
+    - Words are split on '_', '-', or space.
+    - Each word is capitalized (first letter uppercase, rest lowercase).
+    - All-uppercase words are handled (e.g. "OCAML_IS_GREAT" → "OcamlIsGreat").
+    - If there are no separators, the first letter is uppercased, the rest
+      lowercased.
+    - Leading and trailing underscores are preserved (e.g. "_complex__case_" →
+      "_ComplexCase_").
+    - Multiple consecutive separators are preserved as single underscores.
+    - Hyphens and spaces are also treated as word boundaries.
+
+    Examples:
+    - [to_pascal_case "some_words"] returns ["SomeWords"]
+    - [to_pascal_case "_complex__case_"] returns ["_ComplexCase_"]
+    - [to_pascal_case "GOLANG_IS_GREAT"] returns ["GolangIsGreat"]
+    - [to_pascal_case "alreadyPascal"] returns ["AlreadyPascal"]
+    - [to_pascal_case "foo-BarBaz"] returns ["FooBarBaz"]
+    - [to_pascal_case "word"] returns ["Word"]
+    - [to_pascal_case ""] returns [""] *)
+let to_pascal_case (s : string) : string =
+  let is_sep c = c = '_' || c = '-' || c = ' ' in
+  let is_upper c = 'A' <= c && c <= 'Z' in
+  let len = String.length s in
+
+  (* count leading '_' *)
+  let rec count_lead i =
+    if i < len && s.[i] = '_' then 1 + count_lead (i + 1) else 0
+  in
+  let lead = count_lead 0 in
+
+  (* count trailing '_' *)
+  let rec count_trail i =
+    if i >= 0 && s.[i] = '_' then 1 + count_trail (i - 1) else 0
+  in
+  let trail = count_trail (len - 1) in
+
+  let core_start = lead in
+  let core_end = len - trail in
+
+  let buf = Buffer.create len in
+  (* add leading underscores *)
+  for _ = 1 to lead do
+    Buffer.add_char buf '_'
+  done;
+
+  (if core_start < core_end then
+     let core = String.sub s core_start (core_end - core_start) in
+     (* check for any separator in core *)
+     let has_sep = String.exists (fun c -> is_sep c) core in
+
+     if not has_sep then (
+       (* no separators: uppercase first char, keep rest as-is *)
+       Buffer.add_char buf (Char.uppercase_ascii core.[0]);
+       if String.length core > 1 then
+         Buffer.add_substring buf core 1 (String.length core - 1))
+     else
+       (* split on separators, ignore empty segments *)
+       let rec split i acc =
+         if i >= String.length core then List.rev acc
+         else if is_sep core.[i] then split (i + 1) acc
+         else
+           let j = ref i in
+           while !j < String.length core && not (is_sep core.[!j]) do
+             incr j
+           done;
+           let seg = String.sub core i (!j - i) in
+           split !j (seg :: acc)
+       in
+       let segments = split 0 [] in
+
+       List.iter
+         (fun seg ->
+           if seg <> "" then
+             (* determine if all-uppercase acronym *)
+             let all_upper = seg <> "" && String.for_all is_upper seg in
+             if all_upper then (
+               let low = String.lowercase_ascii seg in
+               Buffer.add_char buf (Char.uppercase_ascii low.[0]);
+               if String.length low > 1 then
+                 Buffer.add_substring buf low 1 (String.length low - 1))
+             else (
+               (* mixed-case or lowercase: uppercase first, keep rest *)
+               Buffer.add_char buf (Char.uppercase_ascii seg.[0]);
+               if String.length seg > 1 then
+                 Buffer.add_substring buf seg 1 (String.length seg - 1)))
+         segments);
+
+  (* add trailing underscores *)
+  for _ = 1 to trail do
+    Buffer.add_char buf '_'
+  done;
+
+  Buffer.contents buf
