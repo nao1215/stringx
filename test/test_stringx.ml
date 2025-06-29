@@ -394,6 +394,17 @@ let test_to_title () =
   Alcotest.(check string) "empty" "" (to_title "");
   Alcotest.(check string) "ascii+unicode" "CAMELこんにちは" (to_title "Camelこんにちは")
 
+let test_to_upper () =
+  let open Stringx in
+  Alcotest.(check string) "ascii" "CAMEL" (to_upper "Camel");
+  Alcotest.(check string) "all lower" "CAMEL" (to_upper "camel");
+  Alcotest.(check string) "all upper" "CAMEL" (to_upper "CAMEL");
+  Alcotest.(check string) "mixed" "CAMEL123" (to_upper "CaMeL123");
+  Alcotest.(check string) "unicode" "こんにちは" (to_upper "こんにちは");
+  Alcotest.(check string) "emoji" "🍎" (to_upper "🍎");
+  Alcotest.(check string) "empty" "" (to_upper "");
+  Alcotest.(check string) "ascii+unicode" "CAMELこんにちは" (to_upper "Camelこんにちは")
+
 let () =
   run "stringx"
     [
@@ -436,4 +447,5 @@ let () =
         [ test_case "trim suffix basic" `Quick test_trim_suffix ] );
       ("to lower tests", [ test_case "to lower basic" `Quick test_to_lower ]);
       ("to title tests", [ test_case "to title basic" `Quick test_to_title ]);
+      ("to upper tests", [ test_case "to upper basic" `Quick test_to_upper ]);
     ]

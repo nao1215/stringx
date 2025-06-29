@@ -434,3 +434,18 @@ val to_title : string -> string
 
     @param s The input string (UTF-8)
     @return The title-cased string *)
+
+val to_upper : string -> string
+(** [to_upper s] returns [s] with all Unicode letters mapped to their upper
+    case.
+
+    This function currently only uppercases ASCII letters (a-z). TODO: Support
+    full Unicode uppercasing in the future.
+
+    Examples:
+    - [to_upper "Camel"] returns ["CAMEL"]
+    - [to_upper "camel"] returns ["CAMEL"]
+    - [to_upper "こんにちは"] returns ["こんにちは"]
+
+    @param s The input string (UTF-8)
+    @return The uppercased string *)
