@@ -568,3 +568,7 @@ val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
 val iter : (Uchar.t -> unit) -> string -> unit
 (** [iter f s] applies [f] to each Unicode code point of [s], in sequence,
     purely for side-effects. *)
+
+val fold : ('acc -> Uchar.t -> 'acc) -> 'acc -> string -> 'acc
+(** [fold f init s] applies [f acc u] to each Unicode code point [u] of [s],
+    carrying along an accumulator [acc], and returns the final accumulator. *)

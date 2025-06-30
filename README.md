@@ -86,6 +86,12 @@ module Stringx : sig
         | _ -> Some u
       in filter_map drop_vowel "hello" = "hll" *)
 
+  val fold : ('acc -> Uchar.t -> 'acc) -> 'acc -> string -> 'acc
+  (** Apply the given function to each Unicode code point in the string, carrying along an accumulator.
+      Returns the final accumulator value.
+      Unicode-aware: decodes the string into code points and applies the function to each.
+      Example: fold (fun acc _ -> acc + 1) 0 "hello" = 5 *)
+
   val has_prefix : string -> string -> bool
   (** Check if [s] starts with [prefix] (byte-based).
       Example: has_prefix "Gopher" "Go" = true *)

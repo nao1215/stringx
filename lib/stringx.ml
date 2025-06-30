@@ -945,3 +945,21 @@ let iter (f : Uchar.t -> unit) (s : string) : unit =
     | `End | `Await -> ()
   in
   aux ()
+
+(** [fold f init s] applies [f acc u] to each Unicode code point [u] of [s],
+    carrying along an accumulator [acc], and returns the final accumulator. *)
+let fold (f : 'acc -> Uchar.t -> 'acc) (init : 'acc) (s : string) : 'acc =
+  let dec = decoder ~encoding:`UTF_8 (`String s) in
+  let rec aux acc =
+    match decode dec with
+    | `Uchar u ->
+        (* process code point and update accumulator *)
+        aux (f acc u)
+    | `Malformed _ ->
+        (* skip invalid sequences *)
+        aux acc
+    | `End | `Await ->
+        (* end of input, return accumulated result *)
+        acc
+  in
+  aux init

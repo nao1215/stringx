@@ -14,6 +14,10 @@
   Applies the given function to each Unicode code point in the string, in sequence, for side effects only.  
   Unicode-aware: decodes the string into code points and applies the function to each.
 
+- add: `fold`  
+  Applies the given function to each Unicode code point in the string, carrying along an accumulator, and returns the final accumulator value.  
+  Unicode-aware: decodes the string into code points and applies the function to each.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

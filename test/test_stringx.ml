@@ -553,6 +553,18 @@ let test_iter () =
   Alcotest.(check string)
     "iter reconstructs original" "abcXYZ😊" (Buffer.contents buf)
 
+let test_fold_count () =
+  let open Stringx in
+  (* Test counting code points *)
+  let count acc _ = acc + 1 in
+  Alcotest.(check int) "count code points" 5 (fold count 0 "hello")
+
+let test_fold_sum () =
+  let open Stringx in
+  (* Test summing Unicode code point values *)
+  let sum acc u = acc + Uchar.to_int u in
+  Alcotest.(check int) "sum code point ints" 198 (fold sum 0 "ABC")
+
 let () =
   run "stringx"
     [
@@ -608,4 +620,7 @@ let () =
       ( "filter map tests",
         [ test_case "filter map basic" `Quick test_filter_map ] );
       ("iter tests", [ test_case "iter basic" `Quick test_iter ]);
+      ( "fold count tests",
+        [ test_case "fold count basic" `Quick test_fold_count ] );
+      ("fold sum tests", [ test_case "fold sum basic" `Quick test_fold_sum ]);
     ]
