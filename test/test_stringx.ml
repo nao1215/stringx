@@ -592,6 +592,21 @@ let test_first_rune_to_lower () =
   Alcotest.(check string) "unicode" "こんにちは" (first_rune_to_lower "こんにちは");
   Alcotest.(check string) "empty" "" (first_rune_to_lower "")
 
+let test_first_rune_to_upper () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii lower" "CamelCase"
+    (first_rune_to_upper "camelCase");
+  Alcotest.(check string)
+    "ascii upper" "CamelCase"
+    (first_rune_to_upper "CamelCase");
+  Alcotest.(check string) "all lower" "Camel" (first_rune_to_upper "camel");
+  Alcotest.(check string) "all upper" "CAMEL" (first_rune_to_upper "CAMEL");
+  Alcotest.(check string) "single lower" "C" (first_rune_to_upper "c");
+  Alcotest.(check string) "single upper" "C" (first_rune_to_upper "C");
+  Alcotest.(check string) "unicode" "こんにちは" (first_rune_to_upper "こんにちは");
+  Alcotest.(check string) "empty" "" (first_rune_to_upper "")
+
 let () =
   run "stringx"
     [
@@ -655,5 +670,9 @@ let () =
       ( "first rune to lower tests",
         [
           test_case "first rune to lower basic" `Quick test_first_rune_to_lower;
+        ] );
+      ( "first rune to upper tests",
+        [
+          test_case "first rune to upper basic" `Quick test_first_rune_to_upper;
         ] );
     ]

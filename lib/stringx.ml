@@ -1047,3 +1047,33 @@ let first_rune_to_lower (s : string) : string =
   in
   aux true;
   Buffer.contents buf
+
+(** [first_rune_to_upper s] returns [s] with the first Unicode code point
+    converted to upper case if it is a lowercase ASCII letter. Unicode-aware:
+    only the first code point is affected, the rest are unchanged.
+
+    Examples:
+    - first_rune_to_upper "camelCase" = "CamelCase"
+    - first_rune_to_upper "CamelCase" = "CamelCase"
+    - first_rune_to_upper "camel" = "Camel"
+    - first_rune_to_upper "こんにちは" = "こんにちは" *)
+let first_rune_to_upper (s : string) : string =
+  let dec = Uutf.decoder ~encoding:`UTF_8 (`String s) in
+  let buf = Buffer.create (String.length s) in
+  let rec aux first =
+    match Uutf.decode dec with
+    | `Uchar u when first ->
+        let c = Uchar.to_int u in
+        let u' =
+          if c >= 0x61 && c <= 0x7A then Uchar.of_int (c - 0x20) else u
+        in
+        Buffer.add_utf_8_uchar buf u';
+        aux false
+    | `Uchar u ->
+        Buffer.add_utf_8_uchar buf u;
+        aux false
+    | `End | `Await -> ()
+    | `Malformed _ -> aux false
+  in
+  aux true;
+  Buffer.contents buf

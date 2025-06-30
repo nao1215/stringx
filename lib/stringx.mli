@@ -595,3 +595,14 @@ val first_rune_to_lower : string -> string
     - first_rune_to_lower "camelCase" = "camelCase"
     - first_rune_to_lower "CAMEL" = "cAMEL"
     - first_rune_to_lower "こんにちは" = "こんにちは" *)
+
+val first_rune_to_upper : string -> string
+(** [first_rune_to_upper s] returns [s] with the first Unicode code point
+    converted to upper case if it is a lowercase ASCII letter. Unicode-aware:
+    only the first code point is affected, the rest are unchanged.
+
+    Examples:
+    - first_rune_to_upper "camelCase" = "CamelCase"
+    - first_rune_to_upper "CamelCase" = "CamelCase"
+    - first_rune_to_upper "camel" = "Camel"
+    - first_rune_to_upper "こんにちは" = "こんにちは" *)
