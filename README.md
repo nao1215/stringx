@@ -69,6 +69,12 @@ module Stringx : sig
   (** Compare two strings for equality, ignoring ASCII case.
       Example: equal_fold "Go" "go" = true *)
 
+  val expand_tabs : string -> int -> string
+  (** Expand tab characters ('\\t') in the string to spaces, depending on the current column and tab size.
+      The column is reset to zero after each newline ('\\n'). CJK characters are treated as width 2.
+      Raises [Invalid_argument] if [tab_size] <= 0.
+      Example: expand_tabs "a\\tbc\\tdef\\tghij\\tk" 4 = "a   bc  def ghij    k" *)
+
   val fields : string -> string list
   (** Split a string by runs of Unicode whitespace. Returns an empty list if only whitespace.
       Example: fields "  foo bar  baz   " = ["foo"; "bar"; "baz"] *)

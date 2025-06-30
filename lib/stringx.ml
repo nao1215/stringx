@@ -963,3 +963,47 @@ let fold (f : 'acc -> Uchar.t -> 'acc) (init : 'acc) (s : string) : 'acc =
         acc
   in
   aux init
+
+let rune_width (u : Uchar.t) : int =
+  let c = Uchar.to_int u in
+  (* Basic CJK Unified Ideographs, Hangul, Hiragana, Katakana, etc. *)
+  if
+    (c >= 0x1100 && c <= 0x115F)
+    || (c >= 0x2329 && c <= 0x232A)
+    || (c >= 0x2E80 && c <= 0xA4CF)
+    || (c >= 0xAC00 && c <= 0xD7A3)
+    || (c >= 0xF900 && c <= 0xFAFF)
+    || (c >= 0xFE10 && c <= 0xFE19)
+    || (c >= 0xFE30 && c <= 0xFE6F)
+    || (c >= 0xFF00 && c <= 0xFF60)
+    || (c >= 0xFFE0 && c <= 0xFFE6)
+    || (c >= 0x20000 && c <= 0x2FFFD)
+    || (c >= 0x30000 && c <= 0x3FFFD)
+  then 2
+  else 1
+
+let expand_tabs (s : string) (tab_size : int) : string =
+  if tab_size <= 0 then invalid_arg "expand_tabs: tab_size must be > 0";
+  let dec = Uutf.decoder ~encoding:`UTF_8 (`String s) in
+  let buf = Buffer.create (String.length s) in
+  let rec aux col =
+    match Uutf.decode dec with
+    | `Uchar u ->
+        if Uchar.to_int u = int_of_char '\n' then (
+          Buffer.add_utf_8_uchar buf u;
+          aux 0)
+        else if Uchar.to_int u = int_of_char '\t' then (
+          let spaces = tab_size - (col mod tab_size) in
+          for _ = 1 to spaces do
+            Buffer.add_char buf ' '
+          done;
+          aux (col + spaces))
+        else
+          let w = rune_width u in
+          Buffer.add_utf_8_uchar buf u;
+          aux (col + w)
+    | `End | `Await -> ()
+    | `Malformed _ -> aux (col + 1)
+  in
+  aux 0;
+  Buffer.contents buf

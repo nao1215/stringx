@@ -572,3 +572,15 @@ val iter : (Uchar.t -> unit) -> string -> unit
 val fold : ('acc -> Uchar.t -> 'acc) -> 'acc -> string -> 'acc
 (** [fold f init s] applies [f acc u] to each Unicode code point [u] of [s],
     carrying along an accumulator [acc], and returns the final accumulator. *)
+
+val expand_tabs : string -> int -> string
+(** [expand_tabs s tab_size] expands tab characters ('\t') in [s] to spaces,
+    depending on the current column and [tab_size]. The column is reset to zero
+    after each newline ('\n'). CJK characters are treated as width 2.
+
+    Raises [Invalid_argument] if [tab_size] <= 0.
+
+    Examples:
+    - expand_tabs "a\tbc\tdef\tghij\tk" 4 = "a bc def ghij k"
+    - expand_tabs "abcdefg\thij\nk\tl" 4 = "abcdefg hij\nk l"
+    - expand_tabs "z中\t文\tw" 4 = "z中 文 w" *)
