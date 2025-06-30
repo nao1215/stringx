@@ -117,7 +117,7 @@ module Stringx : sig
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
       Example: len "🍎🍏🍊" = 3 *)
 
-  val map : (Uchar.t -> int) -> string -> string
+  val map : (Uchar.t -> Uchar.t) -> string -> string
   (** Return a copy of the string with all Unicode code points mapped by the given function.
       The mapping function must return a valid Unicode code point (Uchar.t) for every input; no code points are dropped.
       Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
