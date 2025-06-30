@@ -906,3 +906,26 @@ let map (f : Uchar.t -> Uchar.t) (s : string) : string =
   in
   aux ();
   Buffer.contents buf
+
+(** [filter_map f s] applies [f] to each Unicode code point [u] of [s]. If [f u]
+    returns [Some u'], [u'] is kept in the result; if [None], [u] is dropped.
+
+    This function is Unicode-aware: it decodes [s] into code points, applies
+    [f], then re-encodes into UTF-8.
+
+    Example: let drop_vowel u = match Uchar.to_int u with | c when List.mem c
+    [ Char.code 'a'; Char.code 'e'; Char.code 'i' ; Char.code 'o'; Char.code 'u'
+     ] -> None | _ -> Some u in filter_map drop_vowel "hello" = "hll" *)
+let filter_map (f : Uchar.t -> Uchar.t option) (s : string) : string =
+  let dec = decoder ~encoding:`UTF_8 (`String s) in
+  let buf = Buffer.create (String.length s) in
+  let rec aux () =
+    match decode dec with
+    | `Uchar u ->
+        (match f u with Some u' -> Buffer.add_utf_8_uchar buf u' | None -> ());
+        aux ()
+    | `Malformed _ -> aux ()
+    | `End | `Await -> ()
+  in
+  aux ();
+  Buffer.contents buf

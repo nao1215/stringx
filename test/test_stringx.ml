@@ -511,6 +511,40 @@ let test_map () =
     "rot13" "'Gjnf oevyyvt naq gur fyvgul pnzry..."
     (map rot13 "'Twas brillig and the slithy camel...")
 
+let test_filter_map () =
+  let open Stringx in
+  (* Test dropping vowels *)
+  let drop_vowel u =
+    match Uchar.to_int u with
+    | c
+      when List.mem c
+             [
+               Char.code 'a';
+               Char.code 'e';
+               Char.code 'i';
+               Char.code 'o';
+               Char.code 'u';
+             ] ->
+        None
+    | _ -> Some u
+  in
+  Alcotest.(check string) "drop vowels" "hll" (filter_map drop_vowel "hello");
+
+  (* Test shifting lowercase letters by one, leaving others unchanged *)
+  let shift_alpha u =
+    match Uchar.to_int u with
+    | c when Char.code 'a' <= c && c <= Char.code 'z' ->
+        Some (Uchar.of_int (Char.code 'a' + ((c - Char.code 'a' + 1) mod 26)))
+    | _ -> Some u
+  in
+  Alcotest.(check string)
+    "shift next (letters)" "ifmmp"
+    (filter_map shift_alpha "hello");
+
+  (* Test identity mapping: no change *)
+  let identity u = Some u in
+  Alcotest.(check string) "identity" "こんにちは😊" (filter_map identity "こんにちは😊")
+
 let () =
   run "stringx"
     [
@@ -563,4 +597,6 @@ let () =
       ( "to snake case tests",
         [ test_case "to snake case basic" `Quick test_to_snake_case ] );
       ("map tests", [ test_case "map basic" `Quick test_map ]);
+      ( "filter map tests",
+        [ test_case "filter map basic" `Quick test_filter_map ] );
     ]

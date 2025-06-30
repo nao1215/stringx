@@ -77,6 +77,15 @@ module Stringx : sig
   (** Split a string at runs of code points where [f] returns true.
       Example: fields_func "foo1;bar2,baz3" (fun c -> not (is_letter c || is_number c)) = ["foo1"; "bar2"; "baz3"] *)
 
+  val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
+  (** Return a new string by applying the given function to each Unicode code point in the input string.
+      If the function returns [Some u'], [u'] is included in the result; if [None], the code point is dropped.
+      Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
+      Example: let drop_vowel u = match Uchar.to_int u with
+        | c when List.mem c [Char.code 'a'; Char.code 'e'; Char.code 'i'; Char.code 'o'; Char.code 'u'] -> None
+        | _ -> Some u
+      in filter_map drop_vowel "hello" = "hll" *)
+
   val has_prefix : string -> string -> bool
   (** Check if [s] starts with [prefix] (byte-based).
       Example: has_prefix "Gopher" "Go" = true *)

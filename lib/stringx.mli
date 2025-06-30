@@ -553,3 +553,14 @@ val map : (Uchar.t -> Uchar.t) -> string -> string
     Uchar.of_int (Char.code 'a' + ((c - Char.code 'a' + 13) mod 26)) else u in
     map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur
     fyvgul pnzry..." *)
+
+val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
+(** [filter_map f s] applies [f] to each Unicode code point [u] of [s]. If [f u]
+    returns [Some u'], [u'] is kept in the result; if [None], [u] is dropped.
+
+    This function is Unicode-aware: it decodes [s] into code points, applies
+    [f], then re-encodes into UTF-8.
+
+    Example: let drop_vowel u = match Uchar.to_int u with | c when List.mem c
+    [ Char.code 'a'; Char.code 'e'; Char.code 'i' ; Char.code 'o'; Char.code 'u'
+     ] -> None | _ -> Some u in filter_map drop_vowel "hello" = "hll" *)
