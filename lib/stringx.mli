@@ -584,3 +584,14 @@ val expand_tabs : string -> int -> string
     - expand_tabs "a\tbc\tdef\tghij\tk" 4 = "a bc def ghij k"
     - expand_tabs "abcdefg\thij\nk\tl" 4 = "abcdefg hij\nk l"
     - expand_tabs "z中\t文\tw" 4 = "z中 文 w" *)
+
+val first_rune_to_lower : string -> string
+(** [first_rune_to_lower s] returns [s] with the first Unicode code point
+    converted to lower case if it is an uppercase ASCII letter. Unicode-aware:
+    only the first code point is affected, the rest are unchanged.
+
+    Examples:
+    - first_rune_to_lower "CamelCase" = "camelCase"
+    - first_rune_to_lower "camelCase" = "camelCase"
+    - first_rune_to_lower "CAMEL" = "cAMEL"
+    - first_rune_to_lower "こんにちは" = "こんにちは" *)

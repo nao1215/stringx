@@ -578,6 +578,20 @@ let test_expand_tabs () =
     (Invalid_argument "expand_tabs: tab_size must be > 0") (fun () ->
       ignore (expand_tabs "abc\tdef" 0))
 
+let test_first_rune_to_lower () =
+  let open Stringx in
+  Alcotest.(check string)
+    "ascii upper" "camelCase"
+    (first_rune_to_lower "CamelCase");
+  Alcotest.(check string)
+    "ascii lower" "camelCase"
+    (first_rune_to_lower "camelCase");
+  Alcotest.(check string) "all upper" "cAMEL" (first_rune_to_lower "CAMEL");
+  Alcotest.(check string) "single upper" "c" (first_rune_to_lower "C");
+  Alcotest.(check string) "single lower" "c" (first_rune_to_lower "c");
+  Alcotest.(check string) "unicode" "こんにちは" (first_rune_to_lower "こんにちは");
+  Alcotest.(check string) "empty" "" (first_rune_to_lower "")
+
 let () =
   run "stringx"
     [
@@ -638,4 +652,8 @@ let () =
       ("fold sum tests", [ test_case "fold sum basic" `Quick test_fold_sum ]);
       ( "expand tabs tests",
         [ test_case "expand tabs basic" `Quick test_expand_tabs ] );
+      ( "first rune to lower tests",
+        [
+          test_case "first rune to lower basic" `Quick test_first_rune_to_lower;
+        ] );
     ]

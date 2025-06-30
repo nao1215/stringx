@@ -75,6 +75,15 @@ module Stringx : sig
       Raises [Invalid_argument] if [tab_size] <= 0.
       Example: expand_tabs "a\\tbc\\tdef\\tghij\\tk" 4 = "a   bc  def ghij    k" *)
 
+  val first_rune_to_lower : string -> string
+  (** Convert the first Unicode code point to lower case if it is an uppercase ASCII letter.
+      Unicode-aware: only the first code point is affected, the rest are unchanged.
+      Examples:
+      - first_rune_to_lower "CamelCase" = "camelCase"
+      - first_rune_to_lower "CAMEL" = "cAMEL"
+      - first_rune_to_lower "こんにちは" = "こんにちは"
+  *)
+
   val fields : string -> string list
   (** Split a string by runs of Unicode whitespace. Returns an empty list if only whitespace.
       Example: fields "  foo bar  baz   " = ["foo"; "bar"; "baz"] *)
