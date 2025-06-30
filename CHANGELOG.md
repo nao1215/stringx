@@ -18,6 +18,11 @@
   Applies the given function to each Unicode code point in the string, carrying along an accumulator, and returns the final accumulator value.  
   Unicode-aware: decodes the string into code points and applies the function to each.
 
+- add: `expand_tabs`  
+  Expands tab characters ('\t') in the string to spaces, depending on the current column and tab size.  
+  The column is reset to zero after each newline ('\n'). CJK characters are treated as width 2.  
+  Raises [Invalid_argument] if [tab_size] <= 0.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

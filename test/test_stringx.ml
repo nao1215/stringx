@@ -565,6 +565,19 @@ let test_fold_sum () =
   let sum acc u = acc + Uchar.to_int u in
   Alcotest.(check int) "sum code point ints" 198 (fold sum 0 "ABC")
 
+let test_expand_tabs () =
+  let open Stringx in
+  Alcotest.(check string)
+    "expand_tabs basic" "a   bc  def ghij    k"
+    (expand_tabs "a\tbc\tdef\tghij\tk" 4);
+  Alcotest.(check string)
+    "expand_tabs newline" "abcdefg hij\nk   l"
+    (expand_tabs "abcdefg\thij\nk\tl" 4);
+  Alcotest.(check string) "expand_tabs CJK" "z中 文  w" (expand_tabs "z中\t文\tw" 4);
+  Alcotest.check_raises "expand_tabs tab_size <= 0"
+    (Invalid_argument "expand_tabs: tab_size must be > 0") (fun () ->
+      ignore (expand_tabs "abc\tdef" 0))
+
 let () =
   run "stringx"
     [
@@ -623,4 +636,6 @@ let () =
       ( "fold count tests",
         [ test_case "fold count basic" `Quick test_fold_count ] );
       ("fold sum tests", [ test_case "fold sum basic" `Quick test_fold_sum ]);
+      ( "expand tabs tests",
+        [ test_case "expand tabs basic" `Quick test_expand_tabs ] );
     ]
