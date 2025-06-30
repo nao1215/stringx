@@ -607,6 +607,28 @@ let test_first_rune_to_upper () =
   Alcotest.(check string) "unicode" "こんにちは" (first_rune_to_upper "こんにちは");
   Alcotest.(check string) "empty" "" (first_rune_to_upper "")
 
+let test_insert () =
+  let open Stringx in
+  Alcotest.(check string)
+    "insert ascii middle" "CamelSuperCase"
+    (insert "CamelCase" "Super" 5);
+  Alcotest.(check string)
+    "insert ascii start" "SuperCamelCase"
+    (insert "CamelCase" "Super" 0);
+  Alcotest.(check string)
+    "insert ascii end" "CamelCaseSuper"
+    (insert "CamelCase" "Super" 9);
+  Alcotest.(check string) "insert unicode" "こん世界にちは" (insert "こんにちは" "世界" 2);
+  Alcotest.(check string)
+    "insert empty src" "CamelCase" (insert "CamelCase" "" 5);
+  Alcotest.(check string) "insert empty dst" "Super" (insert "" "Super" 0);
+  Alcotest.check_raises "insert negative index"
+    (Invalid_argument "insert: index out of range") (fun () ->
+      ignore (insert "CamelCase" "Super" (-1)));
+  Alcotest.check_raises "insert index too large"
+    (Invalid_argument "insert: index out of range") (fun () ->
+      ignore (insert "CamelCase" "Super" 10))
+
 let () =
   run "stringx"
     [
@@ -675,4 +697,5 @@ let () =
         [
           test_case "first rune to upper basic" `Quick test_first_rune_to_upper;
         ] );
+      ("insert tests", [ test_case "insert basic" `Quick test_insert ]);
     ]

@@ -31,6 +31,11 @@
   Converts the first Unicode code point to upper case if it is a lowercase ASCII letter.  
   Unicode-aware: only the first code point is affected, the rest are unchanged.
 
+- add: `insert`  
+  Inserts [src] into [dst] at the given Unicode code point index.  
+  Index is counted by code points (runes), not bytes.  
+  Raises [Invalid_argument] if [index] is out of range (index < 0 or index > length of [dst]).
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

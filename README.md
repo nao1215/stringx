@@ -129,6 +129,15 @@ module Stringx : sig
   (** Return the byte offset of the first occurrence of [substr] in [s], or -1 if not found.
       Example: index "chicken" "ken" = 4 *)
 
+  val insert : string -> string -> int -> string
+  (** Insert [src] into [dst] at the given Unicode code point index.
+      Index is counted by code points (runes), not bytes.
+      Raises [Invalid_argument] if [index] is out of range (index < 0 or index > length of [dst]).
+      Examples:
+      - insert "CamelCase" "Super" 5 = "CamelSuperCase"
+      - insert "こんにちは" "世界" 2 = "こん世界にちは"
+  *)
+
   val iter : (Uchar.t -> unit) -> string -> unit
   (** Apply the given function to each Unicode code point in the string, in sequence, for side effects only.
       Unicode-aware: decodes the string into code points and applies the function to each.

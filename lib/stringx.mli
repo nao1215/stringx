@@ -606,3 +606,13 @@ val first_rune_to_upper : string -> string
     - first_rune_to_upper "CamelCase" = "CamelCase"
     - first_rune_to_upper "camel" = "Camel"
     - first_rune_to_upper "こんにちは" = "こんにちは" *)
+
+val insert : string -> string -> int -> string
+(** [insert dst src index] inserts [src] into [dst] at the given Unicode code
+    point index. Index is counted by code points (runes), not bytes. Raises
+    [Invalid_argument] if [index] is out of range (index < 0 or index > length
+    of [dst]).
+
+    Examples:
+    - insert "CamelCase" "Super" 5 = "CamelSuperCase"
+    - insert "こんにちは" "世界" 2 = "こん世界にちは" *)

@@ -1077,3 +1077,27 @@ let first_rune_to_upper (s : string) : string =
   in
   aux true;
   Buffer.contents buf
+
+(** [insert dst src index] inserts [src] into [dst] at the given Unicode code
+    point index. Index is counted by code points (runes), not bytes. Raises
+    [Invalid_argument] if [index] is out of range (index < 0 or index > length
+    of [dst]).
+
+    Examples:
+    - insert "CamelCase" "Super" 5 = "CamelSuperCase"
+    - insert "こんにちは" "世界" 2 = "こん世界にちは" *)
+let insert (dst : string) (src : string) (index : int) : string =
+  let dst_uchars = decode_utf8 dst in
+  let src_uchars = decode_utf8 src in
+  let len = List.length dst_uchars in
+  if index < 0 || index > len then invalid_arg "insert: index out of range";
+  let rec take n l =
+    if n = 0 then []
+    else match l with [] -> [] | x :: xs -> x :: take (n - 1) xs
+  in
+  let rec drop n l =
+    if n = 0 then l else match l with [] -> [] | _ :: xs -> drop (n - 1) xs
+  in
+  let before = take index dst_uchars in
+  let after = drop index dst_uchars in
+  encode_utf8 (before @ src_uchars @ after)
