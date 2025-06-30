@@ -501,6 +501,7 @@ let to_upper (s : string) : string =
     - [to_camel_case "foo-BarBaz"] returns ["fooBarBaz"]
     - [to_camel_case "word"] returns ["word"]
     - [to_camel_case ""] returns [""] *)
+
 let to_camel_case (s : string) : string =
   let is_sep c = c = '_' || c = '-' || c = ' ' in
   let len = String.length s in
@@ -877,3 +878,31 @@ let to_snake_case (s : string) : string =
   (* 3. Lowercase and join with '_' *)
   let final = List.rev !merged in
   String.concat "_" (List.map String.lowercase_ascii final)
+
+(** [map f s] returns a new string which is the result of applying [f] to each
+    Unicode code point of [s]. The mapping function [f] must return a valid
+    [Uchar.t] for every input.
+
+    This function is Unicode-aware: it decodes [s] into code points, applies
+    [f], then re-encodes into UTF-8.
+
+    Example: let rot13 u = let c = Uchar.to_int u in if c >= Char.code 'A' && c
+    <= Char.code 'Z' then Uchar.of_int (Char.code 'A' + ((c - Char.code 'A' +
+    13) mod 26)) else if c >= Char.code 'a' && c <= Char.code 'z' then
+    Uchar.of_int (Char.code 'a' + ((c - Char.code 'a' + 13) mod 26)) else u in
+    map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur
+    fyvgul pnzry..." *)
+let map (f : Uchar.t -> Uchar.t) (s : string) : string =
+  let dec = decoder ~encoding:`UTF_8 (`String s) in
+  let buf = Buffer.create (String.length s) in
+  let rec aux () =
+    match decode dec with
+    | `Uchar u ->
+        let u' = f u in
+        Buffer.add_utf_8_uchar buf u';
+        aux ()
+    | `Malformed _ -> aux ()
+    | `End | `Await -> ()
+  in
+  aux ();
+  Buffer.contents buf

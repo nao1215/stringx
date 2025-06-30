@@ -493,6 +493,24 @@ let test_to_snake_case () =
   Alcotest.(check string) "single upper" "a" (to_snake_case "A");
   Alcotest.(check string) "hyphens" "foo_bar_baz" (to_snake_case "FooBarBaz")
 
+let test_map () =
+  let open Stringx in
+  let rot13 u =
+    let c = Uchar.to_int u in
+    let d =
+      if c >= int_of_char 'A' && c <= int_of_char 'Z' then
+        int_of_char 'A' + ((c - int_of_char 'A' + 13) mod 26)
+      else if c >= int_of_char 'a' && c <= int_of_char 'z' then
+        int_of_char 'a' + ((c - int_of_char 'a' + 13) mod 26)
+      else c
+    in
+    Uchar.of_int d
+  in
+
+  Alcotest.(check string)
+    "rot13" "'Gjnf oevyyvt naq gur fyvgul pnzry..."
+    (map rot13 "'Twas brillig and the slithy camel...")
+
 let () =
   run "stringx"
     [
@@ -544,4 +562,5 @@ let () =
         [ test_case "to pascal case basic" `Quick test_to_pascal_case ] );
       ( "to snake case tests",
         [ test_case "to snake case basic" `Quick test_to_snake_case ] );
+      ("map tests", [ test_case "map basic" `Quick test_map ]);
     ]

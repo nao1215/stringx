@@ -538,3 +538,18 @@ val to_snake_case : string -> string
     - to_snake_case "HTTP20xOK" = "http_20x_ok"
     - to_snake_case "Duration2m3s" = "duration_2m3s"
     - to_snake_case "Bld4Floor3rd" = "bld4_floor_3rd" *)
+
+val map : (Uchar.t -> Uchar.t) -> string -> string
+(** [map f s] returns a new string which is the result of applying [f] to each
+    Unicode code point of [s]. The mapping function [f] must return a valid
+    [Uchar.t] for every input.
+
+    This function is Unicode-aware: it decodes [s] into code points, applies
+    [f], then re-encodes into UTF-8.
+
+    Example: let rot13 u = let c = Uchar.to_int u in if c >= Char.code 'A' && c
+    <= Char.code 'Z' then Uchar.of_int (Char.code 'A' + ((c - Char.code 'A' +
+    13) mod 26)) else if c >= Char.code 'a' && c <= Char.code 'z' then
+    Uchar.of_int (Char.code 'a' + ((c - Char.code 'a' + 13) mod 26)) else u in
+    map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur
+    fyvgul pnzry..." *)

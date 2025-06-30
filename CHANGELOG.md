@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- add: `map`  
+  Returns a copy of the string with all Unicode code points mapped by the given function.  The mapping function must return a valid Unicode code point (`Uchar.t`) for every input; no code points are dropped. Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  
