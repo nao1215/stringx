@@ -493,6 +493,78 @@ let test_to_snake_case () =
   Alcotest.(check string) "single upper" "a" (to_snake_case "A");
   Alcotest.(check string) "hyphens" "foo_bar_baz" (to_snake_case "FooBarBaz")
 
+let test_map () =
+  let open Stringx in
+  let rot13 u =
+    let c = Uchar.to_int u in
+    let d =
+      if c >= int_of_char 'A' && c <= int_of_char 'Z' then
+        int_of_char 'A' + ((c - int_of_char 'A' + 13) mod 26)
+      else if c >= int_of_char 'a' && c <= int_of_char 'z' then
+        int_of_char 'a' + ((c - int_of_char 'a' + 13) mod 26)
+      else c
+    in
+    Uchar.of_int d
+  in
+
+  Alcotest.(check string)
+    "rot13" "'Gjnf oevyyvt naq gur fyvgul pnzry..."
+    (map rot13 "'Twas brillig and the slithy camel...")
+
+let test_filter_map () =
+  let open Stringx in
+  (* Test dropping vowels *)
+  let drop_vowel u =
+    match Uchar.to_int u with
+    | c
+      when List.mem c
+             [
+               Char.code 'a';
+               Char.code 'e';
+               Char.code 'i';
+               Char.code 'o';
+               Char.code 'u';
+             ] ->
+        None
+    | _ -> Some u
+  in
+  Alcotest.(check string) "drop vowels" "hll" (filter_map drop_vowel "hello");
+
+  (* Test shifting lowercase letters by one, leaving others unchanged *)
+  let shift_alpha u =
+    match Uchar.to_int u with
+    | c when Char.code 'a' <= c && c <= Char.code 'z' ->
+        Some (Uchar.of_int (Char.code 'a' + ((c - Char.code 'a' + 1) mod 26)))
+    | _ -> Some u
+  in
+  Alcotest.(check string)
+    "shift next (letters)" "ifmmp"
+    (filter_map shift_alpha "hello");
+
+  (* Test identity mapping: no change *)
+  let identity u = Some u in
+  Alcotest.(check string) "identity" "こんにちは😊" (filter_map identity "こんにちは😊")
+
+let test_iter () =
+  let open Stringx in
+  (* Test that iter visits each code point in order *)
+  let buf = Buffer.create 16 in
+  iter (fun u -> Buffer.add_utf_8_uchar buf u) "abcXYZ😊";
+  Alcotest.(check string)
+    "iter reconstructs original" "abcXYZ😊" (Buffer.contents buf)
+
+let test_fold_count () =
+  let open Stringx in
+  (* Test counting code points *)
+  let count acc _ = acc + 1 in
+  Alcotest.(check int) "count code points" 5 (fold count 0 "hello")
+
+let test_fold_sum () =
+  let open Stringx in
+  (* Test summing Unicode code point values *)
+  let sum acc u = acc + Uchar.to_int u in
+  Alcotest.(check int) "sum code point ints" 198 (fold sum 0 "ABC")
+
 let () =
   run "stringx"
     [
@@ -544,4 +616,11 @@ let () =
         [ test_case "to pascal case basic" `Quick test_to_pascal_case ] );
       ( "to snake case tests",
         [ test_case "to snake case basic" `Quick test_to_snake_case ] );
+      ("map tests", [ test_case "map basic" `Quick test_map ]);
+      ( "filter map tests",
+        [ test_case "filter map basic" `Quick test_filter_map ] );
+      ("iter tests", [ test_case "iter basic" `Quick test_iter ]);
+      ( "fold count tests",
+        [ test_case "fold count basic" `Quick test_fold_count ] );
+      ("fold sum tests", [ test_case "fold sum basic" `Quick test_fold_sum ]);
     ]

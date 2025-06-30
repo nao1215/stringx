@@ -77,6 +77,21 @@ module Stringx : sig
   (** Split a string at runs of code points where [f] returns true.
       Example: fields_func "foo1;bar2,baz3" (fun c -> not (is_letter c || is_number c)) = ["foo1"; "bar2"; "baz3"] *)
 
+  val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
+  (** Return a new string by applying the given function to each Unicode code point in the input string.
+      If the function returns [Some u'], [u'] is included in the result; if [None], the code point is dropped.
+      Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
+      Example: let drop_vowel u = match Uchar.to_int u with
+        | c when List.mem c [Char.code 'a'; Char.code 'e'; Char.code 'i'; Char.code 'o'; Char.code 'u'] -> None
+        | _ -> Some u
+      in filter_map drop_vowel "hello" = "hll" *)
+
+  val fold : ('acc -> Uchar.t -> 'acc) -> 'acc -> string -> 'acc
+  (** Apply the given function to each Unicode code point in the string, carrying along an accumulator.
+      Returns the final accumulator value.
+      Unicode-aware: decodes the string into code points and applies the function to each.
+      Example: fold (fun acc _ -> acc + 1) 0 "hello" = 5 *)
+
   val has_prefix : string -> string -> bool
   (** Check if [s] starts with [prefix] (byte-based).
       Example: has_prefix "Gopher" "Go" = true *)
@@ -89,6 +104,11 @@ module Stringx : sig
   (** Return the byte offset of the first occurrence of [substr] in [s], or -1 if not found.
       Example: index "chicken" "ken" = 4 *)
 
+  val iter : (Uchar.t -> unit) -> string -> unit
+  (** Apply the given function to each Unicode code point in the string, in sequence, for side effects only.
+      Unicode-aware: decodes the string into code points and applies the function to each.
+      Example: iter (fun u -> print_endline (Uchar.to_string u)) "abc😊" *)
+
   val join : string list -> string -> string
   (** Join a list of strings with a separator.
       Example: join ["foo"; "bar"; "baz"] ", " = "foo, bar, baz" *)
@@ -96,6 +116,12 @@ module Stringx : sig
   val len : string -> int
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
       Example: len "🍎🍏🍊" = 3 *)
+
+  val map : (Uchar.t -> Uchar.t) -> string -> string
+  (** Return a copy of the string with all Unicode code points mapped by the given function.
+      The mapping function must return a valid Unicode code point (Uchar.t) for every input; no code points are dropped.
+      Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
+      Example: map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur fyvgul pnzry..." *)
 
   val repeat : string -> int -> string
   (** Return a new string consisting of [count] copies of [s].
