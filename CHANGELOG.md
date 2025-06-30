@@ -23,6 +23,14 @@
   The column is reset to zero after each newline ('\n'). CJK characters are treated as width 2.  
   Raises [Invalid_argument] if [tab_size] <= 0.
 
+- add: `first_rune_to_lower`  
+  Converts the first Unicode code point to lower case if it is an uppercase ASCII letter.  
+  Unicode-aware: only the first code point is affected, the rest are unchanged.
+
+- add: `first_rune_to_upper`  
+  Converts the first Unicode code point to upper case if it is a lowercase ASCII letter.  
+  Unicode-aware: only the first code point is affected, the rest are unchanged.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  
