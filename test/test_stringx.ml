@@ -545,6 +545,14 @@ let test_filter_map () =
   let identity u = Some u in
   Alcotest.(check string) "identity" "こんにちは😊" (filter_map identity "こんにちは😊")
 
+let test_iter () =
+  let open Stringx in
+  (* Test that iter visits each code point in order *)
+  let buf = Buffer.create 16 in
+  iter (fun u -> Buffer.add_utf_8_uchar buf u) "abcXYZ😊";
+  Alcotest.(check string)
+    "iter reconstructs original" "abcXYZ😊" (Buffer.contents buf)
+
 let () =
   run "stringx"
     [
@@ -599,4 +607,5 @@ let () =
       ("map tests", [ test_case "map basic" `Quick test_map ]);
       ( "filter map tests",
         [ test_case "filter map basic" `Quick test_filter_map ] );
+      ("iter tests", [ test_case "iter basic" `Quick test_iter ]);
     ]

@@ -929,3 +929,19 @@ let filter_map (f : Uchar.t -> Uchar.t option) (s : string) : string =
   in
   aux ();
   Buffer.contents buf
+
+(** [iter f s] applies [f] to each Unicode code point of [s], in sequence,
+    purely for side-effects. *)
+let iter (f : Uchar.t -> unit) (s : string) : unit =
+  let dec = decoder ~encoding:`UTF_8 (`String s) in
+  let rec aux () =
+    match decode dec with
+    | `Uchar u ->
+        f u;
+        aux ()
+    | `Malformed _ ->
+        (* ignore invalid sequences *)
+        aux ()
+    | `End | `Await -> ()
+  in
+  aux ()

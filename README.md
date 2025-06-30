@@ -98,6 +98,11 @@ module Stringx : sig
   (** Return the byte offset of the first occurrence of [substr] in [s], or -1 if not found.
       Example: index "chicken" "ken" = 4 *)
 
+  val iter : (Uchar.t -> unit) -> string -> unit
+  (** Apply the given function to each Unicode code point in the string, in sequence, for side effects only.
+      Unicode-aware: decodes the string into code points and applies the function to each.
+      Example: iter (fun u -> print_endline (Uchar.to_string u)) "abc😊" *)
+
   val join : string list -> string -> string
   (** Join a list of strings with a separator.
       Example: join ["foo"; "bar"; "baz"] ", " = "foo, bar, baz" *)

@@ -10,6 +10,10 @@
   If the function returns [Some u'], [u'] is included in the result; if [None], the code point is dropped.  
   Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
 
+- add: `iter`  
+  Applies the given function to each Unicode code point in the string, in sequence, for side effects only.  
+  Unicode-aware: decodes the string into code points and applies the function to each.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

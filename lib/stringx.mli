@@ -564,3 +564,7 @@ val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
     Example: let drop_vowel u = match Uchar.to_int u with | c when List.mem c
     [ Char.code 'a'; Char.code 'e'; Char.code 'i' ; Char.code 'o'; Char.code 'u'
      ] -> None | _ -> Some u in filter_map drop_vowel "hello" = "hll" *)
+
+val iter : (Uchar.t -> unit) -> string -> unit
+(** [iter f s] applies [f] to each Unicode code point of [s], in sequence,
+    purely for side-effects. *)
