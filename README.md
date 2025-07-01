@@ -1,7 +1,5 @@
 [![Build and Test](https://github.com/nao1215/stringx/actions/workflows/test.yml/badge.svg)](https://github.com/nao1215/stringx/actions/workflows/test.yml)
 [![Dependabot Updates](https://github.com/nao1215/stringx/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/nao1215/stringx/actions/workflows/dependabot/dependabot-updates)
-![OPAM](https://img.shields.io/opam/v/stringx)
-![OPAM Downloads](https://img.shields.io/opam/dt/stringx)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![GitHub stars](https://img.shields.io/github/stars/nao1215/stringx?style=social)
 [![Documentation](https://img.shields.io/badge/docs-online-blue)](https://nao1215.github.io/stringx/)
