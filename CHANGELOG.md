@@ -56,6 +56,10 @@
   If the string is longer than the width or pad is empty, the original string is returned.  
   Unicode-aware: counts code points, not bytes.
 
+- add: `rune_width`
+  Returns the character width of a Unicode code point in a monotype font. Multi-byte (East Asian wide) characters are usually twice the width of single byte characters. Algorithm based on PHP's mb_strwidth.
+
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

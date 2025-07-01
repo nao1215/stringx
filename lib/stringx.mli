@@ -662,3 +662,14 @@ val right_justify : string -> int -> string -> string
     - right_justify "hello" 4 " " = "hello"
     - right_justify "hello" 10 " " = " hello"
     - right_justify "hello" 10 "123" = "12312hello" *)
+
+val rune_width : Uchar.t -> int
+(** [rune_width u] returns the character width of Unicode code point [u] in a
+    monotype font. Multi-byte (East Asian wide) characters are usually twice the
+    width of single byte characters.
+
+    The algorithm is based on PHP's mb_strwidth. See:
+    http://php.net/manual/en/function.mb-strwidth.php
+
+    @param u The Unicode code point
+    @return The width (1 or 2) *)

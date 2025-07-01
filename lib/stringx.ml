@@ -1207,3 +1207,33 @@ let right_justify (s : string) (width : int) (pad : string) : string =
       let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
       let pad_trunc = take_utf8 pad_full total_pad in
       pad_trunc ^ s
+
+(** [rune_width u] returns the character width of Unicode code point [u] in a
+    monotype font. Multi-byte (East Asian wide) characters are usually twice the
+    width of single byte characters.
+
+    The algorithm is based on PHP's mb_strwidth. See:
+    http://php.net/manual/en/function.mb-strwidth.php *)
+let rune_width (u : Uchar.t) : int =
+  let c = Uchar.to_int u in
+  (* Basic CJK Unified Ideographs, Hangul, Hiragana, Katakana, etc. *)
+  if
+    (c >= 0x1100 && c <= 0x115F)
+    || (c >= 0x2329 && c <= 0x232A)
+    || (c >= 0x2E80 && c <= 0xA4CF)
+    || (c >= 0xAC00 && c <= 0xD7A3)
+    || (c >= 0xF900 && c <= 0xFAFF)
+    || (c >= 0xFE10 && c <= 0xFE19)
+    || (c >= 0xFE30 && c <= 0xFE6F)
+    || (c >= 0xFF00 && c <= 0xFF60)
+    || (c >= 0xFFE0 && c <= 0xFFE6)
+    || (c >= 0x20000 && c <= 0x2FFFD)
+    || (c >= 0x30000 && c <= 0x3FFFD)
+       (* Emoji ranges: Miscellaneous Symbols and Pictographs, Emoticons,
+          etc. *)
+    || (c >= 0x1F300 && c <= 0x1F64F)
+    || (c >= 0x1F900 && c <= 0x1F9FF)
+    || (c >= 0x1FA70 && c <= 0x1FAFF)
+    || (c >= 0x1F680 && c <= 0x1F6FF)
+  then 2
+  else 1

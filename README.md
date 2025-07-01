@@ -333,6 +333,18 @@ module Stringx : sig
   val trim_suffix : string -> string -> string
   (** Remove the provided trailing [suffix] from [s] if present (byte-based).
       Example: trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!" = "¡¡¡Hello" *)
+
+  val rune_width : Uchar.t -> int
+  (** [rune_width u] returns the character width of Unicode code point [u] in a monotype font.
+      Multi-byte (East Asian wide) characters are usually twice the width of single byte characters.
+
+      The algorithm is based on PHP's mb_strwidth.
+      See: http://php.net/manual/en/function.mb-strwidth.php
+
+      Example:
+      - rune_width (Uchar.of_int 0x3042) = 2  (* Hiragana 'あ' *)
+      - rune_width (Uchar.of_int (Char.code 'a')) = 1
+  *)
 end
 ```
 

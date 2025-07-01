@@ -698,6 +698,27 @@ let test_right_justify () =
     "pad exact" "12345hello"
     (right_justify "hello" 10 "12345")
 
+let test_rune_width () =
+  let open Stringx in
+  let u = Uchar.of_int in
+  Alcotest.(check int) "ASCII" 1 (rune_width (u (Char.code 'a')));
+  Alcotest.(check int) "Latin-1" 1 (rune_width (u 0x00E9));
+  (* é *)
+  Alcotest.(check int) "Hiragana" 2 (rune_width (u 0x3042));
+  (* あ *)
+  Alcotest.(check int) "Katakana" 2 (rune_width (u 0x30AB));
+  (* カ *)
+  Alcotest.(check int) "CJK Unified Ideograph" 2 (rune_width (u 0x4E2D));
+  (* 中 *)
+  Alcotest.(check int) "Hangul" 2 (rune_width (u 0xAC00));
+  (* 가 *)
+  Alcotest.(check int) "Fullwidth Latin" 2 (rune_width (u 0xFF21));
+  (* Ａ *)
+  Alcotest.(check int) "Emoji" 2 (rune_width (u 0x1F34E));
+  (* 🍎 *)
+  Alcotest.(check int) "Misc symbol" 1 (rune_width (u 0x2603))
+(* ☃ *)
+
 let () =
   run "stringx"
     [
@@ -774,4 +795,6 @@ let () =
       ("partition tests", [ test_case "partition basic" `Quick test_partition ]);
       ( "right justify tests",
         [ test_case "right justify basic" `Quick test_right_justify ] );
+      ( "rune width tests",
+        [ test_case "rune width basic" `Quick test_rune_width ] );
     ]
