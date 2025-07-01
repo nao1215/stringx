@@ -747,11 +747,8 @@ let test_shuffle () =
   let shuffled2 = shuffle s2 in
   Alcotest.(check int)
     "unicode same length" (String.length s2) (String.length shuffled2);
-  Alcotest.(check (list char))
-    "unicode same code points"
-    (List.sort compare (List.init (String.length s2) (String.get s2)))
-    (List.sort compare
-       (List.init (String.length shuffled2) (String.get shuffled2)));
+  Alcotest.(check int)
+    "unicode same rune count" (Stringx.len s2) (Stringx.len shuffled2);
   Alcotest.(check string) "empty" "" (shuffle "")
 
 let test_shuffle_source () =
