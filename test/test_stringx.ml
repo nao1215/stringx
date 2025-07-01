@@ -800,6 +800,19 @@ let test_slice () =
   Alcotest.check_raises "end < start" (Invalid_argument "slice: end < start")
     (fun () -> ignore (slice "Camel" 3 2))
 
+let test_squeeze () =
+  let open Stringx in
+  Alcotest.(check string) "no pattern" "helo" (squeeze "hello" "");
+  Alcotest.(check string) "pattern m-z" "hello" (squeeze "hello" "m-z");
+  Alcotest.(check string) "spaces" "hello world" (squeeze "hello   world" " ");
+  Alcotest.(check string) "all spaces" " " (squeeze "     " " ");
+  Alcotest.(check string) "unicode" "こんにちは" (squeeze "こんににちは" "");
+  Alcotest.(check string) "emoji" "🍎🍏🍊" (squeeze "🍎🍎🍏🍊🍊" "");
+  Alcotest.(check string) "empty" "" (squeeze "" "");
+  Alcotest.(check string) "single char" "a" (squeeze "a" "");
+  Alcotest.(check string) "pattern subset" "heelo" (squeeze "heelllo" "l");
+  Alcotest.(check string) "pattern negation" "helo" (squeeze "hello" "^e")
+
 let () =
   run "stringx"
     [
@@ -883,4 +896,5 @@ let () =
       ( "shuffle source tests",
         [ test_case "shuffle source basic" `Quick test_shuffle_source ] );
       ("slice tests", [ test_case "slice basic" `Quick test_slice ]);
+      ("squeeze tests", [ test_case "squeeze basic" `Quick test_squeeze ]);
     ]

@@ -742,3 +742,19 @@ val slice : string -> int -> int -> string
     @param end_
       The end code point index (exclusive), or negative for end of string
     @return The sliced substring *)
+
+val squeeze : string -> string -> string
+(** [squeeze str pattern] deletes adjacent repeated Unicode code points in
+    [str]. If [pattern] is not empty, only code points matching [pattern] are
+    squeezed. Unicode-aware: operates on code points, not bytes.
+
+    This is equivalent to Ruby's String#squeeze.
+
+    Examples:
+    - [squeeze "hello" ""] returns ["helo"]
+    - [squeeze "hello" "m-z"] returns ["hello"]
+    - [squeeze "hello   world" " "] returns ["hello world"]
+
+    @param str The input string (UTF-8)
+    @param pattern The pattern of code points to squeeze (UTF-8, can be empty)
+    @return The squeezed string *)

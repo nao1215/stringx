@@ -1319,3 +1319,24 @@ let slice (str : string) (start : int) (end_ : int) : string =
         else take_drop (i + 1) xs acc
   in
   encode_utf8 (take_drop 0 uchars [])
+
+(** [squeeze str pattern] deletes adjacent repeated Unicode code points in
+    [str]. If [pattern] is not empty, only code points matching [pattern] are
+    squeezed. Unicode-aware: operates on code points, not bytes.
+
+    This is equivalent to Ruby's String#squeeze.
+
+    Examples:
+    - squeeze "hello" "" = "helo"
+    - squeeze "hello" "m-z" = "hello"
+    - squeeze "hello world" " " = "hello world" *)
+let squeeze (str : string) (pattern : string) : string =
+  let matcher = if pattern = "" then fun _ -> true else build_matcher pattern in
+  let uchars = decode_utf8 str in
+  let rec aux prev acc = function
+    | [] -> List.rev acc
+    | u :: tl ->
+        if Some u = prev && matcher u then aux prev acc tl
+        else aux (Some u) (u :: acc) tl
+  in
+  encode_utf8 (aux None [] uchars)

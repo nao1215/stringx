@@ -388,6 +388,17 @@ module Stringx : sig
       - slice "こんにちは" 2 4 = "にち"
       - slice "こんにちは" 2 (-1) = "にちは"
   *)
+
+  val squeeze : string -> string -> string
+  (** Delete adjacent repeated Unicode code points in a string.
+      If [pattern] is not empty, only code points matching [pattern] are squeezed.
+      Unicode-aware: operates on code points, not bytes.
+      This is equivalent to Ruby's String#squeeze.
+      Examples:
+      - squeeze "hello" "" = "helo"
+      - squeeze "hello" "m-z" = "hello"
+      - squeeze "hello   world" " " = "hello world"
+  *)
 end
 ```
 

@@ -71,6 +71,9 @@
 - add: `slice`  
   Slices a string by Unicode code points (runes). Returns the substring from [start] (inclusive) to [end_] (exclusive). Negative [end_] means slice to the end of string. Equivalent to PHP's mb_substr. Raises [Invalid_argument] if indices are out of range.
 
+- add: `squeeze`  
+  Deletes adjacent repeated Unicode code points in a string. If a pattern is given, only code points matching the pattern are squeezed. Unicode-aware. Equivalent to Ruby's String#squeeze.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  
