@@ -356,6 +356,14 @@ module Stringx : sig
       - scrub "a\xffb\xff" "?" = "a?b?"
       - scrub "abc" "?" = "abc"
   *)
+
+  val shuffle : string -> string
+  (** Randomize the order of Unicode code points in a string.
+      Uses OCaml's Random module as the random source.
+      Unicode-aware: shuffles by code points, not bytes.
+      Example: shuffle "Camel" might return "eCaml", "lCema", etc.
+      Example: shuffle "こんにちは" might return "にちこんは", etc.
+  *)
 end
 ```
 

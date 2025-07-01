@@ -62,6 +62,9 @@
 - add: `scrub`  
   Replaces invalid UTF-8 byte sequences in a string with a replacement string. Adjacent invalid bytes are replaced only once. Unicode-aware.
 
+- add: `shuffle`  
+  Randomizes the order of Unicode code points in a string. Uses OCaml's Random module as the random source. Unicode-aware: shuffles by code points, not bytes. Equivalent to PHP's str_shuffle.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

@@ -730,6 +730,30 @@ let test_scrub () =
   Alcotest.(check string) "custom repl" "aXb" (scrub "a\xffb" "X");
   Alcotest.(check string) "unicode valid" "こんにちは" (scrub "こんにちは" "?")
 
+let test_shuffle () =
+  let open Stringx in
+  Random.init 42;
+  (* deterministic for test *)
+  let s = "Camel" in
+  let shuffled = shuffle s in
+  Alcotest.(check int) "same length" (String.length s) (String.length shuffled);
+  Alcotest.(check (list char))
+    "same code points"
+    (List.sort compare (List.init (String.length s) (String.get s)))
+    (List.sort compare
+       (List.init (String.length shuffled) (String.get shuffled)));
+  (* Unicode test *)
+  let s2 = "こんにちは" in
+  let shuffled2 = shuffle s2 in
+  Alcotest.(check int)
+    "unicode same length" (String.length s2) (String.length shuffled2);
+  Alcotest.(check (list char))
+    "unicode same code points"
+    (List.sort compare (List.init (String.length s2) (String.get s2)))
+    (List.sort compare
+       (List.init (String.length shuffled2) (String.get shuffled2)));
+  Alcotest.(check string) "empty" "" (shuffle "")
+
 let () =
   run "stringx"
     [
@@ -809,4 +833,5 @@ let () =
       ( "rune width tests",
         [ test_case "rune width basic" `Quick test_rune_width ] );
       ("scrub tests", [ test_case "scrub basic" `Quick test_scrub ]);
+      ("shuffle tests", [ test_case "shuffle basic" `Quick test_shuffle ]);
     ]

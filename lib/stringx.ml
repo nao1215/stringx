@@ -1255,3 +1255,19 @@ let scrub (str : string) (repl : string) : string =
   in
   aux false;
   Buffer.contents buf
+
+(** [shuffle str] randomizes the order of Unicode code points in [str] and
+    returns the result. Uses OCaml's Random module as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes. *)
+let shuffle (str : string) : string =
+  let uchars = decode_utf8 str in
+  let arr = Array.of_list uchars in
+  let n = Array.length arr in
+  for i = n - 1 downto 1 do
+    let j = Random.int (i + 1) in
+    let tmp = arr.(i) in
+    arr.(i) <- arr.(j);
+    arr.(j) <- tmp
+  done;
+  encode_utf8 (Array.to_list arr)

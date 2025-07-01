@@ -687,3 +687,16 @@ val scrub : string -> string -> string
     @param str The input string (possibly invalid UTF-8)
     @param repl The replacement string for invalid bytes
     @return The scrubbed string *)
+
+val shuffle : string -> string
+(** [shuffle str] randomizes the order of Unicode code points in [str] and
+    returns the result. Uses OCaml's Random module as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes.
+
+    Examples:
+    - [shuffle "Camel"] might return ["eCaml"], ["lCema"], etc.
+    - [shuffle "こんにちは"] might return ["にちこんは"], etc.
+
+    @param str The input string (UTF-8)
+    @return The shuffled string *)
