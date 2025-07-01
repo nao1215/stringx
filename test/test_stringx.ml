@@ -667,6 +667,17 @@ let test_left_justify () =
     "pad exact" "hello12345"
     (left_justify "hello" 10 "12345")
 
+let test_partition () =
+  let open Stringx in
+  Alcotest.(check (triple string string string))
+    "partition: found" ("he", "l", "lo") (partition "hello" "l");
+  Alcotest.(check (triple string string string))
+    "partition: not found" ("hello", "", "") (partition "hello" "x");
+  Alcotest.(check (triple string string string))
+    "partition: sep at start" ("", "h", "ello") (partition "hello" "h");
+  Alcotest.(check (triple string string string))
+    "partition: sep at end" ("hell", "o", "") (partition "hello" "o")
+
 let () =
   run "stringx"
     [
@@ -740,4 +751,5 @@ let () =
         [ test_case "last partition basic" `Quick test_last_partition ] );
       ( "left justify tests",
         [ test_case "left justify basic" `Quick test_left_justify ] );
+      ("partition tests", [ test_case "partition basic" `Quick test_partition ]);
     ]

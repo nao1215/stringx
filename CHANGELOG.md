@@ -46,6 +46,11 @@
   If the string is longer than the width or pad is empty, the original string is returned.  
   Unicode-aware: counts code points, not bytes.
 
+- add: `partition`  
+  Splits a string by the first instance of a separator into three parts: ([head], [match], [tail]).  
+  If the separator is found, returns the part before, the separator itself, and the part after.  
+  If not found, returns ([str], "", ""). Operates on bytes, not code points.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

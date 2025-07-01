@@ -1154,3 +1154,33 @@ let left_justify (s : string) (width : int) (pad : string) : string =
       let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
       let pad_trunc = take_utf8 pad_full total_pad in
       s ^ pad_trunc
+
+(** [partition str sep] splits [str] by the first instance of [sep] into three
+    parts: ([head], [match], [tail]). If [sep] is found, [head] is the part
+    before the first [sep], [match] is [sep], and [tail] is the part after. If
+    [sep] is not found, returns ([str], "", ""). Operates on bytes, not code
+    points.
+
+    Examples:
+    - partition "hello" "l" = ("he", "l", "lo")
+    - partition "hello" "x" = ("hello", "", "") *)
+let partition (str : string) (sep : string) : string * string * string =
+  if sep = "" then (str, "", "")
+  else
+    let len_str = String.length str in
+    let len_sep = String.length sep in
+    let rec find i =
+      if i > len_str - len_sep then -1
+      else if String.sub str i len_sep = sep then i
+      else find (i + 1)
+    in
+    let idx = find 0 in
+    if idx = -1 then (str, "", "")
+    else
+      let head = String.sub str 0 idx in
+      let tail_start = idx + len_sep in
+      let tail =
+        if tail_start > len_str then ""
+        else String.sub str tail_start (len_str - tail_start)
+      in
+      (head, sep, tail)

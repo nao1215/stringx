@@ -639,3 +639,14 @@ val left_justify : string -> int -> string -> string
     - left_justify "hello" 4 " " = "hello"
     - left_justify "hello" 10 " " = "hello "
     - left_justify "hello" 10 "123" = "hello12312" *)
+
+val partition : string -> string -> string * string * string
+(** [partition str sep] splits [str] by the first instance of [sep] into three
+    parts: ([head], [match], [tail]). If [sep] is found, [head] is the part
+    before the first [sep], [match] is [sep], and [tail] is the part after. If
+    [sep] is not found, returns ([str], "", ""). Operates on bytes, not code
+    points.
+
+    Examples:
+    - partition "hello" "l" = ("he", "l", "lo")
+    - partition "hello" "x" = ("hello", "", "") *)
