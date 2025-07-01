@@ -345,6 +345,17 @@ module Stringx : sig
       - rune_width (Uchar.of_int 0x3042) = 2  (* Hiragana 'あ' *)
       - rune_width (Uchar.of_int (Char.code 'a')) = 1
   *)
+
+  val scrub : string -> string -> string
+  (** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
+      Adjacent invalid bytes are replaced only once.
+      Unicode-aware.
+      Examples:
+      - scrub "a\xffb" "?" = "a?b"
+      - scrub "a\xff\xffb" "?" = "a?b"
+      - scrub "a\xffb\xff" "?" = "a?b?"
+      - scrub "abc" "?" = "abc"
+  *)
 end
 ```
 

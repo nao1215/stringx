@@ -59,6 +59,8 @@
 - add: `rune_width`
   Returns the character width of a Unicode code point in a monotype font. Multi-byte (East Asian wide) characters are usually twice the width of single byte characters. Algorithm based on PHP's mb_strwidth.
 
+- add: `scrub`  
+  Replaces invalid UTF-8 byte sequences in a string with a replacement string. Adjacent invalid bytes are replaced only once. Unicode-aware.
 
 ## [v0.2.0] - 2025-06-29
 

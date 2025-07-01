@@ -673,3 +673,17 @@ val rune_width : Uchar.t -> int
 
     @param u The Unicode code point
     @return The width (1 or 2) *)
+
+val scrub : string -> string -> string
+(** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
+    Adjacent invalid bytes are replaced only once. Unicode-aware.
+
+    Examples:
+    - [scrub "a\xffb" "?"] returns ["a?b"]
+    - [scrub "a\xff\xffb" "?"] returns ["a?b"]
+    - [scrub "a\xffb\xff" "?"] returns ["a?b?"]
+    - [scrub "abc" "?"] returns ["abc"]
+
+    @param str The input string (possibly invalid UTF-8)
+    @param repl The replacement string for invalid bytes
+    @return The scrubbed string *)

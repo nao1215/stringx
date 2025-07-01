@@ -1237,3 +1237,21 @@ let rune_width (u : Uchar.t) : int =
     || (c >= 0x1F680 && c <= 0x1F6FF)
   then 2
   else 1
+
+(** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
+    Adjacent invalid bytes are replaced only once. Unicode-aware. *)
+let scrub (str : string) (repl : string) : string =
+  let dec = Uutf.decoder ~encoding:`UTF_8 (`String str) in
+  let buf = Buffer.create (String.length str) in
+  let rec aux in_error =
+    match Uutf.decode dec with
+    | `Uchar u ->
+        Buffer.add_utf_8_uchar buf u;
+        aux false
+    | `Malformed _ ->
+        if not in_error then Buffer.add_string buf repl;
+        aux true
+    | `End | `Await -> ()
+  in
+  aux false;
+  Buffer.contents buf

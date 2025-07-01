@@ -719,6 +719,17 @@ let test_rune_width () =
   Alcotest.(check int) "Misc symbol" 1 (rune_width (u 0x2603))
 (* ☃ *)
 
+let test_scrub () =
+  let open Stringx in
+  Alcotest.(check string) "no invalid" "abc" (scrub "abc" "?");
+  Alcotest.(check string) "single invalid" "a?b" (scrub "a\xffb" "?");
+  Alcotest.(check string) "adjacent invalid" "a?b" (scrub "a\xff\xffb" "?");
+  Alcotest.(check string) "multiple invalid" "a?b?" (scrub "a\xffb\xff" "?");
+  Alcotest.(check string) "all invalid" "?" (scrub "\xff\xff" "?");
+  Alcotest.(check string) "empty" "" (scrub "" "?");
+  Alcotest.(check string) "custom repl" "aXb" (scrub "a\xffb" "X");
+  Alcotest.(check string) "unicode valid" "こんにちは" (scrub "こんにちは" "?")
+
 let () =
   run "stringx"
     [
@@ -797,4 +808,5 @@ let () =
         [ test_case "right justify basic" `Quick test_right_justify ] );
       ( "rune width tests",
         [ test_case "rune width basic" `Quick test_rune_width ] );
+      ("scrub tests", [ test_case "scrub basic" `Quick test_scrub ]);
     ]
