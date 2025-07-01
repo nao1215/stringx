@@ -698,6 +698,118 @@ let test_right_justify () =
     "pad exact" "12345hello"
     (right_justify "hello" 10 "12345")
 
+let test_rune_width () =
+  let open Stringx in
+  let u = Uchar.of_int in
+  Alcotest.(check int) "ASCII" 1 (rune_width (u (Char.code 'a')));
+  Alcotest.(check int) "Latin-1" 1 (rune_width (u 0x00E9));
+  (* é *)
+  Alcotest.(check int) "Hiragana" 2 (rune_width (u 0x3042));
+  (* あ *)
+  Alcotest.(check int) "Katakana" 2 (rune_width (u 0x30AB));
+  (* カ *)
+  Alcotest.(check int) "CJK Unified Ideograph" 2 (rune_width (u 0x4E2D));
+  (* 中 *)
+  Alcotest.(check int) "Hangul" 2 (rune_width (u 0xAC00));
+  (* 가 *)
+  Alcotest.(check int) "Fullwidth Latin" 2 (rune_width (u 0xFF21));
+  (* Ａ *)
+  Alcotest.(check int) "Emoji" 2 (rune_width (u 0x1F34E));
+  (* 🍎 *)
+  Alcotest.(check int) "Misc symbol" 1 (rune_width (u 0x2603))
+(* ☃ *)
+
+let test_scrub () =
+  let open Stringx in
+  Alcotest.(check string) "no invalid" "abc" (scrub "abc" "?");
+  Alcotest.(check string) "single invalid" "a?b" (scrub "a\xffb" "?");
+  Alcotest.(check string) "adjacent invalid" "a?b" (scrub "a\xff\xffb" "?");
+  Alcotest.(check string) "multiple invalid" "a?b?" (scrub "a\xffb\xff" "?");
+  Alcotest.(check string) "all invalid" "?" (scrub "\xff\xff" "?");
+  Alcotest.(check string) "empty" "" (scrub "" "?");
+  Alcotest.(check string) "custom repl" "aXb" (scrub "a\xffb" "X");
+  Alcotest.(check string) "unicode valid" "こんにちは" (scrub "こんにちは" "?")
+
+let test_shuffle () =
+  let open Stringx in
+  Random.init 42;
+  (* deterministic for test *)
+  let s = "Camel" in
+  let shuffled = shuffle s in
+  Alcotest.(check int) "same length" (String.length s) (String.length shuffled);
+  Alcotest.(check (list char))
+    "same code points"
+    (List.sort compare (List.init (String.length s) (String.get s)))
+    (List.sort compare
+       (List.init (String.length shuffled) (String.get shuffled)));
+  (* Unicode test *)
+  let s2 = "こんにちは" in
+  let shuffled2 = shuffle s2 in
+  Alcotest.(check int)
+    "unicode same length" (String.length s2) (String.length shuffled2);
+  Alcotest.(check int)
+    "unicode same rune count" (Stringx.len s2) (Stringx.len shuffled2);
+  Alcotest.(check string) "empty" "" (shuffle "")
+
+let test_shuffle_source () =
+  let open Stringx in
+  let rand = Random.State.make [| 42 |] in
+  let s = "Camel" in
+  let shuffled = shuffle_source s rand in
+  Alcotest.(check int) "same length" (String.length s) (String.length shuffled);
+  Alcotest.(check (list char))
+    "same code points"
+    (List.sort compare (List.init (String.length s) (String.get s)))
+    (List.sort compare
+       (List.init (String.length shuffled) (String.get shuffled)));
+  (* Unicode test *)
+  let rand2 = Random.State.make [| 123 |] in
+  let s2 = "こんにちは" in
+  let shuffled2 = shuffle_source s2 rand2 in
+  Alcotest.(check int)
+    "unicode same length" (String.length s2) (String.length shuffled2);
+  Alcotest.(check (list char))
+    "unicode same code points"
+    (List.sort compare (List.init (String.length s2) (String.get s2)))
+    (List.sort compare
+       (List.init (String.length shuffled2) (String.get shuffled2)));
+  Alcotest.(check string) "empty" "" (shuffle_source "" rand)
+
+let test_slice () =
+  let open Stringx in
+  Alcotest.(check string) "ascii 0-5" "Camel" (slice "CamelCase" 0 5);
+  Alcotest.(check string) "ascii 5--1" "Case" (slice "CamelCase" 5 (-1));
+  Alcotest.(check string) "ascii 0--1" "CamelCase" (slice "CamelCase" 0 (-1));
+  Alcotest.(check string) "ascii 2-4" "me" (slice "CamelCase" 2 4);
+  Alcotest.(check string) "unicode 2-4" "にち" (slice "こんにちは" 2 4);
+  Alcotest.(check string) "unicode 2--1" "にちは" (slice "こんにちは" 2 (-1));
+  Alcotest.(check string) "emoji 1-2" "🍏" (slice "🍎🍏🍊" 1 2);
+  Alcotest.(check string) "emoji 0-2" "🍎🍏" (slice "🍎🍏🍊" 0 2);
+  Alcotest.(check string) "empty" "" (slice "" 0 (-1));
+  Alcotest.check_raises "start < 0"
+    (Invalid_argument "slice: start out of range") (fun () ->
+      ignore (slice "Camel" (-1) 2));
+  Alcotest.check_raises "start > len"
+    (Invalid_argument "slice: start out of range") (fun () ->
+      ignore (slice "Camel" 6 7));
+  Alcotest.check_raises "end > len" (Invalid_argument "slice: end out of range")
+    (fun () -> ignore (slice "Camel" 0 10));
+  Alcotest.check_raises "end < start" (Invalid_argument "slice: end < start")
+    (fun () -> ignore (slice "Camel" 3 2))
+
+let test_squeeze () =
+  let open Stringx in
+  Alcotest.(check string) "no pattern" "helo" (squeeze "hello" "");
+  Alcotest.(check string) "pattern m-z" "hello" (squeeze "hello" "m-z");
+  Alcotest.(check string) "spaces" "hello world" (squeeze "hello   world" " ");
+  Alcotest.(check string) "all spaces" " " (squeeze "     " " ");
+  Alcotest.(check string) "unicode" "こんにちは" (squeeze "こんににちは" "");
+  Alcotest.(check string) "emoji" "🍎🍏🍊" (squeeze "🍎🍎🍏🍊🍊" "");
+  Alcotest.(check string) "empty" "" (squeeze "" "");
+  Alcotest.(check string) "single char" "a" (squeeze "a" "");
+  Alcotest.(check string) "pattern subset" "heelo" (squeeze "heelllo" "l");
+  Alcotest.(check string) "pattern negation" "helo" (squeeze "hello" "^e")
+
 let () =
   run "stringx"
     [
@@ -774,4 +886,12 @@ let () =
       ("partition tests", [ test_case "partition basic" `Quick test_partition ]);
       ( "right justify tests",
         [ test_case "right justify basic" `Quick test_right_justify ] );
+      ( "rune width tests",
+        [ test_case "rune width basic" `Quick test_rune_width ] );
+      ("scrub tests", [ test_case "scrub basic" `Quick test_scrub ]);
+      ("shuffle tests", [ test_case "shuffle basic" `Quick test_shuffle ]);
+      ( "shuffle source tests",
+        [ test_case "shuffle source basic" `Quick test_shuffle_source ] );
+      ("slice tests", [ test_case "slice basic" `Quick test_slice ]);
+      ("squeeze tests", [ test_case "squeeze basic" `Quick test_squeeze ]);
     ]

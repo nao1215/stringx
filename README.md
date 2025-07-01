@@ -333,6 +333,72 @@ module Stringx : sig
   val trim_suffix : string -> string -> string
   (** Remove the provided trailing [suffix] from [s] if present (byte-based).
       Example: trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!" = "¡¡¡Hello" *)
+
+  val rune_width : Uchar.t -> int
+  (** [rune_width u] returns the character width of Unicode code point [u] in a monotype font.
+      Multi-byte (East Asian wide) characters are usually twice the width of single byte characters.
+
+      The algorithm is based on PHP's mb_strwidth.
+      See: http://php.net/manual/en/function.mb-strwidth.php
+
+      Example:
+      - rune_width (Uchar.of_int 0x3042) = 2  (* Hiragana 'あ' *)
+      - rune_width (Uchar.of_int (Char.code 'a')) = 1
+  *)
+
+  val scrub : string -> string -> string
+  (** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
+      Adjacent invalid bytes are replaced only once.
+      Unicode-aware.
+      Examples:
+      - scrub "a\xffb" "?" = "a?b"
+      - scrub "a\xff\xffb" "?" = "a?b"
+      - scrub "a\xffb\xff" "?" = "a?b?"
+      - scrub "abc" "?" = "abc"
+  *)
+
+  val shuffle : string -> string
+  (** Randomize the order of Unicode code points in a string.
+      Uses OCaml's Random module as the random source.
+      Unicode-aware: shuffles by code points, not bytes.
+      Example: shuffle "Camel" might return "eCaml", "lCema", etc.
+      Example: shuffle "こんにちは" might return "にちこんは", etc.
+  *)
+
+  val shuffle_source : string -> Random.State.t -> string
+  (** Randomize the order of Unicode code points in a string using the given random state.
+      Uses [Random.State.t] as the random source.
+      Unicode-aware: shuffles by code points, not bytes.
+      Example: shuffle_source "Camel" (Random.State.make [|42|]) might return "eCaml", "lCema", etc.
+      Example: shuffle_source "こんにちは" (Random.State.make [|42|]) might return "にちこんは", etc.
+  *)
+
+  val slice : string -> int -> int -> string
+  (** Slice a string by Unicode code points (runes).
+      Returns the substring from [start] (inclusive) to [end_] (exclusive).
+      - [start] must satisfy 0 <= start <= rune length.
+      - [end_] can be positive, zero, or negative.
+        - If [end_] >= 0, then start <= end_ <= rune length.
+        - If [end_] < 0, it means slice to the end of string.
+      Raises [Invalid_argument] if indices are out of range.
+      This is equivalent to PHP's mb_substr.
+      Examples:
+      - slice "CamelCase" 0 5 = "Camel"
+      - slice "CamelCase" 5 (-1) = "Case"
+      - slice "こんにちは" 2 4 = "にち"
+      - slice "こんにちは" 2 (-1) = "にちは"
+  *)
+
+  val squeeze : string -> string -> string
+  (** Delete adjacent repeated Unicode code points in a string.
+      If [pattern] is not empty, only code points matching [pattern] are squeezed.
+      Unicode-aware: operates on code points, not bytes.
+      This is equivalent to Ruby's String#squeeze.
+      Examples:
+      - squeeze "hello" "" = "helo"
+      - squeeze "hello" "m-z" = "hello"
+      - squeeze "hello   world" " " = "hello world"
+  *)
 end
 ```
 

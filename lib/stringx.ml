@@ -1207,3 +1207,136 @@ let right_justify (s : string) (width : int) (pad : string) : string =
       let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
       let pad_trunc = take_utf8 pad_full total_pad in
       pad_trunc ^ s
+
+(** [rune_width u] returns the character width of Unicode code point [u] in a
+    monotype font. Multi-byte (East Asian wide) characters are usually twice the
+    width of single byte characters.
+
+    The algorithm is based on PHP's mb_strwidth. See:
+    http://php.net/manual/en/function.mb-strwidth.php *)
+let rune_width (u : Uchar.t) : int =
+  let c = Uchar.to_int u in
+  (* Basic CJK Unified Ideographs, Hangul, Hiragana, Katakana, etc. *)
+  if
+    (c >= 0x1100 && c <= 0x115F)
+    || (c >= 0x2329 && c <= 0x232A)
+    || (c >= 0x2E80 && c <= 0xA4CF)
+    || (c >= 0xAC00 && c <= 0xD7A3)
+    || (c >= 0xF900 && c <= 0xFAFF)
+    || (c >= 0xFE10 && c <= 0xFE19)
+    || (c >= 0xFE30 && c <= 0xFE6F)
+    || (c >= 0xFF00 && c <= 0xFF60)
+    || (c >= 0xFFE0 && c <= 0xFFE6)
+    || (c >= 0x20000 && c <= 0x2FFFD)
+    || (c >= 0x30000 && c <= 0x3FFFD)
+       (* Emoji ranges: Miscellaneous Symbols and Pictographs, Emoticons,
+          etc. *)
+    || (c >= 0x1F300 && c <= 0x1F64F)
+    || (c >= 0x1F900 && c <= 0x1F9FF)
+    || (c >= 0x1FA70 && c <= 0x1FAFF)
+    || (c >= 0x1F680 && c <= 0x1F6FF)
+  then 2
+  else 1
+
+(** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
+    Adjacent invalid bytes are replaced only once. Unicode-aware. *)
+let scrub (str : string) (repl : string) : string =
+  let dec = Uutf.decoder ~encoding:`UTF_8 (`String str) in
+  let buf = Buffer.create (String.length str) in
+  let rec aux in_error =
+    match Uutf.decode dec with
+    | `Uchar u ->
+        Buffer.add_utf_8_uchar buf u;
+        aux false
+    | `Malformed _ ->
+        if not in_error then Buffer.add_string buf repl;
+        aux true
+    | `End | `Await -> ()
+  in
+  aux false;
+  Buffer.contents buf
+
+(** [shuffle str] randomizes the order of Unicode code points in [str] and
+    returns the result. Uses OCaml's Random module as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes. *)
+let shuffle (str : string) : string =
+  let uchars = decode_utf8 str in
+  let arr = Array.of_list uchars in
+  let n = Array.length arr in
+  for i = n - 1 downto 1 do
+    let j = Random.int (i + 1) in
+    let tmp = arr.(i) in
+    arr.(i) <- arr.(j);
+    arr.(j) <- tmp
+  done;
+  encode_utf8 (Array.to_list arr)
+
+(** [shuffle_source str rand_state] randomizes the order of Unicode code points
+    in [str] using the given [Random.State.t] as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes. *)
+let shuffle_source (str : string) (rand : Random.State.t) : string =
+  let uchars = decode_utf8 str in
+  let arr = Array.of_list uchars in
+  let n = Array.length arr in
+  for i = n - 1 downto 1 do
+    let j = Random.State.int rand (i + 1) in
+    let tmp = arr.(i) in
+    arr.(i) <- arr.(j);
+    arr.(j) <- tmp
+  done;
+  encode_utf8 (Array.to_list arr)
+
+(** [slice str start end_] returns the substring of [str] from code point index
+    [start] (inclusive) to [end_] (exclusive). Indexing is by Unicode code
+    points, not bytes.
+
+    - [start] must satisfy 0 <= start <= rune length.
+    - [end_] can be positive, zero, or negative.
+    - If [end_] >= 0, then start <= end_ <= rune length.
+    - If [end_] < 0, it means slice to the end of string.
+
+    Raises [Invalid_argument] if indices are out of range.
+
+    This is equivalent to PHP's mb_substr. *)
+let slice (str : string) (start : int) (end_ : int) : string =
+  let uchars = decode_utf8 str in
+  let len = List.length uchars in
+  if start < 0 || start > len then invalid_arg "slice: start out of range";
+  let actual_end =
+    if end_ < 0 then len
+    else if end_ > len then invalid_arg "slice: end out of range"
+    else end_
+  in
+  if actual_end < start then invalid_arg "slice: end < start";
+  let rec take_drop i l acc =
+    match l with
+    | [] -> List.rev acc
+    | x :: xs ->
+        if i >= actual_end then List.rev acc
+        else if i >= start then take_drop (i + 1) xs (x :: acc)
+        else take_drop (i + 1) xs acc
+  in
+  encode_utf8 (take_drop 0 uchars [])
+
+(** [squeeze str pattern] deletes adjacent repeated Unicode code points in
+    [str]. If [pattern] is not empty, only code points matching [pattern] are
+    squeezed. Unicode-aware: operates on code points, not bytes.
+
+    This is equivalent to Ruby's String#squeeze.
+
+    Examples:
+    - squeeze "hello" "" = "helo"
+    - squeeze "hello" "m-z" = "hello"
+    - squeeze "hello world" " " = "hello world" *)
+let squeeze (str : string) (pattern : string) : string =
+  let matcher = if pattern = "" then fun _ -> true else build_matcher pattern in
+  let uchars = decode_utf8 str in
+  let rec aux prev acc = function
+    | [] -> List.rev acc
+    | u :: tl ->
+        if Some u = prev && matcher u then aux prev acc tl
+        else aux (Some u) (u :: acc) tl
+  in
+  encode_utf8 (aux None [] uchars)

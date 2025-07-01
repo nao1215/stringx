@@ -662,3 +662,99 @@ val right_justify : string -> int -> string -> string
     - right_justify "hello" 4 " " = "hello"
     - right_justify "hello" 10 " " = " hello"
     - right_justify "hello" 10 "123" = "12312hello" *)
+
+val rune_width : Uchar.t -> int
+(** [rune_width u] returns the character width of Unicode code point [u] in a
+    monotype font. Multi-byte (East Asian wide) characters are usually twice the
+    width of single byte characters.
+
+    The algorithm is based on PHP's mb_strwidth. See:
+    http://php.net/manual/en/function.mb-strwidth.php
+
+    @param u The Unicode code point
+    @return The width (1 or 2) *)
+
+val scrub : string -> string -> string
+(** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
+    Adjacent invalid bytes are replaced only once. Unicode-aware.
+
+    Examples:
+    - [scrub "a\xffb" "?"] returns ["a?b"]
+    - [scrub "a\xff\xffb" "?"] returns ["a?b"]
+    - [scrub "a\xffb\xff" "?"] returns ["a?b?"]
+    - [scrub "abc" "?"] returns ["abc"]
+
+    @param str The input string (possibly invalid UTF-8)
+    @param repl The replacement string for invalid bytes
+    @return The scrubbed string *)
+
+val shuffle : string -> string
+(** [shuffle str] randomizes the order of Unicode code points in [str] and
+    returns the result. Uses OCaml's Random module as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes.
+
+    Examples:
+    - [shuffle "Camel"] might return ["eCaml"], ["lCema"], etc.
+    - [shuffle "こんにちは"] might return ["にちこんは"], etc.
+
+    @param str The input string (UTF-8)
+    @return The shuffled string *)
+
+val shuffle_source : string -> Random.State.t -> string
+(** [shuffle_source str rand_state] randomizes the order of Unicode code points
+    in [str] using the given [Random.State.t] as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes.
+
+    Examples:
+    - [shuffle_source "Camel" (Random.State.make [|42|])] might return
+      ["eCaml"], ["lCema"], etc.
+    - [shuffle_source "こんにちは" (Random.State.make [|42|])] might return
+      ["にちこんは"], etc.
+
+    @param str The input string (UTF-8)
+    @param rand_state The random state to use for shuffling
+    @return The shuffled string *)
+
+val slice : string -> int -> int -> string
+(** [slice str start end_] returns the substring of [str] from code point index
+    [start] (inclusive) to [end_] (exclusive). Indexing is by Unicode code
+    points, not bytes.
+
+    - [start] must satisfy 0 <= start <= rune length.
+    - [end_] can be positive, zero, or negative.
+    - If [end_] >= 0, then start <= end_ <= rune length.
+    - If [end_] < 0, it means slice to the end of string.
+
+    Raises [Invalid_argument] if indices are out of range.
+
+    This is equivalent to PHP's mb_substr.
+
+    Examples:
+    - [slice "CamelCase" 0 5] returns ["Camel"]
+    - [slice "CamelCase" 5 (-1)] returns ["Case"]
+    - [slice "こんにちは" 2 4] returns ["にち"]
+    - [slice "こんにちは" 2 (-1)] returns ["にちは"]
+
+    @param str The input string (UTF-8)
+    @param start The start code point index (inclusive)
+    @param end_
+      The end code point index (exclusive), or negative for end of string
+    @return The sliced substring *)
+
+val squeeze : string -> string -> string
+(** [squeeze str pattern] deletes adjacent repeated Unicode code points in
+    [str]. If [pattern] is not empty, only code points matching [pattern] are
+    squeezed. Unicode-aware: operates on code points, not bytes.
+
+    This is equivalent to Ruby's String#squeeze.
+
+    Examples:
+    - [squeeze "hello" ""] returns ["helo"]
+    - [squeeze "hello" "m-z"] returns ["hello"]
+    - [squeeze "hello   world" " "] returns ["hello world"]
+
+    @param str The input string (UTF-8)
+    @param pattern The pattern of code points to squeeze (UTF-8, can be empty)
+    @return The squeezed string *)

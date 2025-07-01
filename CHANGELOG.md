@@ -56,6 +56,24 @@
   If the string is longer than the width or pad is empty, the original string is returned.  
   Unicode-aware: counts code points, not bytes.
 
+- add: `rune_width`
+  Returns the character width of a Unicode code point in a monotype font. Multi-byte (East Asian wide) characters are usually twice the width of single byte characters. Algorithm based on PHP's mb_strwidth.
+
+- add: `scrub`  
+  Replaces invalid UTF-8 byte sequences in a string with a replacement string. Adjacent invalid bytes are replaced only once. Unicode-aware.
+
+- add: `shuffle`  
+  Randomizes the order of Unicode code points in a string. Uses OCaml's Random module as the random source. Unicode-aware: shuffles by code points, not bytes. Equivalent to PHP's str_shuffle.
+
+- add: `shuffle_source`  
+  Randomizes the order of Unicode code points in a string using the given random state ([Random.State.t]). Unicode-aware: shuffles by code points, not bytes. Equivalent to PHP's str_shuffle with custom random source.
+
+- add: `slice`  
+  Slices a string by Unicode code points (runes). Returns the substring from [start] (inclusive) to [end_] (exclusive). Negative [end_] means slice to the end of string. Equivalent to PHP's mb_substr. Raises [Invalid_argument] if indices are out of range.
+
+- add: `squeeze`  
+  Deletes adjacent repeated Unicode code points in a string. If a pattern is given, only code points matching the pattern are squeezed. Unicode-aware. Equivalent to Ruby's String#squeeze.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  
