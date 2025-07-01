@@ -644,6 +644,29 @@ let test_last_partition () =
     "last_partition: sep at end" ("hell", "o", "")
     (last_partition "hello" "o")
 
+let test_left_justify () =
+  let open Stringx in
+  Alcotest.(check string)
+    "shorter than length" "hello"
+    (left_justify "hello" 4 " ");
+  Alcotest.(check string)
+    "longer than length" "hello"
+    (left_justify "hello" 3 " ");
+  Alcotest.(check string)
+    "pad with spaces" "hello     "
+    (left_justify "hello" 10 " ");
+  Alcotest.(check string)
+    "pad with multi" "hello12312"
+    (left_justify "hello" 10 "123");
+  Alcotest.(check string) "pad empty" "hello" (left_justify "hello" 10 "");
+  Alcotest.(check string)
+    "unicode pad" "helloあいあい"
+    (left_justify "hello" 9 "あい");
+  Alcotest.(check string) "unicode input" "こんにちは  " (left_justify "こんにちは" 7 " ");
+  Alcotest.(check string)
+    "pad exact" "hello12345"
+    (left_justify "hello" 10 "12345")
+
 let () =
   run "stringx"
     [
@@ -715,4 +738,6 @@ let () =
       ("insert tests", [ test_case "insert basic" `Quick test_insert ]);
       ( "last partition tests",
         [ test_case "last partition basic" `Quick test_last_partition ] );
+      ( "left justify tests",
+        [ test_case "left justify basic" `Quick test_left_justify ] );
     ]

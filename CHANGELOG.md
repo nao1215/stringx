@@ -41,6 +41,11 @@
   If the separator is found, returns the part before, the separator itself, and the part after.  
   If not found, returns ("", "", [str]). Operates on bytes, not code points.
 
+- add: `left_justify`  
+  Left-justifies a string in a field of the given width, padding with the given pad string on the right if needed.  
+  If the string is longer than the width or pad is empty, the original string is returned.  
+  Unicode-aware: counts code points, not bytes.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

@@ -627,3 +627,15 @@ val last_partition : string -> string -> string * string * string
     Examples:
     - last_partition "hello" "l" = ("hel", "l", "o")
     - last_partition "hello" "x" = ("", "", "hello") *)
+
+val left_justify : string -> int -> string -> string
+(** [left_justify s width pad] returns [s] left-justified in a string of [width]
+    Unicode code points, padding with [pad] on the right if needed. If [s] is
+    longer than [width], it is returned unchanged. If [pad] is empty, [s] is
+    returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - left_justify "hello" 4 " " = "hello"
+    - left_justify "hello" 10 " " = "hello "
+    - left_justify "hello" 10 "123" = "hello12312" *)

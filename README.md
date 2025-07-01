@@ -156,6 +156,17 @@ module Stringx : sig
       - last_partition "hello" "x" = ("", "", "hello")
   *)
 
+  val left_justify : string -> int -> string -> string
+  (** Left-justify [s] in a string of [width] Unicode code points, padding with [pad] on the right if needed.
+      If [s] is longer than [width], it is returned unchanged.
+      If [pad] is empty, [s] is returned unchanged. Padding is truncated as needed.
+      Unicode-aware: counts code points, not bytes.
+      Examples:
+      - left_justify "hello" 4 " " = "hello"
+      - left_justify "hello" 10 " " = "hello     "
+      - left_justify "hello" 10 "123" = "hello12312"
+  *)
+
   val len : string -> int
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
       Example: len "🍎🍏🍊" = 3 *)

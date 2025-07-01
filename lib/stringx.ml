@@ -1131,3 +1131,26 @@ let last_partition (str : string) (sep : string) : string * string * string =
         else String.sub str tail_start (String.length str - tail_start)
       in
       (head, sep, tail)
+
+(** [left_justify s len pad] returns [s] left-justified in a string of [len]
+    Unicode code points, padding with [pad] on the right if needed. If [s] is
+    longer than [len], it is returned unchanged. If [pad] is empty, [s] is
+    returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - left_justify "hello" 4 " " = "hello"
+    - left_justify "hello" 10 " " = "hello "
+    - left_justify "hello" 10 "123" = "hello12312" *)
+let left_justify (s : string) (width : int) (pad : string) : string =
+  if pad = "" then s
+  else
+    let slen = utf8_length s in
+    if slen >= width then s
+    else
+      let pad_len = utf8_length pad in
+      let total_pad = width - slen in
+      let times = (total_pad + pad_len - 1) / pad_len in
+      let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
+      let pad_trunc = take_utf8 pad_full total_pad in
+      s ^ pad_trunc
