@@ -1101,3 +1101,109 @@ let insert (dst : string) (src : string) (index : int) : string =
   let before = take index dst_uchars in
   let after = drop index dst_uchars in
   encode_utf8 (before @ src_uchars @ after)
+
+(** [last_partition str sep] splits [str] by the last instance of [sep] into
+    three parts: ([head], [match], [tail]). If [sep] is found, [head] is the
+    part before the last [sep], [match] is [sep], and [tail] is the part after.
+    If [sep] is not found, returns ("", "", [str]). Operates on bytes, not code
+    points.
+
+    Examples:
+    - last_partition "hello" "l" = ("hel", "l", "o")
+    - last_partition "hello" "x" = ("", "", "hello") *)
+let last_partition (str : string) (sep : string) : string * string * string =
+  if sep = "" then ("", "", str)
+  else
+    let rec find_last from =
+      if from < 0 then -1
+      else if from + String.length sep > String.length str then
+        find_last (from - 1)
+      else if String.sub str from (String.length sep) = sep then from
+      else find_last (from - 1)
+    in
+    let idx = find_last (String.length str - String.length sep) in
+    if idx = -1 then ("", "", str)
+    else
+      let head = String.sub str 0 idx in
+      let tail_start = idx + String.length sep in
+      let tail =
+        if tail_start > String.length str then ""
+        else String.sub str tail_start (String.length str - tail_start)
+      in
+      (head, sep, tail)
+
+(** [left_justify s len pad] returns [s] left-justified in a string of [len]
+    Unicode code points, padding with [pad] on the right if needed. If [s] is
+    longer than [len], it is returned unchanged. If [pad] is empty, [s] is
+    returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - left_justify "hello" 4 " " = "hello"
+    - left_justify "hello" 10 " " = "hello "
+    - left_justify "hello" 10 "123" = "hello12312" *)
+let left_justify (s : string) (width : int) (pad : string) : string =
+  if pad = "" then s
+  else
+    let slen = utf8_length s in
+    if slen >= width then s
+    else
+      let pad_len = utf8_length pad in
+      let total_pad = width - slen in
+      let times = (total_pad + pad_len - 1) / pad_len in
+      let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
+      let pad_trunc = take_utf8 pad_full total_pad in
+      s ^ pad_trunc
+
+(** [partition str sep] splits [str] by the first instance of [sep] into three
+    parts: ([head], [match], [tail]). If [sep] is found, [head] is the part
+    before the first [sep], [match] is [sep], and [tail] is the part after. If
+    [sep] is not found, returns ([str], "", ""). Operates on bytes, not code
+    points.
+
+    Examples:
+    - partition "hello" "l" = ("he", "l", "lo")
+    - partition "hello" "x" = ("hello", "", "") *)
+let partition (str : string) (sep : string) : string * string * string =
+  if sep = "" then (str, "", "")
+  else
+    let len_str = String.length str in
+    let len_sep = String.length sep in
+    let rec find i =
+      if i > len_str - len_sep then -1
+      else if String.sub str i len_sep = sep then i
+      else find (i + 1)
+    in
+    let idx = find 0 in
+    if idx = -1 then (str, "", "")
+    else
+      let head = String.sub str 0 idx in
+      let tail_start = idx + len_sep in
+      let tail =
+        if tail_start > len_str then ""
+        else String.sub str tail_start (len_str - tail_start)
+      in
+      (head, sep, tail)
+
+(** [right_justify s width pad] returns [s] right-justified in a string of
+    [width] Unicode code points, padding with [pad] on the left if needed. If
+    [s] is longer than [width], it is returned unchanged. If [pad] is empty, [s]
+    is returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - right_justify "hello" 4 " " = "hello"
+    - right_justify "hello" 10 " " = " hello"
+    - right_justify "hello" 10 "123" = "12312hello" *)
+let right_justify (s : string) (width : int) (pad : string) : string =
+  if pad = "" then s
+  else
+    let slen = utf8_length s in
+    if slen >= width then s
+    else
+      let pad_len = utf8_length pad in
+      let total_pad = width - slen in
+      let times = (total_pad + pad_len - 1) / pad_len in
+      let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
+      let pad_trunc = take_utf8 pad_full total_pad in
+      pad_trunc ^ s

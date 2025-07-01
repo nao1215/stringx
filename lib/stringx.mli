@@ -616,3 +616,49 @@ val insert : string -> string -> int -> string
     Examples:
     - insert "CamelCase" "Super" 5 = "CamelSuperCase"
     - insert "こんにちは" "世界" 2 = "こん世界にちは" *)
+
+val last_partition : string -> string -> string * string * string
+(** [last_partition str sep] splits [str] by the last instance of [sep] into
+    three parts: ([head], [match], [tail]). If [sep] is found, [head] is the
+    part before the last [sep], [match] is [sep], and [tail] is the part after.
+    If [sep] is not found, returns ("", "", [str]). Operates on bytes, not code
+    points.
+
+    Examples:
+    - last_partition "hello" "l" = ("hel", "l", "o")
+    - last_partition "hello" "x" = ("", "", "hello") *)
+
+val left_justify : string -> int -> string -> string
+(** [left_justify s width pad] returns [s] left-justified in a string of [width]
+    Unicode code points, padding with [pad] on the right if needed. If [s] is
+    longer than [width], it is returned unchanged. If [pad] is empty, [s] is
+    returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - left_justify "hello" 4 " " = "hello"
+    - left_justify "hello" 10 " " = "hello "
+    - left_justify "hello" 10 "123" = "hello12312" *)
+
+val partition : string -> string -> string * string * string
+(** [partition str sep] splits [str] by the first instance of [sep] into three
+    parts: ([head], [match], [tail]). If [sep] is found, [head] is the part
+    before the first [sep], [match] is [sep], and [tail] is the part after. If
+    [sep] is not found, returns ([str], "", ""). Operates on bytes, not code
+    points.
+
+    Examples:
+    - partition "hello" "l" = ("he", "l", "lo")
+    - partition "hello" "x" = ("hello", "", "") *)
+
+val right_justify : string -> int -> string -> string
+(** [right_justify s width pad] returns [s] right-justified in a string of
+    [width] Unicode code points, padding with [pad] on the left if needed. If
+    [s] is longer than [width], it is returned unchanged. If [pad] is empty, [s]
+    is returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - right_justify "hello" 4 " " = "hello"
+    - right_justify "hello" 10 " " = " hello"
+    - right_justify "hello" 10 "123" = "12312hello" *)

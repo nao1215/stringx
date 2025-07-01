@@ -629,6 +629,75 @@ let test_insert () =
     (Invalid_argument "insert: index out of range") (fun () ->
       ignore (insert "CamelCase" "Super" 10))
 
+let test_last_partition () =
+  let open Stringx in
+  Alcotest.(check (triple string string string))
+    "last_partition: found" ("hel", "l", "o")
+    (last_partition "hello" "l");
+  Alcotest.(check (triple string string string))
+    "last_partition: not found" ("", "", "hello")
+    (last_partition "hello" "x");
+  Alcotest.(check (triple string string string))
+    "last_partition: sep at start" ("", "h", "ello")
+    (last_partition "hello" "h");
+  Alcotest.(check (triple string string string))
+    "last_partition: sep at end" ("hell", "o", "")
+    (last_partition "hello" "o")
+
+let test_left_justify () =
+  let open Stringx in
+  Alcotest.(check string)
+    "shorter than length" "hello"
+    (left_justify "hello" 4 " ");
+  Alcotest.(check string)
+    "longer than length" "hello"
+    (left_justify "hello" 3 " ");
+  Alcotest.(check string)
+    "pad with spaces" "hello     "
+    (left_justify "hello" 10 " ");
+  Alcotest.(check string)
+    "pad with multi" "hello12312"
+    (left_justify "hello" 10 "123");
+  Alcotest.(check string) "pad empty" "hello" (left_justify "hello" 10 "");
+  Alcotest.(check string)
+    "unicode pad" "helloあいあい"
+    (left_justify "hello" 9 "あい");
+  Alcotest.(check string) "unicode input" "こんにちは  " (left_justify "こんにちは" 7 " ");
+  Alcotest.(check string)
+    "pad exact" "hello12345"
+    (left_justify "hello" 10 "12345")
+
+let test_partition () =
+  let open Stringx in
+  Alcotest.(check (triple string string string))
+    "partition: found" ("he", "l", "lo") (partition "hello" "l");
+  Alcotest.(check (triple string string string))
+    "partition: not found" ("hello", "", "") (partition "hello" "x");
+  Alcotest.(check (triple string string string))
+    "partition: sep at start" ("", "h", "ello") (partition "hello" "h");
+  Alcotest.(check (triple string string string))
+    "partition: sep at end" ("hell", "o", "") (partition "hello" "o")
+
+let test_right_justify () =
+  let open Stringx in
+  Alcotest.(check string)
+    "shorter than length" "hello"
+    (right_justify "hello" 4 " ");
+  Alcotest.(check string)
+    "pad with spaces" "     hello"
+    (right_justify "hello" 10 " ");
+  Alcotest.(check string)
+    "pad with multi" "12312hello"
+    (right_justify "hello" 10 "123");
+  Alcotest.(check string) "pad empty" "hello" (right_justify "hello" 10 "");
+  Alcotest.(check string) "unicode pad" "あいhello" (right_justify "hello" 7 "あい");
+  Alcotest.(check string)
+    "unicode input" "  こんにちは"
+    (right_justify "こんにちは" 7 " ");
+  Alcotest.(check string)
+    "pad exact" "12345hello"
+    (right_justify "hello" 10 "12345")
+
 let () =
   run "stringx"
     [
@@ -698,4 +767,11 @@ let () =
           test_case "first rune to upper basic" `Quick test_first_rune_to_upper;
         ] );
       ("insert tests", [ test_case "insert basic" `Quick test_insert ]);
+      ( "last partition tests",
+        [ test_case "last partition basic" `Quick test_last_partition ] );
+      ( "left justify tests",
+        [ test_case "left justify basic" `Quick test_left_justify ] );
+      ("partition tests", [ test_case "partition basic" `Quick test_partition ]);
+      ( "right justify tests",
+        [ test_case "right justify basic" `Quick test_right_justify ] );
     ]

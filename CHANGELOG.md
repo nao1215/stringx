@@ -36,6 +36,26 @@
   Index is counted by code points (runes), not bytes.  
   Raises [Invalid_argument] if [index] is out of range (index < 0 or index > length of [dst]).
 
+- add: `last_partition`  
+  Splits a string by the last instance of a separator into three parts: ([head], [match], [tail]).  
+  If the separator is found, returns the part before, the separator itself, and the part after.  
+  If not found, returns ("", "", [str]). Operates on bytes, not code points.
+
+- add: `left_justify`  
+  Left-justifies a string in a field of the given width, padding with the given pad string on the right if needed.  
+  If the string is longer than the width or pad is empty, the original string is returned.  
+  Unicode-aware: counts code points, not bytes.
+
+- add: `partition`  
+  Splits a string by the first instance of a separator into three parts: ([head], [match], [tail]).  
+  If the separator is found, returns the part before, the separator itself, and the part after.  
+  If not found, returns ([str], "", ""). Operates on bytes, not code points.
+
+- add: `right_justify`  
+  Right-justifies a string in a field of the given width, padding with the given pad string on the left if needed.  
+  If the string is longer than the width or pad is empty, the original string is returned.  
+  Unicode-aware: counts code points, not bytes.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  
