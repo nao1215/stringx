@@ -31,6 +31,9 @@ With stringx, you get:
 
 ## 🔧 API Overview
 
+The latest API documentation is published at:  
+👉 [https://nao1215.github.io/stringx/stringx/Stringx/index.html](https://nao1215.github.io/stringx/stringx/Stringx/index.html)
+
 ```ocaml
 module Stringx : sig
   module Levenshtein : sig
