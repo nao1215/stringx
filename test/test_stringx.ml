@@ -629,6 +629,21 @@ let test_insert () =
     (Invalid_argument "insert: index out of range") (fun () ->
       ignore (insert "CamelCase" "Super" 10))
 
+let test_last_partition () =
+  let open Stringx in
+  Alcotest.(check (triple string string string))
+    "last_partition: found" ("hel", "l", "o")
+    (last_partition "hello" "l");
+  Alcotest.(check (triple string string string))
+    "last_partition: not found" ("", "", "hello")
+    (last_partition "hello" "x");
+  Alcotest.(check (triple string string string))
+    "last_partition: sep at start" ("", "h", "ello")
+    (last_partition "hello" "h");
+  Alcotest.(check (triple string string string))
+    "last_partition: sep at end" ("hell", "o", "")
+    (last_partition "hello" "o")
+
 let () =
   run "stringx"
     [
@@ -698,4 +713,6 @@ let () =
           test_case "first rune to upper basic" `Quick test_first_rune_to_upper;
         ] );
       ("insert tests", [ test_case "insert basic" `Quick test_insert ]);
+      ( "last partition tests",
+        [ test_case "last partition basic" `Quick test_last_partition ] );
     ]

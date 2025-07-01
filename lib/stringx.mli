@@ -616,3 +616,14 @@ val insert : string -> string -> int -> string
     Examples:
     - insert "CamelCase" "Super" 5 = "CamelSuperCase"
     - insert "こんにちは" "世界" 2 = "こん世界にちは" *)
+
+val last_partition : string -> string -> string * string * string
+(** [last_partition str sep] splits [str] by the last instance of [sep] into
+    three parts: ([head], [match], [tail]). If [sep] is found, [head] is the
+    part before the last [sep], [match] is [sep], and [tail] is the part after.
+    If [sep] is not found, returns ("", "", [str]). Operates on bytes, not code
+    points.
+
+    Examples:
+    - last_partition "hello" "l" = ("hel", "l", "o")
+    - last_partition "hello" "x" = ("", "", "hello") *)

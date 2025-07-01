@@ -147,6 +147,15 @@ module Stringx : sig
   (** Join a list of strings with a separator.
       Example: join ["foo"; "bar"; "baz"] ", " = "foo, bar, baz" *)
 
+  val last_partition : string -> string -> string * string * string
+  (** Split [str] by the last instance of [sep] into three parts: ([head], [match], [tail]).
+      If [sep] is found, [head] is the part before the last [sep], [match] is [sep], and [tail] is the part after.
+      If [sep] is not found, returns ("", "", [str]). Operates on bytes, not code points.
+      Examples:
+      - last_partition "hello" "l" = ("hel", "l", "o")
+      - last_partition "hello" "x" = ("", "", "hello")
+  *)
+
   val len : string -> int
   (** Return the number of Unicode code points (runes) in a UTF-8 string.
       Example: len "🍎🍏🍊" = 3 *)

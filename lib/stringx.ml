@@ -1101,3 +1101,33 @@ let insert (dst : string) (src : string) (index : int) : string =
   let before = take index dst_uchars in
   let after = drop index dst_uchars in
   encode_utf8 (before @ src_uchars @ after)
+
+(** [last_partition str sep] splits [str] by the last instance of [sep] into
+    three parts: ([head], [match], [tail]). If [sep] is found, [head] is the
+    part before the last [sep], [match] is [sep], and [tail] is the part after.
+    If [sep] is not found, returns ("", "", [str]). Operates on bytes, not code
+    points.
+
+    Examples:
+    - last_partition "hello" "l" = ("hel", "l", "o")
+    - last_partition "hello" "x" = ("", "", "hello") *)
+let last_partition (str : string) (sep : string) : string * string * string =
+  if sep = "" then ("", "", str)
+  else
+    let rec find_last from =
+      if from < 0 then -1
+      else if from + String.length sep > String.length str then
+        find_last (from - 1)
+      else if String.sub str from (String.length sep) = sep then from
+      else find_last (from - 1)
+    in
+    let idx = find_last (String.length str - String.length sep) in
+    if idx = -1 then ("", "", str)
+    else
+      let head = String.sub str 0 idx in
+      let tail_start = idx + String.length sep in
+      let tail =
+        if tail_start > String.length str then ""
+        else String.sub str tail_start (String.length str - tail_start)
+      in
+      (head, sep, tail)
