@@ -1287,3 +1287,35 @@ let shuffle_source (str : string) (rand : Random.State.t) : string =
     arr.(j) <- tmp
   done;
   encode_utf8 (Array.to_list arr)
+
+(** [slice str start end_] returns the substring of [str] from code point index
+    [start] (inclusive) to [end_] (exclusive). Indexing is by Unicode code
+    points, not bytes.
+
+    - [start] must satisfy 0 <= start <= rune length.
+    - [end_] can be positive, zero, or negative.
+    - If [end_] >= 0, then start <= end_ <= rune length.
+    - If [end_] < 0, it means slice to the end of string.
+
+    Raises [Invalid_argument] if indices are out of range.
+
+    This is equivalent to PHP's mb_substr. *)
+let slice (str : string) (start : int) (end_ : int) : string =
+  let uchars = decode_utf8 str in
+  let len = List.length uchars in
+  if start < 0 || start > len then invalid_arg "slice: start out of range";
+  let actual_end =
+    if end_ < 0 then len
+    else if end_ > len then invalid_arg "slice: end out of range"
+    else end_
+  in
+  if actual_end < start then invalid_arg "slice: end < start";
+  let rec take_drop i l acc =
+    match l with
+    | [] -> List.rev acc
+    | x :: xs ->
+        if i >= actual_end then List.rev acc
+        else if i >= start then take_drop (i + 1) xs (x :: acc)
+        else take_drop (i + 1) xs acc
+  in
+  encode_utf8 (take_drop 0 uchars [])

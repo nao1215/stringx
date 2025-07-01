@@ -372,6 +372,22 @@ module Stringx : sig
       Example: shuffle_source "Camel" (Random.State.make [|42|]) might return "eCaml", "lCema", etc.
       Example: shuffle_source "こんにちは" (Random.State.make [|42|]) might return "にちこんは", etc.
   *)
+
+  val slice : string -> int -> int -> string
+  (** Slice a string by Unicode code points (runes).
+      Returns the substring from [start] (inclusive) to [end_] (exclusive).
+      - [start] must satisfy 0 <= start <= rune length.
+      - [end_] can be positive, zero, or negative.
+        - If [end_] >= 0, then start <= end_ <= rune length.
+        - If [end_] < 0, it means slice to the end of string.
+      Raises [Invalid_argument] if indices are out of range.
+      This is equivalent to PHP's mb_substr.
+      Examples:
+      - slice "CamelCase" 0 5 = "Camel"
+      - slice "CamelCase" 5 (-1) = "Case"
+      - slice "こんにちは" 2 4 = "にち"
+      - slice "こんにちは" 2 (-1) = "にちは"
+  *)
 end
 ```
 

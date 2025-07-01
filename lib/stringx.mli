@@ -716,3 +716,29 @@ val shuffle_source : string -> Random.State.t -> string
     @param str The input string (UTF-8)
     @param rand_state The random state to use for shuffling
     @return The shuffled string *)
+
+val slice : string -> int -> int -> string
+(** [slice str start end_] returns the substring of [str] from code point index
+    [start] (inclusive) to [end_] (exclusive). Indexing is by Unicode code
+    points, not bytes.
+
+    - [start] must satisfy 0 <= start <= rune length.
+    - [end_] can be positive, zero, or negative.
+    - If [end_] >= 0, then start <= end_ <= rune length.
+    - If [end_] < 0, it means slice to the end of string.
+
+    Raises [Invalid_argument] if indices are out of range.
+
+    This is equivalent to PHP's mb_substr.
+
+    Examples:
+    - [slice "CamelCase" 0 5] returns ["Camel"]
+    - [slice "CamelCase" 5 (-1)] returns ["Case"]
+    - [slice "こんにちは" 2 4] returns ["にち"]
+    - [slice "こんにちは" 2 (-1)] returns ["にちは"]
+
+    @param str The input string (UTF-8)
+    @param start The start code point index (inclusive)
+    @param end_
+      The end code point index (exclusive), or negative for end of string
+    @return The sliced substring *)

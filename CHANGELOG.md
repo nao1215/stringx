@@ -68,6 +68,9 @@
 - add: `shuffle_source`  
   Randomizes the order of Unicode code points in a string using the given random state ([Random.State.t]). Unicode-aware: shuffles by code points, not bytes. Equivalent to PHP's str_shuffle with custom random source.
 
+- add: `slice`  
+  Slices a string by Unicode code points (runes). Returns the substring from [start] (inclusive) to [end_] (exclusive). Negative [end_] means slice to the end of string. Equivalent to PHP's mb_substr. Raises [Invalid_argument] if indices are out of range.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

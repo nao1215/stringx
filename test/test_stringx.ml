@@ -778,6 +778,28 @@ let test_shuffle_source () =
        (List.init (String.length shuffled2) (String.get shuffled2)));
   Alcotest.(check string) "empty" "" (shuffle_source "" rand)
 
+let test_slice () =
+  let open Stringx in
+  Alcotest.(check string) "ascii 0-5" "Camel" (slice "CamelCase" 0 5);
+  Alcotest.(check string) "ascii 5--1" "Case" (slice "CamelCase" 5 (-1));
+  Alcotest.(check string) "ascii 0--1" "CamelCase" (slice "CamelCase" 0 (-1));
+  Alcotest.(check string) "ascii 2-4" "me" (slice "CamelCase" 2 4);
+  Alcotest.(check string) "unicode 2-4" "にち" (slice "こんにちは" 2 4);
+  Alcotest.(check string) "unicode 2--1" "にちは" (slice "こんにちは" 2 (-1));
+  Alcotest.(check string) "emoji 1-2" "🍏" (slice "🍎🍏🍊" 1 2);
+  Alcotest.(check string) "emoji 0-2" "🍎🍏" (slice "🍎🍏🍊" 0 2);
+  Alcotest.(check string) "empty" "" (slice "" 0 (-1));
+  Alcotest.check_raises "start < 0"
+    (Invalid_argument "slice: start out of range") (fun () ->
+      ignore (slice "Camel" (-1) 2));
+  Alcotest.check_raises "start > len"
+    (Invalid_argument "slice: start out of range") (fun () ->
+      ignore (slice "Camel" 6 7));
+  Alcotest.check_raises "end > len" (Invalid_argument "slice: end out of range")
+    (fun () -> ignore (slice "Camel" 0 10));
+  Alcotest.check_raises "end < start" (Invalid_argument "slice: end < start")
+    (fun () -> ignore (slice "Camel" 3 2))
+
 let () =
   run "stringx"
     [
@@ -860,4 +882,5 @@ let () =
       ("shuffle tests", [ test_case "shuffle basic" `Quick test_shuffle ]);
       ( "shuffle source tests",
         [ test_case "shuffle source basic" `Quick test_shuffle_source ] );
+      ("slice tests", [ test_case "slice basic" `Quick test_slice ]);
     ]
