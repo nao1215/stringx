@@ -700,3 +700,19 @@ val shuffle : string -> string
 
     @param str The input string (UTF-8)
     @return The shuffled string *)
+
+val shuffle_source : string -> Random.State.t -> string
+(** [shuffle_source str rand_state] randomizes the order of Unicode code points
+    in [str] using the given [Random.State.t] as the random source. This is
+    equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
+    bytes.
+
+    Examples:
+    - [shuffle_source "Camel" (Random.State.make [|42|])] might return
+      ["eCaml"], ["lCema"], etc.
+    - [shuffle_source "こんにちは" (Random.State.make [|42|])] might return
+      ["にちこんは"], etc.
+
+    @param str The input string (UTF-8)
+    @param rand_state The random state to use for shuffling
+    @return The shuffled string *)

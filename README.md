@@ -364,6 +364,14 @@ module Stringx : sig
       Example: shuffle "Camel" might return "eCaml", "lCema", etc.
       Example: shuffle "こんにちは" might return "にちこんは", etc.
   *)
+
+  val shuffle_source : string -> Random.State.t -> string
+  (** Randomize the order of Unicode code points in a string using the given random state.
+      Uses [Random.State.t] as the random source.
+      Unicode-aware: shuffles by code points, not bytes.
+      Example: shuffle_source "Camel" (Random.State.make [|42|]) might return "eCaml", "lCema", etc.
+      Example: shuffle_source "こんにちは" (Random.State.make [|42|]) might return "にちこんは", etc.
+  *)
 end
 ```
 

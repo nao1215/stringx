@@ -65,6 +65,9 @@
 - add: `shuffle`  
   Randomizes the order of Unicode code points in a string. Uses OCaml's Random module as the random source. Unicode-aware: shuffles by code points, not bytes. Equivalent to PHP's str_shuffle.
 
+- add: `shuffle_source`  
+  Randomizes the order of Unicode code points in a string using the given random state ([Random.State.t]). Unicode-aware: shuffles by code points, not bytes. Equivalent to PHP's str_shuffle with custom random source.
+
 ## [v0.2.0] - 2025-06-29
 
 - add: `trim`  

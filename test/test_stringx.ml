@@ -754,6 +754,30 @@ let test_shuffle () =
        (List.init (String.length shuffled2) (String.get shuffled2)));
   Alcotest.(check string) "empty" "" (shuffle "")
 
+let test_shuffle_source () =
+  let open Stringx in
+  let rand = Random.State.make [| 42 |] in
+  let s = "Camel" in
+  let shuffled = shuffle_source s rand in
+  Alcotest.(check int) "same length" (String.length s) (String.length shuffled);
+  Alcotest.(check (list char))
+    "same code points"
+    (List.sort compare (List.init (String.length s) (String.get s)))
+    (List.sort compare
+       (List.init (String.length shuffled) (String.get shuffled)));
+  (* Unicode test *)
+  let rand2 = Random.State.make [| 123 |] in
+  let s2 = "こんにちは" in
+  let shuffled2 = shuffle_source s2 rand2 in
+  Alcotest.(check int)
+    "unicode same length" (String.length s2) (String.length shuffled2);
+  Alcotest.(check (list char))
+    "unicode same code points"
+    (List.sort compare (List.init (String.length s2) (String.get s2)))
+    (List.sort compare
+       (List.init (String.length shuffled2) (String.get shuffled2)));
+  Alcotest.(check string) "empty" "" (shuffle_source "" rand)
+
 let () =
   run "stringx"
     [
@@ -834,4 +858,6 @@ let () =
         [ test_case "rune width basic" `Quick test_rune_width ] );
       ("scrub tests", [ test_case "scrub basic" `Quick test_scrub ]);
       ("shuffle tests", [ test_case "shuffle basic" `Quick test_shuffle ]);
+      ( "shuffle source tests",
+        [ test_case "shuffle source basic" `Quick test_shuffle_source ] );
     ]
