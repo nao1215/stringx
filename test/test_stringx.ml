@@ -678,6 +678,26 @@ let test_partition () =
   Alcotest.(check (triple string string string))
     "partition: sep at end" ("hell", "o", "") (partition "hello" "o")
 
+let test_right_justify () =
+  let open Stringx in
+  Alcotest.(check string)
+    "shorter than length" "hello"
+    (right_justify "hello" 4 " ");
+  Alcotest.(check string)
+    "pad with spaces" "     hello"
+    (right_justify "hello" 10 " ");
+  Alcotest.(check string)
+    "pad with multi" "12312hello"
+    (right_justify "hello" 10 "123");
+  Alcotest.(check string) "pad empty" "hello" (right_justify "hello" 10 "");
+  Alcotest.(check string) "unicode pad" "あいhello" (right_justify "hello" 7 "あい");
+  Alcotest.(check string)
+    "unicode input" "  こんにちは"
+    (right_justify "こんにちは" 7 " ");
+  Alcotest.(check string)
+    "pad exact" "12345hello"
+    (right_justify "hello" 10 "12345")
+
 let () =
   run "stringx"
     [
@@ -752,4 +772,6 @@ let () =
       ( "left justify tests",
         [ test_case "left justify basic" `Quick test_left_justify ] );
       ("partition tests", [ test_case "partition basic" `Quick test_partition ]);
+      ( "right justify tests",
+        [ test_case "right justify basic" `Quick test_right_justify ] );
     ]

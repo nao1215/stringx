@@ -650,3 +650,15 @@ val partition : string -> string -> string * string * string
     Examples:
     - partition "hello" "l" = ("he", "l", "lo")
     - partition "hello" "x" = ("hello", "", "") *)
+
+val right_justify : string -> int -> string -> string
+(** [right_justify s width pad] returns [s] right-justified in a string of
+    [width] Unicode code points, padding with [pad] on the left if needed. If
+    [s] is longer than [width], it is returned unchanged. If [pad] is empty, [s]
+    is returned unchanged. Padding is truncated as needed. Unicode-aware: counts
+    code points, not bytes.
+
+    Examples:
+    - right_justify "hello" 4 " " = "hello"
+    - right_justify "hello" 10 " " = " hello"
+    - right_justify "hello" 10 "123" = "12312hello" *)

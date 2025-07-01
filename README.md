@@ -167,6 +167,17 @@ module Stringx : sig
       - left_justify "hello" 10 "123" = "hello12312"
   *)
 
+  val right_justify : string -> int -> string -> string
+  (** Right-justify [s] in a string of [width] Unicode code points, padding with [pad] on the left if needed.
+      If [s] is longer than [width], it is returned unchanged.
+      If [pad] is empty, [s] is returned unchanged. Padding is truncated as needed.
+      Unicode-aware: counts code points, not bytes.
+      Examples:
+      - right_justify "hello" 4 " " = "hello"
+      - right_justify "hello" 10 " " = "     hello"
+      - right_justify "hello" 10 "123" = "12312hello"
+  *)
+
   val partition : string -> string -> string * string * string
   (** Split [str] by the first instance of [sep] into three parts: ([head], [match], [tail]).
       If [sep] is found, [head] is the part before the first [sep], [match] is [sep], and [tail] is the part after.
