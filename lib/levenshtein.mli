@@ -8,9 +8,9 @@ val distance : s:string -> t:string -> int
     the other.
 
     Example:
-    - distance ~s:"kitten" ~t:"sitting" = 3
-    - distance ~s:"こんにちは" ~t:"こんばんは" = 2
-    - distance ~s:"🍎" ~t:"🍏" = 1
+    - [distance ~s:"kitten" ~t:"sitting"] returns [3]
+    - [distance ~s:"こんにちは" ~t:"こんばんは"] returns [2]
+    - [distance ~s:"🍎" ~t:"🍏"] returns [1]
 
     Malformed UTF-8 sequences are replaced with ['?'] during decoding.
 
