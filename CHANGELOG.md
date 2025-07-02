@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- **BREAKING CHANGE**: All function signatures have been updated to use labeled arguments for clarity and to place the main data argument last, improving pipe (`|>`) operator usability. For example, `delete pattern str` is now `delete ~pattern str`.
+
 ## [v0.3.0] - 2025-07-01
 
 - add: `map`  

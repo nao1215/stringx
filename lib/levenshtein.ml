@@ -31,7 +31,7 @@ let decode_utf8_array (s : string) : Uchar.t array =
   in
   aux [] (Uutf.decoder (`String s))
 
-let distance (s : string) (t : string) : int =
+let distance ~(s : string) ~(t : string) : int =
   (* Convert UTF-8 strings to arrays of Unicode code points *)
   let s_chars = decode_utf8_array s in
   let t_chars = decode_utf8_array t in

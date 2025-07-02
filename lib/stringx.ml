@@ -1,11 +1,14 @@
-module Levenshtein = Levenshtein
+module Levenshtein = struct
+  let distance ~s ~t = Levenshtein.distance ~s ~t
+end
+
 open Uutf
 open Stdlib
 
-(** [utf8_length s] returns the number of Unicode code points in UTF-8 string
-    [s]. This counts characters correctly, including multibyte characters like
-    Japanese or emojis. *)
-let utf8_length s =
+(** [length_utf8_internal s] returns the number of Unicode code points in UTF-8
+    string [s]. This counts characters correctly, including multibyte characters
+    like Japanese or emojis. *)
+let length_utf8_internal s =
   let dec = Uutf.decoder ~encoding:`UTF_8 (`String s) in
   let rec loop acc =
     match Uutf.decode dec with
@@ -18,17 +21,17 @@ let utf8_length s =
 
 (* [repeat_utf8 pad n] repeats the UTF-8 string [pad] [n] times. This function
    does not truncate to exact code point count. *)
-let repeat_utf8 pad n =
+let repeat_utf8 ~count pad =
   let rec loop acc i = if i = 0 then acc else loop (acc ^ pad) (i - 1) in
-  loop "" n
+  loop "" count
 
 (* [take_utf8 s n] takes the first [n] Unicode code points from UTF-8 string
    [s]. Invalid sequences are replaced with "?". *)
-let take_utf8 s n =
+let take_utf8 ~count s =
   let dec = Uutf.decoder ~encoding:`UTF_8 (`String s) in
   let b = Buffer.create (String.length s) in
   let rec loop i =
-    if i >= n then ()
+    if i >= count then ()
     else
       match Uutf.decode dec with
       | `Uchar u ->
@@ -44,26 +47,30 @@ let take_utf8 s n =
 
 (* [times_needed count pad_len] computes how many repetitions of
    [pad_len]-length padding are needed to cover at least [count] characters. *)
-let times_needed count pad_len = ((count + pad_len - 1) / pad_len) + 1
+let times_needed ~count ~pad_len = ((count + pad_len - 1) / pad_len) + 1
 
 (** [center s len pad] centers string [s] in a field of [len] characters,
     padding with [pad] on both sides. If [s] is already [len] or longer, it is
     returned unchanged. If [pad] is empty, [s] is returned. This function is
     Unicode-aware. *)
-let center s len pad =
+let center ~len ~pad s =
   if pad = "" then s
   else
-    let slen = utf8_length s in
+    let slen = length_utf8_internal s in
     if slen >= len then s
     else
       let total_pad = len - slen in
       let left_pad = total_pad / 2 in
       let right_pad = total_pad - left_pad in
-      let pad_len = utf8_length pad in
-      let left_full = repeat_utf8 pad (times_needed left_pad pad_len) in
-      let right_full = repeat_utf8 pad (times_needed right_pad pad_len) in
-      let left = take_utf8 left_full left_pad in
-      let right = take_utf8 right_full right_pad in
+      let pad_len = length_utf8_internal pad in
+      let left_full =
+        repeat_utf8 ~count:(times_needed ~count:left_pad ~pad_len) pad
+      in
+      let right_full =
+        repeat_utf8 ~count:(times_needed ~count:right_pad ~pad_len) pad
+      in
+      let left = take_utf8 ~count:left_pad left_full in
+      let right = take_utf8 ~count:right_pad right_full in
       left ^ s ^ right
 
 (** Decode a UTF-8 string into a list of Unicode characters (Uchar.t). *)
@@ -119,7 +126,7 @@ let build_matcher (pattern : string) : Uchar.t -> bool =
   else fun u -> List.mem u matcher_list
 
 (** Count how many Unicode characters in [str] match the given [pattern]. *)
-let count (str : string) (pattern : string) : int =
+let count ~pattern str =
   let matcher = build_matcher pattern in
   let dec = decoder ~encoding:`UTF_8 (`String str) in
   let rec loop acc =
@@ -143,20 +150,20 @@ let count (str : string) (pattern : string) : int =
     Unicode-aware: input string is treated as a sequence of UTF-8 characters.
 
     Examples:
-    - [delete "hello" "aeiou"] returns ["hll"]
-    - [delete "hello" "a-k"] returns ["llo"]
-    - [delete "hello" "^a-k"] returns ["he"]
+    - [delete ~pattern:"aeiou" "hello"] returns ["hll"]
+    - [delete ~pattern:"a-k" "hello"] returns ["llo"]
+    - [delete ~pattern:"^a-k" "hello"] returns ["he"]
 
-    @param str The UTF-8 encoded input string
     @param pattern The character pattern to match
+    @param str The UTF-8 encoded input string
     @return A new string with matched characters removed *)
-let delete (str : string) (pattern : string) : string =
+let delete ~pattern str =
   let matcher = build_matcher pattern in
   decode_utf8 str |> List.filter (fun u -> not (matcher u)) |> encode_utf8
 
-(* [len str] returns the number of Unicode code points (runes) in UTF-8 string
-   [str]. *)
-let len (str : string) : int =
+(* [length_utf8 str] returns the number of Unicode code points (runes) in UTF-8
+   string [str]. *)
+let length_utf8 (str : string) : int =
   let dec = Uutf.decoder ~encoding:`UTF_8 (`String str) in
   let rec loop acc =
     match Uutf.decode dec with
@@ -172,7 +179,7 @@ let reverse (s : string) : string = decode_utf8 s |> List.rev |> encode_utf8
 
 (** [contains s substr] reports whether [substr] is within [s]. Returns true if
     [substr] is the empty string. *)
-let contains (s : string) (substr : string) : bool =
+let contains ~substr s =
   if substr = "" then true
   else
     let len_s = String.length s in
@@ -187,7 +194,7 @@ let contains (s : string) (substr : string) : bool =
 (** [has_prefix s prefix] checks if the string [s] starts with the given
     [prefix]. Returns true if [prefix] is empty. This function operates on
     bytes, not Unicode code points. *)
-let has_prefix (s : string) (prefix : string) : bool =
+let has_prefix ~prefix s =
   let len_s = String.length s in
   let len_p = String.length prefix in
   if len_p = 0 then true
@@ -197,7 +204,7 @@ let has_prefix (s : string) (prefix : string) : bool =
 (** [has_suffix s suffix] reports whether the string [s] ends with [suffix].
     Returns true if [suffix] is the empty string. This function is
     Unicode-agnostic and operates on bytes, not code points. *)
-let has_suffix (s : string) (suffix : string) : bool =
+let has_suffix ~suffix s =
   let len_s = String.length s in
   let len_suf = String.length suffix in
   if len_suf = 0 then true
@@ -206,7 +213,7 @@ let has_suffix (s : string) (suffix : string) : bool =
 
 (** [contains_any s chars] reports whether any Unicode code points in [chars]
     are within [s]. Returns false if [chars] is empty. Unicode-aware. *)
-let contains_any (s : string) (chars : string) : bool =
+let contains_any ~chars s =
   if chars = "" then false
   else
     let set = decode_utf8 chars |> List.sort_uniq Uchar.compare in
@@ -220,8 +227,8 @@ let contains_any (s : string) (chars : string) : bool =
     [substr] in [s]. If [substr] is the empty string, returns 1 + the number of
     Unicode code points in [s]. This function is Unicode-agnostic and operates
     on bytes, not code points. *)
-let count_substring (s : string) (substr : string) : int =
-  if substr = "" then 1 + len s
+let count_substring ~substr s =
+  if substr = "" then 1 + length_utf8 s
   else
     let len_s = String.length s in
     let len_sub = String.length substr in
@@ -234,7 +241,7 @@ let count_substring (s : string) (substr : string) : int =
 
 (** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
     are equal under simple Unicode case-folding (ASCII only). *)
-let equal_fold (s : string) (t : string) : bool =
+let equal_fold ~other s =
   let to_simple_fold str =
     decode_utf8 str
     |> List.map (fun u ->
@@ -243,7 +250,7 @@ let equal_fold (s : string) (t : string) : bool =
            if c >= 0x41 && c <= 0x5A then Uchar.of_int (c + 0x20) else u)
     |> encode_utf8
   in
-  to_simple_fold s = to_simple_fold t
+  to_simple_fold s = to_simple_fold other
 
 (** [is_space u] returns true if the Unicode character [u] is a whitespace
     character. *)
@@ -280,7 +287,7 @@ let fields (s : string) : string list =
 (** [fields_func s f] splits [s] at each run of Unicode code points [c]
     satisfying [f c]. Returns an empty list if all code points in [s] satisfy
     [f] or [s] is empty. *)
-let fields_func (s : string) (f : Uchar.t -> bool) : string list =
+let fields_func ~f s =
   let uchars = decode_utf8 s in
   let rec skip_sep = function
     | u :: tl when f u -> skip_sep tl
@@ -302,7 +309,7 @@ let fields_func (s : string) (f : Uchar.t -> bool) : string list =
 (** [index s substr] returns the index of the first instance of [substr] in [s],
     or -1 if [substr] is not present. The index is a byte offset (not code point
     index). *)
-let index (s : string) (substr : string) : int =
+let index ~substr s =
   let len_s = String.length s in
   let len_sub = String.length substr in
   if substr = "" then 0
@@ -317,7 +324,7 @@ let index (s : string) (substr : string) : int =
 
 (** [repeat s count] returns a new string consisting of [count] copies of [s].
     Raises [Invalid_argument] if [count] is negative. *)
-let repeat (s : string) (count : int) : string =
+let repeat ~count s =
   if count < 0 then invalid_arg "repeat: negative count"
   else
     let rec loop acc n = if n = 0 then acc else loop (acc ^ s) (n - 1) in
@@ -325,14 +332,14 @@ let repeat (s : string) (count : int) : string =
 
 (** [join elems sep] concatenates the elements of [elems], inserting [sep]
     between each element. Returns the empty string if [elems] is empty. *)
-let join (elems : string list) (sep : string) : string =
+let join ~sep elems =
   match elems with
   | [] -> ""
   | hd :: tl -> List.fold_left (fun acc s -> acc ^ sep ^ s) hd tl
 
 (** [trim s cutset] returns [s] with all leading and trailing Unicode code
     points contained in [cutset] removed. Unicode-aware. *)
-let trim (s : string) (cutset : string) : string =
+let trim ~cutset s =
   if cutset = "" || s = "" then s
   else
     let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
@@ -350,7 +357,7 @@ let trim (s : string) (cutset : string) : string =
 
 (** [trim_func s f] returns [s] with all leading and trailing Unicode code
     points [c] satisfying [f c] removed. Unicode-aware. *)
-let trim_func (s : string) (f : Uchar.t -> bool) : string =
+let trim_func ~f s =
   if s = "" then s
   else
     let uchars = decode_utf8 s in
@@ -367,7 +374,7 @@ let trim_func (s : string) (f : Uchar.t -> bool) : string =
 
 (** [trim_left s cutset] returns [s] with all leading Unicode code points
     contained in [cutset] removed. Unicode-aware. *)
-let trim_left (s : string) (cutset : string) : string =
+let trim_left ~cutset s =
   if cutset = "" || s = "" then s
   else
     let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
@@ -380,7 +387,7 @@ let trim_left (s : string) (cutset : string) : string =
 
 (** [trim_left_func s f] returns [s] with all leading Unicode code points [c]
     satisfying [f c] removed. Unicode-aware. *)
-let trim_left_func (s : string) (f : Uchar.t -> bool) : string =
+let trim_left_func ~f s =
   if s = "" then s
   else
     let uchars = decode_utf8 s in
@@ -392,7 +399,7 @@ let trim_left_func (s : string) (f : Uchar.t -> bool) : string =
 
 (** [trim_right s cutset] returns [s] with all trailing Unicode code points
     contained in [cutset] removed. Unicode-aware. *)
-let trim_right (s : string) (cutset : string) : string =
+let trim_right ~cutset s =
   if cutset = "" || s = "" then s
   else
     let set = decode_utf8 cutset |> List.sort_uniq Uchar.compare in
@@ -406,7 +413,7 @@ let trim_right (s : string) (cutset : string) : string =
 
 (** [trim_right_func s f] returns [s] with all trailing Unicode code points [c]
     satisfying [f c] removed. Unicode-aware. *)
-let trim_right_func (s : string) (f : Uchar.t -> bool) : string =
+let trim_right_func ~f s =
   if s = "" then s
   else
     let uchars = decode_utf8 s in
@@ -438,7 +445,7 @@ let trim_space (s : string) : string =
 (** [trim_suffix s suffix] returns [s] without the provided trailing [suffix]
     string. If [s] does not end with [suffix], [s] is returned unchanged. This
     function is byte-based, not Unicode-aware. *)
-let trim_suffix (s : string) (suffix : string) : string =
+let trim_suffix ~suffix s =
   let len_s = String.length s in
   let len_suf = String.length suffix in
   if len_suf = 0 then s
@@ -480,15 +487,15 @@ let to_upper (s : string) : string =
 (** [to_camel_case s] converts words separated by space, underscore, or hyphen
     to camel case. Leading and trailing underscores are preserved. Multiple
     consecutive separators are treated as a single word boundary. If there are
-    no separators, the string is returned unchanged.
+    no separators, a simple lowercase is performed.
 
     - Words are split on '_', '-', or space.
     - The first word is lowercased (even if originally all uppercase).
     - Subsequent words are capitalized (first letter uppercase, rest lowercase).
     - All-uppercase words are handled (e.g. "GOLANG_IS_GREAT" →
       "golangIsGreat").
-    - If there are no separators, the original string is returned (e.g.
-      "alreadyCamel" → "alreadyCamel").
+    - If there are no separators, the string is lowercased (e.g. "AlreadyCamel"
+      → "alreadycamel").
     - Leading and trailing underscores are preserved (e.g. "_complex__case_" →
       "_complexCase_").
     - Hyphens and spaces are also treated as word boundaries.
@@ -497,7 +504,7 @@ let to_upper (s : string) : string =
     - [to_camel_case "some_words"] returns ["someWords"]
     - [to_camel_case "_complex__case_"] returns ["_complexCase_"]
     - [to_camel_case "GOLANG_IS_GREAT"] returns ["golangIsGreat"]
-    - [to_camel_case "alreadyCamel"] returns ["alreadyCamel"]
+    - [to_camel_case "AlreadyCamel"] returns ["alreadycamel"]
     - [to_camel_case "foo-BarBaz"] returns ["fooBarBaz"]
     - [to_camel_case "word"] returns ["word"]
     - [to_camel_case ""] returns [""] *)
@@ -553,8 +560,8 @@ let to_camel_case (s : string) : string =
 
   (if core = "" then () (* nothing to add *)
    else if not (String.exists (fun c -> is_sep c) core) then
-     (* no separators: keep original *)
-     Buffer.add_string buf core
+     (* no separators: lowercase the whole string *)
+     Buffer.add_string buf (String.lowercase_ascii core)
    else
      let segments = split_core core in
      match segments with
@@ -687,8 +694,8 @@ let to_kebab_case (s : string) : string =
     - Words are split on '_', '-', or space.
     - Each word is capitalized (first letter uppercase, rest lowercase).
     - All-uppercase words are handled (e.g. "OCAML_IS_GREAT" → "OcamlIsGreat").
-    - If there are no separators, the first letter is uppercased, the rest
-      lowercased.
+    - If there are no separators, the first letter is uppercased, the rest of
+      the string is preserved.
     - Leading and trailing underscores are preserved (e.g. "_complex__case_" →
       "_ComplexCase_").
     - Multiple consecutive separators are preserved as single underscores.
@@ -734,10 +741,13 @@ let to_pascal_case (s : string) : string =
      let has_sep = String.exists (fun c -> is_sep c) core in
 
      if not has_sep then (
-       (* no separators: uppercase first char, keep rest as-is *)
-       Buffer.add_char buf (Char.uppercase_ascii core.[0]);
-       if String.length core > 1 then
-         Buffer.add_substring buf core 1 (String.length core - 1))
+       if
+         (* no separators: uppercase first char, keep rest as-is *)
+         String.length core > 0
+       then (
+         Buffer.add_char buf (Char.uppercase_ascii core.[0]);
+         if String.length core > 1 then
+           Buffer.add_substring buf core 1 (String.length core - 1)))
      else
        (* split on separators, ignore empty segments *)
        let rec split i acc =
@@ -890,9 +900,9 @@ let to_snake_case (s : string) : string =
     <= Char.code 'Z' then Uchar.of_int (Char.code 'A' + ((c - Char.code 'A' +
     13) mod 26)) else if c >= Char.code 'a' && c <= Char.code 'z' then
     Uchar.of_int (Char.code 'a' + ((c - Char.code 'a' + 13) mod 26)) else u in
-    map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur
-    fyvgul pnzry..." *)
-let map (f : Uchar.t -> Uchar.t) (s : string) : string =
+    map ~f:rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq
+    gur fyvgul pnzry..." *)
+let map ~f s =
   let dec = decoder ~encoding:`UTF_8 (`String s) in
   let buf = Buffer.create (String.length s) in
   let rec aux () =
@@ -915,8 +925,8 @@ let map (f : Uchar.t -> Uchar.t) (s : string) : string =
 
     Example: let drop_vowel u = match Uchar.to_int u with | c when List.mem c
     [ Char.code 'a'; Char.code 'e'; Char.code 'i' ; Char.code 'o'; Char.code 'u'
-     ] -> None | _ -> Some u in filter_map drop_vowel "hello" = "hll" *)
-let filter_map (f : Uchar.t -> Uchar.t option) (s : string) : string =
+     ] -> None | _ -> Some u in filter_map ~f:drop_vowel "hello" = "hll" *)
+let filter_map ~f s =
   let dec = decoder ~encoding:`UTF_8 (`String s) in
   let buf = Buffer.create (String.length s) in
   let rec aux () =
@@ -932,7 +942,7 @@ let filter_map (f : Uchar.t -> Uchar.t option) (s : string) : string =
 
 (** [iter f s] applies [f] to each Unicode code point of [s], in sequence,
     purely for side-effects. *)
-let iter (f : Uchar.t -> unit) (s : string) : unit =
+let iter ~f s =
   let dec = decoder ~encoding:`UTF_8 (`String s) in
   let rec aux () =
     match decode dec with
@@ -948,7 +958,7 @@ let iter (f : Uchar.t -> unit) (s : string) : unit =
 
 (** [fold f init s] applies [f acc u] to each Unicode code point [u] of [s],
     carrying along an accumulator [acc], and returns the final accumulator. *)
-let fold (f : 'acc -> Uchar.t -> 'acc) (init : 'acc) (s : string) : 'acc =
+let fold ~f ~init s =
   let dec = decoder ~encoding:`UTF_8 (`String s) in
   let rec aux acc =
     match decode dec with
@@ -989,10 +999,10 @@ let rune_width (u : Uchar.t) : int =
     Raises [Invalid_argument] if [tab_size] <= 0.
 
     Examples:
-    - expand_tabs "a\tbc\tdef\tghij\tk" 4 = "a bc def ghij k"
-    - expand_tabs "abcdefg\thij\nk\tl" 4 = "abcdefg hij\nk l"
-    - expand_tabs "z中\t文\tw" 4 = "z中 文 w" *)
-let expand_tabs (s : string) (tab_size : int) : string =
+    - expand_tabs ~tab_size:4 "a\tbc\tdef\tghij\tk" = "a bc def ghij k"
+    - expand_tabs ~tab_size:4 "abcdefg\thij\nk\tl" = "abcdefg hij\nk l"
+    - expand_tabs ~tab_size:4 "z中\t文\tw" = "z中 文 w" *)
+let expand_tabs ~tab_size s =
   if tab_size <= 0 then invalid_arg "expand_tabs: tab_size must be > 0";
   let dec = Uutf.decoder ~encoding:`UTF_8 (`String s) in
   let buf = Buffer.create (String.length s) in
@@ -1084,9 +1094,9 @@ let first_rune_to_upper (s : string) : string =
     of [dst]).
 
     Examples:
-    - insert "CamelCase" "Super" 5 = "CamelSuperCase"
-    - insert "こんにちは" "世界" 2 = "こん世界にちは" *)
-let insert (dst : string) (src : string) (index : int) : string =
+    - insert ~src:"Super" ~index:5 "CamelCase" = "CamelSuperCase"
+    - insert ~src:"世界" ~index:2 "こんにちは" = "こん世界にちは" *)
+let insert ~src ~index dst =
   let dst_uchars = decode_utf8 dst in
   let src_uchars = decode_utf8 src in
   let len = List.length dst_uchars in
@@ -1109,9 +1119,9 @@ let insert (dst : string) (src : string) (index : int) : string =
     points.
 
     Examples:
-    - last_partition "hello" "l" = ("hel", "l", "o")
-    - last_partition "hello" "x" = ("", "", "hello") *)
-let last_partition (str : string) (sep : string) : string * string * string =
+    - last_partition ~sep:"l" "hello" = ("hel", "l", "o")
+    - last_partition ~sep:"x" "hello" = ("", "", "hello") *)
+let last_partition ~sep str =
   if sep = "" then ("", "", str)
   else
     let rec find_last from =
@@ -1139,20 +1149,20 @@ let last_partition (str : string) (sep : string) : string * string * string =
     code points, not bytes.
 
     Examples:
-    - left_justify "hello" 4 " " = "hello"
-    - left_justify "hello" 10 " " = "hello "
-    - left_justify "hello" 10 "123" = "hello12312" *)
-let left_justify (s : string) (width : int) (pad : string) : string =
+    - left_justify ~width:4 ~pad:" " "hello" = "hello"
+    - left_justify ~width:10 ~pad:" " "hello" = "hello "
+    - left_justify ~width:10 ~pad:"123" "hello" = "hello12312" *)
+let left_justify ~width ~pad s =
   if pad = "" then s
   else
-    let slen = utf8_length s in
+    let slen = length_utf8_internal s in
     if slen >= width then s
     else
-      let pad_len = utf8_length pad in
+      let pad_len = length_utf8_internal pad in
       let total_pad = width - slen in
       let times = (total_pad + pad_len - 1) / pad_len in
       let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
-      let pad_trunc = take_utf8 pad_full total_pad in
+      let pad_trunc = take_utf8 ~count:total_pad pad_full in
       s ^ pad_trunc
 
 (** [partition str sep] splits [str] by the first instance of [sep] into three
@@ -1162,9 +1172,9 @@ let left_justify (s : string) (width : int) (pad : string) : string =
     points.
 
     Examples:
-    - partition "hello" "l" = ("he", "l", "lo")
-    - partition "hello" "x" = ("hello", "", "") *)
-let partition (str : string) (sep : string) : string * string * string =
+    - partition ~sep:"l" "hello" = ("he", "l", "lo")
+    - partition ~sep:"x" "hello" = ("hello", "", "") *)
+let partition ~sep str =
   if sep = "" then (str, "", "")
   else
     let len_str = String.length str in
@@ -1192,20 +1202,20 @@ let partition (str : string) (sep : string) : string * string * string =
     code points, not bytes.
 
     Examples:
-    - right_justify "hello" 4 " " = "hello"
-    - right_justify "hello" 10 " " = " hello"
-    - right_justify "hello" 10 "123" = "12312hello" *)
-let right_justify (s : string) (width : int) (pad : string) : string =
+    - right_justify ~width:4 ~pad:" " "hello" = "hello"
+    - right_justify ~width:10 ~pad:" " "hello" = " hello"
+    - right_justify ~width:10 ~pad:"123" "hello" = "12312hello" *)
+let right_justify ~width ~pad s =
   if pad = "" then s
   else
-    let slen = utf8_length s in
+    let slen = length_utf8_internal s in
     if slen >= width then s
     else
-      let pad_len = utf8_length pad in
+      let pad_len = length_utf8_internal pad in
       let total_pad = width - slen in
       let times = (total_pad + pad_len - 1) / pad_len in
       let pad_full = String.concat "" (List.init times (fun _ -> pad)) in
-      let pad_trunc = take_utf8 pad_full total_pad in
+      let pad_trunc = take_utf8 ~count:total_pad pad_full in
       pad_trunc ^ s
 
 (** [rune_width u] returns the character width of Unicode code point [u] in a
@@ -1240,7 +1250,7 @@ let rune_width (u : Uchar.t) : int =
 
 (** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
     Adjacent invalid bytes are replaced only once. Unicode-aware. *)
-let scrub (str : string) (repl : string) : string =
+let scrub ~repl str =
   let dec = Uutf.decoder ~encoding:`UTF_8 (`String str) in
   let buf = Buffer.create (String.length str) in
   let rec aux in_error =
@@ -1276,7 +1286,7 @@ let shuffle (str : string) : string =
     in [str] using the given [Random.State.t] as the random source. This is
     equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
     bytes. *)
-let shuffle_source (str : string) (rand : Random.State.t) : string =
+let shuffle_source ~rand str =
   let uchars = decode_utf8 str in
   let arr = Array.of_list uchars in
   let n = Array.length arr in
@@ -1300,7 +1310,7 @@ let shuffle_source (str : string) (rand : Random.State.t) : string =
     Raises [Invalid_argument] if indices are out of range.
 
     This is equivalent to PHP's mb_substr. *)
-let slice (str : string) (start : int) (end_ : int) : string =
+let slice ~start ~end_ str =
   let uchars = decode_utf8 str in
   let len = List.length uchars in
   if start < 0 || start > len then invalid_arg "slice: start out of range";
@@ -1327,10 +1337,10 @@ let slice (str : string) (start : int) (end_ : int) : string =
     This is equivalent to Ruby's String#squeeze.
 
     Examples:
-    - squeeze "hello" "" = "helo"
-    - squeeze "hello" "m-z" = "hello"
-    - squeeze "hello world" " " = "hello world" *)
-let squeeze (str : string) (pattern : string) : string =
+    - squeeze ~pattern:"" "hello" = "helo"
+    - squeeze ~pattern:"m-z" "hello" = "hello"
+    - squeeze ~pattern:" " "hello world" = "hello world" *)
+let squeeze ~pattern str =
   let matcher = if pattern = "" then fun _ -> true else build_matcher pattern in
   let uchars = decode_utf8 str in
   let rec aux prev acc = function
@@ -1340,3 +1350,14 @@ let squeeze (str : string) (pattern : string) : string =
         else aux (Some u) (u :: acc) tl
   in
   encode_utf8 (aux None [] uchars)
+
+let length str =
+  let dec = Uutf.decoder ~encoding:`UTF_8 (`String str) in
+  let rec loop acc =
+    match Uutf.decode dec with
+    | `Uchar _ -> loop (acc + 1)
+    | `Malformed _ -> loop (acc + 1)
+    | `End -> acc
+    | `Await -> acc
+  in
+  loop 0
