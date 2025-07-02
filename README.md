@@ -35,371 +35,155 @@ The latest API documentation is published at:
 👉 [https://nao1215.github.io/stringx/stringx/Stringx/index.html](https://nao1215.github.io/stringx/stringx/Stringx/index.html)
 
 ```ocaml
-module Stringx : sig
-  module Levenshtein : sig
-    val distance : string -> string -> int
-    (** Compute Levenshtein edit distance (Unicode-aware).
-        Example: distance "kitten" "sitting" = 3 *)
-  end
+(** Computes the Levenshtein distance between two UTF-8 strings. *)
+val distance : s:string -> t:string -> int
 
-  val center : string -> int -> string -> string
-  (** Center a string using a given pad string (Unicode-aware).
-      Example: center "hello" 10 " " = "  hello   " *)
+(** Centers a string within a specified length, padding as needed. *)
+val center : len:int -> pad:string -> string -> string
 
-  val contains : string -> string -> bool
-  (** Check if [substr] is present in [s] (byte-based).
-      Example: contains "seafood" "foo" = true *)
+(** Counts Unicode characters in a string that match a given pattern. *)
+val count : pattern:string -> string -> int
 
-  val contains_any : string -> string -> bool
-  (** Check if any Unicode code point in [chars] is present in [s].
-      Example: contains_any "fail" "ui" = true *)
+(** Deletes Unicode characters from a string that match a given pattern. *)
+val delete : pattern:string -> string -> string
 
-  val count : string -> string -> int
-  (** Count Unicode characters in a string that match a pattern.
-      Supports ranges ("a-z"), negation ("^0-9"), and Unicode ranges.
-      Example: count "hello" "aeiou" = 2 *)
+(** Returns the number of Unicode code points in a string. *)
+val length : string -> int
 
-  val count_substring : string -> string -> int
-  (** Count non-overlapping occurrences of [substr] in [s] (byte-based).
-      Example: count_substring "cheese" "e" = 3 *)
+(** Reverses a UTF-8 encoded string by Unicode code points. *)
+val reverse : string -> string
 
-  val delete : string -> string -> string
-  (** Remove all Unicode characters in a string that match a pattern.
-      Supports ranges ("a-z"), negation ("^0-9"), and Unicode ranges.
-      Example: delete "hello" "aeiou" = "hll" *)
+(** Checks if a string contains a specific substring. *)
+val contains : substr:string -> string -> bool
 
-  val equal_fold : string -> string -> bool
-  (** Compare two strings for equality, ignoring ASCII case.
-      Example: equal_fold "Go" "go" = true *)
+(** Checks if a string contains any Unicode code points from a given set. *)
+val contains_any : chars:string -> string -> bool
 
-  val expand_tabs : string -> int -> string
-  (** Expand tab characters ('\\t') in the string to spaces, depending on the current column and tab size.
-      The column is reset to zero after each newline ('\\n'). CJK characters are treated as width 2.
-      Raises [Invalid_argument] if [tab_size] <= 0.
-      Example: expand_tabs "a\\tbc\\tdef\\tghij\\tk" 4 = "a   bc  def ghij    k" *)
+(** Checks if a string starts with a given prefix. *)
+val has_prefix : prefix:string -> string -> bool
 
-  val first_rune_to_lower : string -> string
-  (** Convert the first Unicode code point to lower case if it is an uppercase ASCII letter.
-      Unicode-aware: only the first code point is affected, the rest are unchanged.
-      Examples:
-      - first_rune_to_lower "CamelCase" = "camelCase"
-      - first_rune_to_lower "CAMEL" = "cAMEL"
-      - first_rune_to_lower "こんにちは" = "こんにちは"
-  *)
+(** Checks if a string ends with a given suffix. *)
+val has_suffix : suffix:string -> string -> bool
 
-  val first_rune_to_upper : string -> string
-  (** Convert the first Unicode code point to upper case if it is a lowercase ASCII letter.
-      Unicode-aware: only the first code point is affected, the rest are unchanged.
-      Examples:
-      - first_rune_to_upper "camelCase" = "CamelCase"
-      - first_rune_to_upper "CamelCase" = "CamelCase"
-      - first_rune_to_upper "camel" = "Camel"
-      - first_rune_to_upper "こんにちは" = "こんにちは"
-  *)
+(** Counts non-overlapping occurrences of a substring. *)
+val count_substring : substr:string -> string -> int
 
-  val fields : string -> string list
-  (** Split a string by runs of Unicode whitespace. Returns an empty list if only whitespace.
-      Example: fields "  foo bar  baz   " = ["foo"; "bar"; "baz"] *)
+(** Compares two strings for equality, ignoring case (ASCII only). *)
+val equal_fold : other:string -> string -> bool
 
-  val fields_func : string -> (Uchar.t -> bool) -> string list
-  (** Split a string at runs of code points where [f] returns true.
-      Example: fields_func "foo1;bar2,baz3" (fun c -> not (is_letter c || is_number c)) = ["foo1"; "bar2"; "baz3"] *)
+(** Splits a string into a list of words, using whitespace as a delimiter. *)
+val fields : string -> string list
 
-  val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
-  (** Return a new string by applying the given function to each Unicode code point in the input string.
-      If the function returns [Some u'], [u'] is included in the result; if [None], the code point is dropped.
-      Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
-      Example: let drop_vowel u = match Uchar.to_int u with
-        | c when List.mem c [Char.code 'a'; Char.code 'e'; Char.code 'i'; Char.code 'o'; Char.code 'u'] -> None
-        | _ -> Some u
-      in filter_map drop_vowel "hello" = "hll" *)
+(** Splits a string using a custom delimiter function. *)
+val fields_func : f:(Uchar.t -> bool) -> string -> string list
 
-  val fold : ('acc -> Uchar.t -> 'acc) -> 'acc -> string -> 'acc
-  (** Apply the given function to each Unicode code point in the string, carrying along an accumulator.
-      Returns the final accumulator value.
-      Unicode-aware: decodes the string into code points and applies the function to each.
-      Example: fold (fun acc _ -> acc + 1) 0 "hello" = 5 *)
+(** Finds the first index of a substring. *)
+val index : substr:string -> string -> int
 
-  val has_prefix : string -> string -> bool
-  (** Check if [s] starts with [prefix] (byte-based).
-      Example: has_prefix "Gopher" "Go" = true *)
+(** Repeats a string a specified number of times. *)
+val repeat : count:int -> string -> string
 
-  val has_suffix : string -> string -> bool
-  (** Check if [s] ends with [suffix] (byte-based).
-      Example: has_suffix "Amigo" "go" = true *)
+(** Joins a list of strings into a single string with a separator. *)
+val join : sep:string -> string list -> string
 
-  val index : string -> string -> int
-  (** Return the byte offset of the first occurrence of [substr] in [s], or -1 if not found.
-      Example: index "chicken" "ken" = 4 *)
+(** Removes leading and trailing characters from a string that are in a given set. *)
+val trim : cutset:string -> string -> string
 
-  val insert : string -> string -> int -> string
-  (** Insert [src] into [dst] at the given Unicode code point index.
-      Index is counted by code points (runes), not bytes.
-      Raises [Invalid_argument] if [index] is out of range (index < 0 or index > length of [dst]).
-      Examples:
-      - insert "CamelCase" "Super" 5 = "CamelSuperCase"
-      - insert "こんにちは" "世界" 2 = "こん世界にちは"
-  *)
+(** Removes leading and trailing characters from a string based on a predicate. *)
+val trim_func : f:(Uchar.t -> bool) -> string -> string
 
-  val iter : (Uchar.t -> unit) -> string -> unit
-  (** Apply the given function to each Unicode code point in the string, in sequence, for side effects only.
-      Unicode-aware: decodes the string into code points and applies the function to each.
-      Example: iter (fun u -> print_endline (Uchar.to_string u)) "abc😊" *)
+(** Removes leading characters from a string that are in a given set. *)
+val trim_left : cutset:string -> string -> string
 
-  val join : string list -> string -> string
-  (** Join a list of strings with a separator.
-      Example: join ["foo"; "bar"; "baz"] ", " = "foo, bar, baz" *)
+(** Removes leading characters from a string based on a predicate. *)
+val trim_left_func : f:(Uchar.t -> bool) -> string -> string
 
-  val last_partition : string -> string -> string * string * string
-  (** Split [str] by the last instance of [sep] into three parts: ([head], [match], [tail]).
-      If [sep] is found, [head] is the part before the last [sep], [match] is [sep], and [tail] is the part after.
-      If [sep] is not found, returns ("", "", [str]). Operates on bytes, not code points.
-      Examples:
-      - last_partition "hello" "l" = ("hel", "l", "o")
-      - last_partition "hello" "x" = ("", "", "hello")
-  *)
+(** Removes trailing characters from a string that are in a given set. *)
+val trim_right : cutset:string -> string -> string
 
-  val left_justify : string -> int -> string -> string
-  (** Left-justify [s] in a string of [width] Unicode code points, padding with [pad] on the right if needed.
-      If [s] is longer than [width], it is returned unchanged.
-      If [pad] is empty, [s] is returned unchanged. Padding is truncated as needed.
-      Unicode-aware: counts code points, not bytes.
-      Examples:
-      - left_justify "hello" 4 " " = "hello"
-      - left_justify "hello" 10 " " = "hello     "
-      - left_justify "hello" 10 "123" = "hello12312"
-  *)
+(** Removes trailing characters from a string based on a predicate. *)
+val trim_right_func : f:(Uchar.t -> bool) -> string -> string
 
-  val right_justify : string -> int -> string -> string
-  (** Right-justify [s] in a string of [width] Unicode code points, padding with [pad] on the left if needed.
-      If [s] is longer than [width], it is returned unchanged.
-      If [pad] is empty, [s] is returned unchanged. Padding is truncated as needed.
-      Unicode-aware: counts code points, not bytes.
-      Examples:
-      - right_justify "hello" 4 " " = "hello"
-      - right_justify "hello" 10 " " = "     hello"
-      - right_justify "hello" 10 "123" = "12312hello"
-  *)
+(** Removes leading and trailing whitespace from a string. *)
+val trim_space : string -> string
 
-  val partition : string -> string -> string * string * string
-  (** Split [str] by the first instance of [sep] into three parts: ([head], [match], [tail]).
-      If [sep] is found, [head] is the part before the first [sep], [match] is [sep], and [tail] is the part after.
-      If [sep] is not found, returns ([str], "", ""). Operates on bytes, not code points.
-      Examples:
-      - partition "hello" "l" = ("he", "l", "lo")
-      - partition "hello" "x" = ("hello", "", "")
-  *)
+(** Removes a trailing suffix from a string. *)
+val trim_suffix : suffix:string -> string -> string
 
-  val len : string -> int
-  (** Return the number of Unicode code points (runes) in a UTF-8 string.
-      Example: len "🍎🍏🍊" = 3 *)
+(** Converts a string to lowercase. *)
+val to_lower : string -> string
 
-  val map : (Uchar.t -> Uchar.t) -> string -> string
-  (** Return a copy of the string with all Unicode code points mapped by the given function.
-      The mapping function must return a valid Unicode code point (Uchar.t) for every input; no code points are dropped.
-      Unicode-aware: decodes the string into code points, applies the function, then re-encodes into UTF-8.
-      Example: map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur fyvgul pnzry..." *)
+(** Converts a string to title case. *)
+val to_title : string -> string
 
-  val repeat : string -> int -> string
-  (** Return a new string consisting of [count] copies of [s].
-      Raises [Invalid_argument] if [count] is negative.
-      Example: repeat "na" 2 = "nana" *)
+(** Converts a string to uppercase. *)
+val to_upper : string -> string
 
-  val reverse : string -> string
-  (** Reverse a UTF-8 encoded string by Unicode code points.
-      Example: reverse "こんにちは" = "はちにんこ" *)
+(** Converts a string to camelCase. *)
+val to_camel_case : string -> string
 
-  val to_camel_case : string -> string
-  (** Convert words separated by space, underscore, or hyphen to camel case.
-      Leading, trailing, and duplicate separators are preserved.
-      Example: to_camel_case "some_words" = "someWords"
-      Example: to_camel_case "OCAML_IS_GREAT" = "ocamlIsGreat" *)
+(** Converts a string to kebab-case. *)
+val to_kebab_case : string -> string
 
-  val to_kebab_case : string -> string
-  (** Convert a string to kebab-case.
-      - Uppercase ASCII letters are converted to lowercase.
-      - Word boundaries are detected at transitions from lowercase to uppercase, from letter to digit, and at underscores, spaces, or hyphens.
-      - All word boundaries are replaced with a single hyphen '-'.
-      - Multiple consecutive separators are treated as a single hyphen.
-      - Leading and trailing hyphens are removed.
-      Examples:
-      - to_kebab_case "FirstName" = "first-name"
-      - to_kebab_case "HTTPServer" = "http-server"
-      - to_kebab_case "NoHTTPS" = "no-https"
-      - to_kebab_case "GO_PATH" = "go-path"
-      - to_kebab_case "GO PATH" = "go-path"
-      - to_kebab_case "GO-PATH" = "go-path"
-      - to_kebab_case "http2xx" = "http-2xx"
-      - to_kebab_case "HTTP20xOK" = "http-20x-ok"
-      - to_kebab_case "Duration2m3s" = "duration-2m-3s"
-      - to_kebab_case "Bld4Floor3rd" = "bld4-floor-3rd"
-      - to_kebab_case "abc" = "abc"
-      - to_kebab_case "A" = "a"
-      - to_kebab_case "FooBarBaz" = "foo-bar-baz"
-      - to_kebab_case "" = ""
-  *)
+(** Converts a string to PascalCase. *)
+val to_pascal_case : string -> string
 
-  val to_pascal_case : string -> string
-  (** Convert words separated by space, underscore, or hyphen to PascalCase.
-      - Words are split on '_', '-', or space.
-      - Each word is capitalized (first letter uppercase, rest lowercase).
-      - All-uppercase words are handled (e.g. "OCAML_IS_GREAT" → "OcamlIsGreat").
-      - If there are no separators, the first letter is uppercased, the rest are unchanged.
-      - Leading and trailing underscores are preserved (e.g. "_complex__case_" → "_ComplexCase_").
-      - Multiple consecutive separators are treated as a single word boundary.
-      - Hyphens and spaces are also treated as word boundaries.
-      Examples:
-      - to_pascal_case "some_words" = "SomeWords"
-      - to_pascal_case "_complex__case_" = "_ComplexCase_"
-      - to_pascal_case "OCAML_IS_GREAT" = "OcamlIsGreat"
-      - to_pascal_case "alreadyPascal" = "AlreadyPascal"
-      - to_pascal_case "foo-BarBaz" = "FooBarBaz"
-      - to_pascal_case "word" = "Word"
-      - to_pascal_case "" = ""
-  *)
+(** Converts a string to snake_case. *)
+val to_snake_case : string -> string
 
-  val to_snake_case : string -> string
-  (** Convert a string to snake_case.
-      - Uppercase ASCII letters are converted to lowercase.
-      - Word boundaries are detected at transitions from lowercase to uppercase, from letter to digit, and at underscores, spaces, or hyphens.
-      - All word boundaries are replaced with a single underscore '_'.
-      - Multiple consecutive separators are treated as a single underscore.
-      - Leading and trailing underscores are removed.
-      Examples:
-      - to_snake_case "FirstName" = "first_name"
-      - to_snake_case "HTTPServer" = "http_server"
-      - to_snake_case "NoHTTPS" = "no_https"
-      - to_snake_case "GO_PATH" = "go_path"
-      - to_snake_case "GO PATH" = "go_path"
-      - to_snake_case "GO-PATH" = "go_path"
-      - to_snake_case "http2xx" = "http_2xx"
-      - to_snake_case "HTTP20xOK" = "http_20x_ok"
-      - to_snake_case "Duration2m3s" = "duration_2m3s"
-      - to_snake_case "Bld4Floor3rd" = "bld4_floor_3rd"
-      - to_snake_case "abc" = "abc"
-      - to_snake_case "A" = "a"
-      - to_snake_case "FooBarBaz" = "foo_bar_baz"
-      - to_snake_case "" = ""
-  *)
+(** Applies a function to each Unicode code point in a string. *)
+val map : f:(Uchar.t -> Uchar.t) -> string -> string
 
-  val to_lower : string -> string
-  (** Convert all Unicode letters in [s] to lower case (ASCII only).
-      Example: to_lower "Camel" = "camel" *)
+(** Maps and filters Unicode code points in a string. *)
+val filter_map : f:(Uchar.t -> Uchar.t option) -> string -> string
 
-  val to_title : string -> string
-  (** Convert all Unicode letters in [s] to Unicode title case (ASCII only).
-      TODO: Support full Unicode title case in the future.
-      Example: to_title "her royal highness" = "HER ROYAL HIGHNESS" *)
+(** Iterates over the Unicode code points in a string. *)
+val iter : f:(Uchar.t -> unit) -> string -> unit
 
-  val to_upper : string -> string
-  (** Convert all Unicode letters in [s] to upper case (ASCII only).
-      Example: to_upper "Camel" = "CAMEL" *)
+(** Folds over the Unicode code points in a string. *)
+val fold : f:('acc -> Uchar.t -> 'acc) -> init:'acc -> string -> 'acc
 
-  val trim : string -> string -> string
-  (** Trim all leading and trailing Unicode code points in [cutset] from [s].
-      Unicode-aware.
-      Example: trim "¡¡¡Hello, Camels!!!" "!¡" = "Hello, Camels" *)
+(** Expands tab characters to spaces. *)
+val expand_tabs : tab_size:int -> string -> string
 
-  val trim_func : string -> (Uchar.t -> bool) -> string
-  (** Trim all leading and trailing Unicode code points in [s] that satisfy [f].
-      Unicode-aware.
-      Example: trim_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Camels" *)
+(** Converts the first Unicode code point of a string to lowercase. *)
+val first_rune_to_lower : string -> string
 
-  val trim_left : string -> string -> string
-  (** Trim all leading Unicode code points in [cutset] from [s].
-      Unicode-aware.
-      Example: trim_left "¡¡¡Hello, Camels!!!" "!¡" = "Hello, Camels!!!" *)
+(** Converts the first Unicode code point of a string to uppercase. *)
+val first_rune_to_upper : string -> string
 
-  val trim_left_func : string -> (Uchar.t -> bool) -> string
-  (** Trim all leading Unicode code points in [s] that satisfy [f].
-      Unicode-aware.
-      Example: trim_left_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number c)) = "Hello, Camels!!!" *)
+(** Inserts a string into another at a specified index. *)
+val insert : src:string -> index:int -> string -> string
 
-  val trim_right : string -> string -> string
-  (** Trim all trailing Unicode code points in [cutset] from [s].
-      Unicode-aware.
-      Example: trim_right "¡¡¡Hello, Camels!!!" "!¡" = "¡¡¡Hello, Camels" *)
+(** Partitions a string by the last occurrence of a separator. *)
+val last_partition : sep:string -> string -> string * string * string
 
-  val trim_right_func : string -> (Uchar.t -> bool) -> string
-  (** Trim all trailing Unicode code points in [s] that satisfy [f].
-      Unicode-aware.
-      Example: trim_right_func "¡¡¡Hello, Camels!!!" (fun c -> not (is_letter c || is_number c)) = "¡¡¡Hello, Camels" *)
+(** Left-justifies a string within a specified width. *)
+val left_justify : width:int -> pad:string -> string -> string
 
-  val trim_space : string -> string
-  (** Trim all leading and trailing Unicode whitespace from [s].
-      Unicode-aware.
-      Example: trim_space " \t\n Hello, Camels \n\t\r\n" = "Hello, Camels" *)
+(** Partitions a string by the first occurrence of a separator. *)
+val partition : sep:string -> string -> string * string * string
 
-  val trim_suffix : string -> string -> string
-  (** Remove the provided trailing [suffix] from [s] if present (byte-based).
-      Example: trim_suffix "¡¡¡Hello, Camels!!!" ", Camels!!!" = "¡¡¡Hello" *)
+(** Right-justifies a string within a specified width. *)
+val right_justify : width:int -> pad:string -> string -> string
 
-  val rune_width : Uchar.t -> int
-  (** [rune_width u] returns the character width of Unicode code point [u] in a monotype font.
-      Multi-byte (East Asian wide) characters are usually twice the width of single byte characters.
+(** Returns the display width of a Unicode code point. *)
+val rune_width : Uchar.t -> int
 
-      The algorithm is based on PHP's mb_strwidth.
-      See: http://php.net/manual/en/function.mb-strwidth.php
+(** Replaces invalid UTF-8 sequences in a string. *)
+val scrub : repl:string -> string -> string
 
-      Example:
-      - rune_width (Uchar.of_int 0x3042) = 2  (* Hiragana 'あ' *)
-      - rune_width (Uchar.of_int (Char.code 'a')) = 1
-  *)
+(** Randomly shuffles the Unicode code points in a string. *)
+val shuffle : string -> string
 
-  val scrub : string -> string -> string
-  (** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
-      Adjacent invalid bytes are replaced only once.
-      Unicode-aware.
-      Examples:
-      - scrub "a\xffb" "?" = "a?b"
-      - scrub "a\xff\xffb" "?" = "a?b"
-      - scrub "a\xffb\xff" "?" = "a?b?"
-      - scrub "abc" "?" = "abc"
-  *)
+(** Shuffles a string using a provided random source. *)
+val shuffle_source : rand:Random.State.t -> string -> string
 
-  val shuffle : string -> string
-  (** Randomize the order of Unicode code points in a string.
-      Uses OCaml's Random module as the random source.
-      Unicode-aware: shuffles by code points, not bytes.
-      Example: shuffle "Camel" might return "eCaml", "lCema", etc.
-      Example: shuffle "こんにちは" might return "にちこんは", etc.
-  *)
+(** Extracts a slice of a string by Unicode code point indices. *)
+val slice : start:int -> end_:int -> string -> string
 
-  val shuffle_source : string -> Random.State.t -> string
-  (** Randomize the order of Unicode code points in a string using the given random state.
-      Uses [Random.State.t] as the random source.
-      Unicode-aware: shuffles by code points, not bytes.
-      Example: shuffle_source "Camel" (Random.State.make [|42|]) might return "eCaml", "lCema", etc.
-      Example: shuffle_source "こんにちは" (Random.State.make [|42|]) might return "にちこんは", etc.
-  *)
-
-  val slice : string -> int -> int -> string
-  (** Slice a string by Unicode code points (runes).
-      Returns the substring from [start] (inclusive) to [end_] (exclusive).
-      - [start] must satisfy 0 <= start <= rune length.
-      - [end_] can be positive, zero, or negative.
-        - If [end_] >= 0, then start <= end_ <= rune length.
-        - If [end_] < 0, it means slice to the end of string.
-      Raises [Invalid_argument] if indices are out of range.
-      This is equivalent to PHP's mb_substr.
-      Examples:
-      - slice "CamelCase" 0 5 = "Camel"
-      - slice "CamelCase" 5 (-1) = "Case"
-      - slice "こんにちは" 2 4 = "にち"
-      - slice "こんにちは" 2 (-1) = "にちは"
-  *)
-
-  val squeeze : string -> string -> string
-  (** Delete adjacent repeated Unicode code points in a string.
-      If [pattern] is not empty, only code points matching [pattern] are squeezed.
-      Unicode-aware: operates on code points, not bytes.
-      This is equivalent to Ruby's String#squeeze.
-      Examples:
-      - squeeze "hello" "" = "helo"
-      - squeeze "hello" "m-z" = "hello"
-      - squeeze "hello   world" " " = "hello world"
-  *)
-end
+(** Removes consecutive repeated characters that match a pattern. *)
+val squeeze : pattern:string -> string -> string
 ```
 
 ---

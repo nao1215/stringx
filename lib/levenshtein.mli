@@ -1,18 +1,16 @@
-val distance : string -> string -> int
-(** [distance s t] computes the Levenshtein (edit) distance between two UTF-8
-    encoded strings.
+val distance : s:string -> t:string -> int
+(** [distance ~s ~t] computes the Levenshtein edit distance between two UTF-8
+    encoded strings. This function correctly handles multibyte characters,
+    including Japanese, Chinese, emoji, and other Unicode symbols.
 
-    The Levenshtein distance is the minimum number of single-character edits
-    (insertions, deletions, or substitutions) required to transform one string
-    into another.
+    The edit distance is the minimum number of single-character edits
+    (insertions, deletions, or substitutions) required to change one string into
+    the other.
 
-    This implementation is Unicode-aware and correctly handles multibyte
-    characters such as Japanese, Chinese, emoji, and accented letters.
-
-    Examples:
-    - [distance "kitten" "sitting"] returns [3]
-    - [distance "こんにちは" "こんばんは"] returns [2]
-    - [distance "🍎" "🍏"] returns [1]
+    Example:
+    - distance ~s:"kitten" ~t:"sitting" = 3
+    - distance ~s:"こんにちは" ~t:"こんばんは" = 2
+    - distance ~s:"🍎" ~t:"🍏" = 1
 
     Malformed UTF-8 sequences are replaced with ['?'] during decoding.
 

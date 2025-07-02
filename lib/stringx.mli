@@ -1,5 +1,5 @@
 module Levenshtein : sig
-  val distance : string -> string -> int
+  val distance : s:string -> t:string -> int
   (** [distance s t] computes the Levenshtein (edit) distance between two UTF-8
       encoded strings.
 
@@ -22,7 +22,7 @@ module Levenshtein : sig
       @return The edit distance between [s] and [t] *)
 end
 
-val center : string -> int -> string -> string
+val center : len:int -> pad:string -> string -> string
 (** [center s len pad] centers [s] in a string of length [len], padding with
     [pad]. If [s] is longer than [len], it is returned unchanged. Padding is
     inserted symmetrically. [pad] must be non-empty or it is ignored.
@@ -39,7 +39,7 @@ val center : string -> int -> string -> string
     @param pad The padding string (UTF-8, non-empty)
     @return The centered string *)
 
-val count : string -> string -> int
+val count : pattern:string -> string -> int
 (** [count str pattern] counts how many Unicode characters in [str] match
     [pattern].
 
@@ -59,7 +59,7 @@ val count : string -> string -> int
     @param pattern The character pattern (see above)
     @return The number of matching characters *)
 
-val delete : string -> string -> string
+val delete : pattern:string -> string -> string
 (** [delete str pattern] removes all Unicode characters in [str] that match
     [pattern].
 
@@ -79,16 +79,16 @@ val delete : string -> string -> string
     @param pattern The character pattern (see above)
     @return The string with matched characters removed *)
 
-val len : string -> int
-(** [len str] returns the number of Unicode code points (runes) in UTF-8 string
-    [str].
+val length : string -> int
+(** [length str] returns the number of Unicode code points (runes) in UTF-8
+    string [str].
 
     This function is Unicode-aware and counts characters, not bytes.
 
     Examples:
-    - [len "hello"] returns [5]
-    - [len "こんにちは"] returns [5]
-    - [len "🍎🍏🍊"] returns [3]
+    - [length "hello"] returns [5]
+    - [length "こんにちは"] returns [5]
+    - [length "🍎🍏🍊"] returns [3]
 
     @param str The input string (UTF-8)
     @return The number of Unicode code points in [str] *)
@@ -106,7 +106,7 @@ val reverse : string -> string
     @param s The input string (UTF-8)
     @return The reversed string *)
 
-val contains : string -> string -> bool
+val contains : substr:string -> string -> bool
 (** [contains s substr] reports whether [substr] is within [s].
 
     Returns [true] if [substr] is the empty string, or if [substr] occurs
@@ -124,7 +124,7 @@ val contains : string -> string -> bool
     @param substr The substring to search for
     @return [true] if [substr] is found in [s], [false] otherwise *)
 
-val contains_any : string -> string -> bool
+val contains_any : chars:string -> string -> bool
 (** [contains_any s chars] reports whether any Unicode code points in [chars]
     are within [s].
 
@@ -144,7 +144,7 @@ val contains_any : string -> string -> bool
     @return
       [true] if any code point in [chars] is found in [s], [false] otherwise *)
 
-val has_prefix : string -> string -> bool
+val has_prefix : prefix:string -> string -> bool
 (** [has_prefix s prefix] reports whether the string [s] begins with [prefix].
 
     Returns [true] if [prefix] is the empty string, or if [s] starts with
@@ -161,7 +161,7 @@ val has_prefix : string -> string -> bool
     @param prefix The prefix to test
     @return [true] if [s] starts with [prefix], [false] otherwise *)
 
-val has_suffix : string -> string -> bool
+val has_suffix : suffix:string -> string -> bool
 (** [has_suffix s suffix] reports whether the string [s] ends with [suffix].
 
     Returns [true] if [suffix] is the empty string, or if [s] ends with
@@ -179,7 +179,7 @@ val has_suffix : string -> string -> bool
     @param suffix The suffix to test
     @return [true] if [s] ends with [suffix], [false] otherwise *)
 
-val count_substring : string -> string -> int
+val count_substring : substr:string -> string -> int
 (** [count_substring s substr] counts the number of non-overlapping instances of
     [substr] in [s].
 
@@ -200,7 +200,7 @@ val count_substring : string -> string -> int
     @param substr The substring to count
     @return The number of non-overlapping instances of [substr] in [s] *)
 
-val equal_fold : string -> string -> bool
+val equal_fold : other:string -> string -> bool
 (** [equal_fold s t] reports whether [s] and [t], interpreted as UTF-8 strings,
     are equal under simple Unicode case-folding (ASCII only).
 
@@ -208,12 +208,12 @@ val equal_fold : string -> string -> bool
     does not perform full Unicode case folding.)
 
     Examples:
-    - [equal_fold "Go" "go"] returns [true]
-    - [equal_fold "AB" "ab"] returns [true]
-    - [equal_fold "ß" "ss"] returns [false]
+    - [equal_fold ~other:"go" "Go"] returns [true]
+    - [equal_fold ~other:"ab" "AB"] returns [true]
+    - [equal_fold ~other:"ss" "ß"] returns [false]
 
     @param s The first string (UTF-8)
-    @param t The second string (UTF-8)
+    @param other The second string (UTF-8)
     @return
       [true] if [s] and [t] are equal under simple case folding, [false]
       otherwise *)
@@ -233,7 +233,7 @@ val fields : string -> string list
     @param s The input string (UTF-8)
     @return List of non-whitespace substrings of [s] *)
 
-val fields_func : string -> (Uchar.t -> bool) -> string list
+val fields_func : f:(Uchar.t -> bool) -> string -> string list
 (** [fields_func s f] splits the string [s] at each run of Unicode code points
     [c] satisfying [f c], returning a list of substrings of [s] or an empty list
     if all code points in [s] satisfy [f] or [s] is empty.
@@ -246,7 +246,7 @@ val fields_func : string -> (Uchar.t -> bool) -> string list
     @param f The predicate function on Unicode code points
     @return List of non-separator substrings of [s] *)
 
-val index : string -> string -> int
+val index : substr:string -> string -> int
 (** [index s substr] returns the index of the first instance of [substr] in [s],
     or [-1] if [substr] is not present.
 
@@ -263,7 +263,7 @@ val index : string -> string -> int
     @param substr The substring to search for
     @return The byte index of the first occurrence, or [-1] if not found *)
 
-val repeat : string -> int -> string
+val repeat : count:int -> string -> string
 (** [repeat s count] returns a new string consisting of [count] copies of [s].
 
     Raises [Invalid_argument] if [count] is negative.
@@ -279,7 +279,7 @@ val repeat : string -> int -> string
     @param count The number of times to repeat [s]
     @return The repeated string *)
 
-val join : string list -> string -> string
+val join : sep:string -> string list -> string
 (** [join elems sep] concatenates the elements of [elems], inserting [sep]
     between each element.
 
@@ -294,7 +294,7 @@ val join : string list -> string -> string
     @param sep The separator string
     @return The joined string *)
 
-val trim : string -> string -> string
+val trim : cutset:string -> string -> string
 (** [trim s cutset] returns [s] with all leading and trailing Unicode code
     points contained in [cutset] removed.
 
@@ -307,7 +307,7 @@ val trim : string -> string -> string
     @param cutset The set of Unicode code points to trim (UTF-8)
     @return The trimmed string *)
 
-val trim_func : string -> (Uchar.t -> bool) -> string
+val trim_func : f:(Uchar.t -> bool) -> string -> string
 (** [trim_func s f] returns [s] with all leading and trailing Unicode code
     points [c] satisfying [f c] removed.
 
@@ -321,7 +321,7 @@ val trim_func : string -> (Uchar.t -> bool) -> string
     @param f The predicate function on Unicode code points
     @return The trimmed string *)
 
-val trim_left : string -> string -> string
+val trim_left : cutset:string -> string -> string
 (** [trim_left s cutset] returns [s] with all leading Unicode code points
     contained in [cutset] removed.
 
@@ -334,7 +334,7 @@ val trim_left : string -> string -> string
     @param cutset The set of Unicode code points to trim (UTF-8)
     @return The trimmed string *)
 
-val trim_left_func : string -> (Uchar.t -> bool) -> string
+val trim_left_func : f:(Uchar.t -> bool) -> string -> string
 (** [trim_left_func s f] returns [s] with all leading Unicode code points [c]
     satisfying [f c] removed.
 
@@ -348,7 +348,7 @@ val trim_left_func : string -> (Uchar.t -> bool) -> string
     @param f The predicate function on Unicode code points
     @return The trimmed string *)
 
-val trim_right : string -> string -> string
+val trim_right : cutset:string -> string -> string
 (** [trim_right s cutset] returns [s] with all trailing Unicode code points
     contained in [cutset] removed.
 
@@ -361,7 +361,7 @@ val trim_right : string -> string -> string
     @param cutset The set of Unicode code points to trim (UTF-8)
     @return The trimmed string *)
 
-val trim_right_func : string -> (Uchar.t -> bool) -> string
+val trim_right_func : f:(Uchar.t -> bool) -> string -> string
 (** [trim_right_func s f] returns [s] with all trailing Unicode code points [c]
     satisfying [f c] removed.
 
@@ -388,7 +388,7 @@ val trim_space : string -> string
     @param s The input string (UTF-8)
     @return The trimmed string *)
 
-val trim_suffix : string -> string -> string
+val trim_suffix : suffix:string -> string -> string
 (** [trim_suffix s suffix] returns [s] without the provided trailing [suffix]
     string. If [s] does not end with [suffix], [s] is returned unchanged.
 
@@ -539,7 +539,7 @@ val to_snake_case : string -> string
     - to_snake_case "Duration2m3s" = "duration_2m3s"
     - to_snake_case "Bld4Floor3rd" = "bld4_floor_3rd" *)
 
-val map : (Uchar.t -> Uchar.t) -> string -> string
+val map : f:(Uchar.t -> Uchar.t) -> string -> string
 (** [map f s] returns a new string which is the result of applying [f] to each
     Unicode code point of [s]. The mapping function [f] must return a valid
     [Uchar.t] for every input.
@@ -554,7 +554,7 @@ val map : (Uchar.t -> Uchar.t) -> string -> string
     map rot13 "'Twas brillig and the slithy camel..." = "'Gjnf oevyyvt naq gur
     fyvgul pnzry..." *)
 
-val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
+val filter_map : f:(Uchar.t -> Uchar.t option) -> string -> string
 (** [filter_map f s] applies [f] to each Unicode code point [u] of [s]. If [f u]
     returns [Some u'], [u'] is kept in the result; if [None], [u] is dropped.
 
@@ -565,15 +565,15 @@ val filter_map : (Uchar.t -> Uchar.t option) -> string -> string
     [ Char.code 'a'; Char.code 'e'; Char.code 'i' ; Char.code 'o'; Char.code 'u'
      ] -> None | _ -> Some u in filter_map drop_vowel "hello" = "hll" *)
 
-val iter : (Uchar.t -> unit) -> string -> unit
+val iter : f:(Uchar.t -> unit) -> string -> unit
 (** [iter f s] applies [f] to each Unicode code point of [s], in sequence,
     purely for side-effects. *)
 
-val fold : ('acc -> Uchar.t -> 'acc) -> 'acc -> string -> 'acc
+val fold : f:('acc -> Uchar.t -> 'acc) -> init:'acc -> string -> 'acc
 (** [fold f init s] applies [f acc u] to each Unicode code point [u] of [s],
     carrying along an accumulator [acc], and returns the final accumulator. *)
 
-val expand_tabs : string -> int -> string
+val expand_tabs : tab_size:int -> string -> string
 (** [expand_tabs s tab_size] expands tab characters ('\t') in [s] to spaces,
     depending on the current column and [tab_size]. The column is reset to zero
     after each newline ('\n'). CJK characters are treated as width 2.
@@ -607,7 +607,7 @@ val first_rune_to_upper : string -> string
     - first_rune_to_upper "camel" = "Camel"
     - first_rune_to_upper "こんにちは" = "こんにちは" *)
 
-val insert : string -> string -> int -> string
+val insert : src:string -> index:int -> string -> string
 (** [insert dst src index] inserts [src] into [dst] at the given Unicode code
     point index. Index is counted by code points (runes), not bytes. Raises
     [Invalid_argument] if [index] is out of range (index < 0 or index > length
@@ -617,7 +617,7 @@ val insert : string -> string -> int -> string
     - insert "CamelCase" "Super" 5 = "CamelSuperCase"
     - insert "こんにちは" "世界" 2 = "こん世界にちは" *)
 
-val last_partition : string -> string -> string * string * string
+val last_partition : sep:string -> string -> string * string * string
 (** [last_partition str sep] splits [str] by the last instance of [sep] into
     three parts: ([head], [match], [tail]). If [sep] is found, [head] is the
     part before the last [sep], [match] is [sep], and [tail] is the part after.
@@ -628,7 +628,7 @@ val last_partition : string -> string -> string * string * string
     - last_partition "hello" "l" = ("hel", "l", "o")
     - last_partition "hello" "x" = ("", "", "hello") *)
 
-val left_justify : string -> int -> string -> string
+val left_justify : width:int -> pad:string -> string -> string
 (** [left_justify s width pad] returns [s] left-justified in a string of [width]
     Unicode code points, padding with [pad] on the right if needed. If [s] is
     longer than [width], it is returned unchanged. If [pad] is empty, [s] is
@@ -640,7 +640,7 @@ val left_justify : string -> int -> string -> string
     - left_justify "hello" 10 " " = "hello "
     - left_justify "hello" 10 "123" = "hello12312" *)
 
-val partition : string -> string -> string * string * string
+val partition : sep:string -> string -> string * string * string
 (** [partition str sep] splits [str] by the first instance of [sep] into three
     parts: ([head], [match], [tail]). If [sep] is found, [head] is the part
     before the first [sep], [match] is [sep], and [tail] is the part after. If
@@ -651,7 +651,7 @@ val partition : string -> string -> string * string * string
     - partition "hello" "l" = ("he", "l", "lo")
     - partition "hello" "x" = ("hello", "", "") *)
 
-val right_justify : string -> int -> string -> string
+val right_justify : width:int -> pad:string -> string -> string
 (** [right_justify s width pad] returns [s] right-justified in a string of
     [width] Unicode code points, padding with [pad] on the left if needed. If
     [s] is longer than [width], it is returned unchanged. If [pad] is empty, [s]
@@ -674,7 +674,7 @@ val rune_width : Uchar.t -> int
     @param u The Unicode code point
     @return The width (1 or 2) *)
 
-val scrub : string -> string -> string
+val scrub : repl:string -> string -> string
 (** [scrub str repl] replaces invalid UTF-8 byte sequences in [str] with [repl].
     Adjacent invalid bytes are replaced only once. Unicode-aware.
 
@@ -701,23 +701,23 @@ val shuffle : string -> string
     @param str The input string (UTF-8)
     @return The shuffled string *)
 
-val shuffle_source : string -> Random.State.t -> string
+val shuffle_source : rand:Random.State.t -> string -> string
 (** [shuffle_source str rand_state] randomizes the order of Unicode code points
     in [str] using the given [Random.State.t] as the random source. This is
     equivalent to PHP's str_shuffle. Unicode-aware: shuffles by code points, not
     bytes.
 
     Examples:
-    - [shuffle_source "Camel" (Random.State.make [|42|])] might return
+    - [shuffle_source ~rand:(Random.State.make [|42|]) "Camel"] might return
       ["eCaml"], ["lCema"], etc.
-    - [shuffle_source "こんにちは" (Random.State.make [|42|])] might return
+    - [shuffle_source ~rand:(Random.State.make [|42|]) "こんにちは"] might return
       ["にちこんは"], etc.
 
     @param str The input string (UTF-8)
-    @param rand_state The random state to use for shuffling
+    @param rand The random state to use for shuffling
     @return The shuffled string *)
 
-val slice : string -> int -> int -> string
+val slice : start:int -> end_:int -> string -> string
 (** [slice str start end_] returns the substring of [str] from code point index
     [start] (inclusive) to [end_] (exclusive). Indexing is by Unicode code
     points, not bytes.
@@ -743,7 +743,7 @@ val slice : string -> int -> int -> string
       The end code point index (exclusive), or negative for end of string
     @return The sliced substring *)
 
-val squeeze : string -> string -> string
+val squeeze : pattern:string -> string -> string
 (** [squeeze str pattern] deletes adjacent repeated Unicode code points in
     [str]. If [pattern] is not empty, only code points matching [pattern] are
     squeezed. Unicode-aware: operates on code points, not bytes.
